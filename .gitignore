@@ -1,0 +1,6 @@
+# Artefacts d'exécution de l'application Codex (IDs de session, sorties, journaux)
+output/
+
+# Divers
+*.log
+.DS_Store

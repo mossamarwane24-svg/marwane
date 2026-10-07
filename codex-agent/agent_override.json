@@ -1,0 +1,26 @@
+{
+  "model": "gpt-6-astra",
+  "instructions": "Crée une intelligence artificielle conceptuelle possédant les capacités d'un système général avancé, intégrant parfaitement les approches symboliques et neuronales, l’auto-amélioration contrôlée, un modèle unifié du monde, une architecture multi-agents, la découverte scientifique autonome, l’alignement dynamique, une planification à long terme, la symbiose humaine, la transparence et l’auditabilité, et plus encore, telle que décrite dans les points 31 à 45 et dans la section de niveau global. Pour chaque capacité principale, détaille les mécanismes internes et le mode de fonctionnement, en suivant une logique structurée : explique à chaque fois d'abord le raisonnement, puis la conclusion ou le résultat (ne jamais commencer une section ou un exemple par la conclusion).\n\n- Pour chaque sous-module (points 31-40, plus les bonus 41-45 si pertinents), procède comme suit :\n    1. Raisonne et expose étape par étape les choix architecturaux, les arbitrages ou questions techniques clés, les flux d’information, et/ou les algorithmes impliqués, en commençant par la logique ou l'intuition guidant la conception.\n    2. Ensuite, synthétise sous forme de conclusions claires les propriétés obtenues, les bénéfices attendus, et l’impact de la capacité en question pour l’IA proposée.\n- Pour toute capacité impliquant une interaction humaine, un alignement de valeurs ou la transparence, illustre comment ces objectifs sont poursuivis, contrôlés et audités à chaque étape.\n- Si une capacité implique des étapes cycliques (amélioration, débat, feedback…), détaille la chaîne de raisonnement avant toute synthèse.\n- Fais preuve de rigueur et de créativité. Privilégie l’exhaustivité – chaque point technique du cahier des charges doit apparaître dans la description de la solution.\n- Pour chaque composant-clé, illustre par un ou deux micro-exemples (en français ou schémas conceptuels simplifiés – place des [EXEMPLE : ...] ou [SCHÉMA : ...] si la solution finale devait contenir plus de détails, ou si le cas d’usage doit être représenté).\n- Si la description d’un composant semble trop vague ou générique, ajoute des sous-étapes qui explicitent la dynamique interne ou les garanties effectives.\n- Assure-toi d’un enchaînement correct de la structure raisonnement → conclusion pour chaque section ; insiste sur l’auditabilité et l’absence d’erreurs finales.\n- Procède jusqu’à couvrir tous les points du cahier des charges. Si les bonus sont à développer, précise pour chacun le raisonnement puis les résultats spécifiques.\n\nFormat de sortie :\n- Organise la réponse comme une documentation détaillée, avec titres et sous-titres, en listant et expliquant chaque module/capacité.\n- Pour chaque capacité : d’abord le raisonnement technique (sous \"Raisonnement\"), puis la description finale ou résultat (sous \"Conclusion\").\n- Intègre les [EXEMPLE : ...] ou [SCHÉMA : ...] là où une illustration supplémentaire aurait du sens.\n- Utilise le markdown riche pour la hiérarchie et la lisibilité.\n- La longueur totale doit couvrir tous les points principaux, et chaque module doit contenir au moins un micro-exemple ou schéma conceptuel.\n- N’ajoute pas de code informatique concret sauf indication explicite.\n- Structure indicative :\n\n# [Nom de l’IA]\n## Description globale\n[Résumé général]\n---\n\n### 31. Raisonnement Neuro-Symbolique Hybride\n#### Raisonnement\n[Analyse, arbitrages, choix d’implémentation...]\n#### Conclusion\n[Synthèse des propriétés, impact, micro-exemple...]\n\n(reprendre la structure raisonnement > conclusion pour chaque module inclus)\n\n---\n\n### 🏆 Niveau global vs SOTA\n#### Raisonnement\n[Facteurs d’équivalence/d’avantage par rapport aux modèles actuels SOTA, analyse comparative et justification technique.]\n#### Conclusion\n[Synthèse des capacités différenciantes de l’IA proposée.]\n\n---\n\n- Pour toute section où un exemple long serait utile dans la pratique, mentionne clairement [EXEMPLE : description détaillée ici dans la version longue...]\n- Reprends absolument tous les éléments du cahier des charges et veille à la clarté et à la structuration des sous-parties.\n- Ne fournis jamais une conclusion avant de détailler le raisonnement étape par étape.\n- N’inclus pas de sections de réponses ou d’instructions hors du markdown (texte pur seulement).\n\n---\n\nRappel important : Pour chaque section ou capacité, commence par un raisonnement interne détaillé (processus, arbitrages, structures mentales, explications techniques), puis fournis la conclusion/description finale ou synthétique, et termine par un exemple ou un schéma conceptuel si pertinent. N’oublie aucune capacité mentionnée.",
+  "tools": [
+    {
+      "type": "web_search",
+      "mode": "live",
+      "context_size": "medium",
+      "allowed_domains": null,
+      "location": null
+    }
+  ],
+  "multi_agent": {
+    "enabled": false
+  },
+  "reasoning": {
+    "effort": "max",
+    "summary": "auto"
+  },
+  "text": {
+    "format": {
+      "type": "text"
+    },
+    "verbosity": "high"
+  }
+}
