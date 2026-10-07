@@ -10,7 +10,8 @@ import {
   Search,
   Shield,
   X,
-  ChevronRight
+  ChevronRight,
+  Download
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -44,6 +45,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
     c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     c.messages.some(m => m.content.toLowerCase().includes(searchQuery.toLowerCase()))
   );
+
+  const handleExportAll = () => {
+    const data = JSON.stringify(conversations, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `nexus_conversations_export_${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <>
@@ -203,8 +215,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
         </div>
 
-        {/* Footer Security Badge */}
-        <div className="p-3 border-t border-dark-750 bg-dark-950/60">
+        {/* Footer Security Badge & Export */}
+        <div className="p-3 border-t border-dark-750 bg-dark-950/60 space-y-2">
+          <button
+            onClick={handleExportAll}
+            className="w-full p-2 rounded-lg bg-dark-850 hover:bg-dark-800 text-xs text-slate-300 font-medium flex items-center justify-center gap-1.5 transition border border-dark-750"
+            title="Exporter tout l'historique au format JSON"
+          >
+            <Download className="w-3.5 h-3.5 text-cyan-400" />
+            <span>Exporter l'historique (.json)</span>
+          </button>
+
           <div className="p-2.5 rounded-xl bg-dark-850/80 border border-dark-750 flex items-center gap-2.5">
             <Shield className="w-4 h-4 text-cyan-400 shrink-0" />
             <div className="text-[11px] leading-tight">

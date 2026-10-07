@@ -10,7 +10,10 @@ import {
   Globe,
   FileText,
   User,
-  RotateCcw
+  RotateCcw,
+  Volume2,
+  VolumeX,
+  FileDown
 } from 'lucide-react';
 
 interface ChatMessageProps {
@@ -27,8 +30,44 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
   const isAssistant = message.role === 'assistant';
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [copiedMessage, setCopiedMessage] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const [inPlaceExecResults, setInPlaceExecResults] = useState<Record<string, { stdout: string; plotImage?: string | null; timeMs: number }>>({});
   const [executingCodeId, setExecutingCodeId] = useState<string | null>(null);
+
+  const handleToggleSpeech = () => {
+    if (!('speechSynthesis' in window)) {
+      alert("La synthèse vocale n'est pas supportée sur ce navigateur.");
+      return;
+    }
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const cleanSpeechText = message.content
+      .replace(/```[\s\S]*?```/g, 'Code informatique.')
+      .replace(/[#*`>|_-]/g, '')
+      .slice(0, 1200);
+
+    const utterance = new SpeechSynthesisUtterance(cleanSpeechText);
+    utterance.lang = 'fr-FR';
+    utterance.rate = 1.05;
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+    window.speechSynthesis.speak(utterance);
+    setIsSpeaking(true);
+  };
+
+  const handleDownloadMarkdown = () => {
+    const blob = new Blob([message.content], { type: 'text/markdown;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `reponse_nexus_${Date.now()}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const handleCopy = async (text: string, id: string) => {
     await navigator.clipboard.writeText(text);
@@ -330,16 +369,40 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
               </span>
             </div>
 
-            {/* Quick Copy Message Action */}
+            {/* Quick Actions for Assistant Message */}
             {isAssistant && (
-              <button
-                onClick={handleCopyMessage}
-                className="text-slate-500 hover:text-slate-300 text-xs flex items-center gap-1 transition p-1"
-                title="Copier l'intégralité de la réponse"
-              >
-                {copiedMessage ? <Check className="w-3.5 h-3.5 text-cyan-400" /> : <Copy className="w-3.5 h-3.5" />}
-                <span className="hidden sm:inline text-[11px]">{copiedMessage ? 'Copié' : 'Copier'}</span>
-              </button>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={handleToggleSpeech}
+                  className={`text-xs flex items-center gap-1 transition px-2 py-0.5 rounded-md border ${
+                    isSpeaking
+                      ? 'bg-indigo-600 text-white border-indigo-500 animate-pulse'
+                      : 'text-slate-400 hover:text-slate-200 border-dark-700 bg-dark-800'
+                  }`}
+                  title={isSpeaking ? 'Arrêter la lecture' : 'Écouter la réponse'}
+                >
+                  {isSpeaking ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                  <span className="hidden sm:inline text-[11px]">{isSpeaking ? 'Arrêter' : 'Écouter'}</span>
+                </button>
+
+                <button
+                  onClick={handleDownloadMarkdown}
+                  className="text-slate-400 hover:text-slate-200 text-xs flex items-center gap-1 transition px-2 py-0.5 rounded-md border border-dark-700 bg-dark-800"
+                  title="Télécharger cette réponse en Markdown (.md)"
+                >
+                  <FileDown className="w-3.5 h-3.5 text-cyan-400" />
+                  <span className="hidden sm:inline text-[11px]">MD</span>
+                </button>
+
+                <button
+                  onClick={handleCopyMessage}
+                  className="text-slate-400 hover:text-slate-200 text-xs flex items-center gap-1 transition px-2 py-0.5 rounded-md border border-dark-700 bg-dark-800"
+                  title="Copier l'intégralité de la réponse"
+                >
+                  {copiedMessage ? <Check className="w-3.5 h-3.5 text-cyan-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span className="hidden sm:inline text-[11px]">{copiedMessage ? 'Copié' : 'Copier'}</span>
+                </button>
+              </div>
             )}
           </div>
 

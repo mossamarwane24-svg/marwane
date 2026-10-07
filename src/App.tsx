@@ -8,7 +8,7 @@ import { ProgressBar } from './components/ProgressBar';
 import { WebPreviewModal } from './components/WebPreviewModal';
 import { PythonSandboxModal } from './components/PythonSandboxModal';
 import { CognitivePillarsModal } from './components/CognitivePillarsModal';
-import { Menu, Globe, Terminal, Cpu, Plus } from 'lucide-react';
+import { Menu, Globe, Terminal, Cpu, Plus, RotateCcw } from 'lucide-react';
 
 const STORAGE_KEY = 'nexus_omega_conversations_v48';
 
@@ -223,6 +223,17 @@ export const App: React.FC = () => {
     handleSendMessage(`Explique en détail le Pilier #${pillar.number} : ${pillar.title}. Présente ses mécanismes clés et comment il garantit 0% d'erreur.`);
   };
 
+  const handleRegenerateLast = () => {
+    const lastUserMsg = [...activeConversation.messages].reverse().find(m => m.role === 'user');
+    if (lastUserMsg && !isLoading) {
+      handleSendMessage(lastUserMsg.content, lastUserMsg.attachedFiles);
+    }
+  };
+
+  const canRegenerate = activeConversation.messages.length > 1 &&
+    activeConversation.messages[activeConversation.messages.length - 1]?.role === 'assistant' &&
+    !isLoading;
+
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-dark-950 text-slate-100 font-sans">
       <Sidebar
@@ -317,6 +328,19 @@ export const App: React.FC = () => {
           {isLoading && (
             <div className="max-w-4xl mx-auto px-4 py-2">
               <ProgressBar currentStage={currentStage} stageLabel={stageLabel} />
+            </div>
+          )}
+
+          {canRegenerate && (
+            <div className="max-w-4xl mx-auto px-4 py-2 flex justify-center">
+              <button
+                onClick={handleRegenerateLast}
+                className="px-3.5 py-1.5 rounded-full bg-dark-850 hover:bg-dark-800 border border-dark-700 text-xs text-slate-400 hover:text-slate-200 flex items-center gap-1.5 transition shadow-sm cursor-pointer active:scale-95"
+                title="Relancer le prompt avec le consensus des 7 agents"
+              >
+                <RotateCcw className="w-3.5 h-3.5 text-cyan-400" />
+                <span>Régénérer la réponse</span>
+              </button>
             </div>
           )}
 
