@@ -74,6 +74,13 @@ export interface Message {
   reasoningTrace?: ReasoningTrace;
   artifacts?: ProjectArtifact[];
   isVerified?: boolean;
+  isStreaming?: boolean;
+  perfMetrics?: {
+    latencyMs: number;
+    tokens: number;
+    tokensPerSec: number;
+    cached?: boolean;
+  };
   pythonExecResult?: {
     stdout: string;
     stderr: string;

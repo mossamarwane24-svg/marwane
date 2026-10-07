@@ -192,44 +192,127 @@ export function buildReasoningTrace(userQuery: string, intent: string, durationM
   };
 }
 
+// Extract conversational profile from previous messages
+export function extractConversationProfile(history?: Message[]): {
+  userName: string | null;
+  lastUserQuery: string | null;
+  lastAssistantContent: string | null;
+  recentMessagesCount: number;
+} {
+  if (!history || history.length === 0) {
+    return { userName: null, lastUserQuery: null, lastAssistantContent: null, recentMessagesCount: 0 };
+  }
+
+  let userName: string | null = null;
+  let lastUserQuery: string | null = null;
+  let lastAssistantContent: string | null = null;
+
+  const nameRegex = /(?:je\s+m['’\s]?\s*appelle|mon\s+nom\s+est|mon\s+pr[eé]nom\s+est|moi\s+c['’\s]?\s*est|appelle[- ]moi)\s+([A-Za-zÀ-ÖØ-öø-ÿ]+)/i;
+
+  for (let i = 0; i < history.length; i++) {
+    const msg = history[i];
+    if (msg.role === 'user') {
+      const text = msg.content;
+      const nameMatch = text.match(nameRegex);
+      if (nameMatch) {
+        userName = nameMatch[1].charAt(0).toUpperCase() + nameMatch[1].slice(1).toLowerCase();
+      }
+      lastUserQuery = text;
+    } else if (msg.role === 'assistant') {
+      lastAssistantContent = msg.content;
+    }
+  }
+
+  return {
+    userName,
+    lastUserQuery,
+    lastAssistantContent,
+    recentMessagesCount: history.length
+  };
+}
+
 // Conversational and Chit-chat responses
-function handleConversational(norm: string): string | null {
+function handleConversational(norm: string, userQuery: string, profile: { userName: string | null; lastAssistantContent: string | null }): string | null {
+  const { userName } = profile;
+
+  // Introduction of user name ("Je m'appelle Thomas", "Salut moi c'est Alex")
+  const nameRegex = /(?:je\s+m['’\s]?\s*appelle|mon\s+nom\s+est|mon\s+pr[eé]nom\s+est|moi\s+c['’\s]?\s*est|appelle[- ]moi)\s+([A-Za-zÀ-ÖØ-öø-ÿ]+)/i;
+  const nameIntroMatch = userQuery.match(nameRegex);
+  if (nameIntroMatch) {
+    const name = nameIntroMatch[1].charAt(0).toUpperCase() + nameIntroMatch[1].slice(1).toLowerCase();
+    return `### ✨ Enchanté, ${name} !
+
+C'est un véritable plaisir de faire votre connaissance. Je retiens précieusement votre prénom pour toute notre discussion !
+
+#### 🚀 Comment puis-je vous aider aujourd'hui, ${name} ?
+- 📐 **Calculs ou mathématiques exactes** (0% d'erreur)
+- 🔬 **Questions scientifiques, spatiales ou historiques**
+- 💻 **Écriture de code Python ou création de sites web interactifs**
+- 💬 **Discussion libre, réflexion ou conseils méthodologiques**
+
+Dites-moi tout ce qui vous ferait plaisir d'explorer !`;
+  }
+
+  // Asking for one's own name ("Comment je m'appelle ?", "Tu te souviens de mon prénom ?")
+  if (
+    norm.includes('comment je m appelle') ||
+    norm.includes('comment je mappelle') ||
+    norm.includes('quel est mon nom') ||
+    norm.includes('quel est mon prenom') ||
+    norm.includes('tu te souviens de moi') ||
+    norm.includes('tu te rappelles de moi') ||
+    norm.includes('qui suis je')
+  ) {
+    if (userName) {
+      return `### 🧠 Bien sûr que je m'en souviens !
+
+Vous vous appelez **${userName}** ! Notre historique de conversation est actif et je conserve parfaitement le fil de nos échanges.
+
+Que souhaitez-vous qu'on fasse ensemble, **${userName}** ?`;
+    } else {
+      return `### 🤔 Nous ne nous sommes pas encore présentés !
+
+Vous ne m'avez pas encore indiqué votre prénom dans cette discussion. Dites-moi simplement : *« Je m'appelle... »*, et je m'en souviendrai pour tout le reste de notre échange !`;
+    }
+  }
+
   // 1. Greetings
   if (
     norm === 'bonjour' || norm === 'salut' || norm === 'hello' ||
     norm === 'coucou' || norm === 'bonsoir' || norm === 'yo' || norm === 'hey' ||
     norm.startsWith('bonjour ') || norm.startsWith('salut ') || norm.startsWith('coucou ')
   ) {
-    return `### 👋 Bonjour et bienvenue !
+    const greetingName = userName ? ` **${userName}**` : '';
+    return `### 👋 Bonjour et bienvenue${greetingName} !
 
-Je suis **NEXUS-OMEGA**, votre assistant d'intelligence artificielle universel. Comment puis-je vous aider aujourd'hui ?
+Je suis **NEXUS-OMEGA**, votre assistant d'intelligence artificielle universel et performant. Comment puis-je vous accompagner aujourd'hui ?
 
-#### 🚀 Vous pouvez me demander par exemple :
-- 📐 **Calculs ou mathématiques** : *« Calcule 25 * 48 »* ou *« Résous 2x + 5 = 15 »*
-- 🔬 **Sciences & Nature** : *« Pourquoi le ciel est bleu ? »*, *« Pourquoi la terre est ronde ? »*, *« Distance Terre-Lune »*
-- 🌍 **Histoire & Géographie** : *« Qui est Napoléon ? »*, *« Capitale de l'Australie »*, *« Qui a peint la Joconde ? »*
+#### 🚀 Quelques exemples de requêtes instantanées :
+- 📐 **Calculs ou algèbre** : *« Calcule 25 * 48 »* ou *« Résous 2x + 5 = 15 »*
+- 🔬 **Sciences & Nature** : *« Pourquoi le ciel est bleu ? »*, *« Distance Terre-Lune »*, *« Pourquoi on bâille ? »*
+- 🌍 **Histoire & Géographie** : *« Qui est Napoléon ? »*, *« Capitale du Canada »*, *« Qui a peint la Joconde ? »*
 - 🍳 **Cuisine & Recettes** : *« Recette des crêpes »*, *« Vraie carbonara »*, *« Cuisson des œufs »*
-- 💻 **Programmation & Outils** : *« Écris un script Python »*, *« Crée-moi un site web moderne »*
+- 💻 **Programmation & Web** : *« Écris un script Python »*, *« Crée-moi un site web responsive »*
 
-Posez simplement votre question, je vous réponds immédiatement et avec précision !`;
+Posez simplement votre question ou formulez votre idée, je vous réponds avec clarté et précision !`;
   }
 
   // 2. Identity / Who are you?
   if (
-    norm.includes('qui es tu') || norm.includes('tu es qui') || norm.includes('qui es tu') ||
+    norm.includes('qui es tu') || norm.includes('tu es qui') ||
     norm.includes('quel est ton nom') || norm.includes('presente toi') || norm.includes('c est quoi nexus')
   ) {
     return `### 🤖 Présentation de NEXUS-OMEGA
 
 Je suis **NEXUS-OMEGA**, un système d'intelligence artificielle fondé sur une **architecture cognitive neuro-symbolique hybride** et une **société de 7 agents spécialisés**.
 
-#### 🏛️ Mes Piliers et Fonctionnalités :
+#### 🏛️ Mes Piliers et Fonctionnalités Clés :
 1. **0% d'erreur mathématique et factuelle** : Je combine la puissance déductive de solveurs formels avec une base de connaissances encyclopédique vérifiée.
 2. **Société des 7 agents contradictoires** : Avant chaque réponse, 7 perspectives (Créatif, Critique, Fact-Checker, Éthicien, Stratège, Explorateur, Synthétiseur) délibèrent pour garantir une exactitude maximale.
 3. **Bac à sable Python 3.11 en direct** : J'exécute réellement du code Python avec sortie terminal et graphiques Matplotlib dans le chat.
 4. **Web Studio Responsive** : Je génère des applications web complètes en un clic, testables en direct et téléchargeables en HTML.
 
-Que souhaitez-vous explorer ou accomplir ensemble aujourd'hui ?`;
+Que souhaitez-vous explorer ou accomplir aujourd'hui ?`;
   }
 
   // 3. How are you?
@@ -237,11 +320,12 @@ Que souhaitez-vous explorer ou accomplir ensemble aujourd'hui ?`;
     norm.includes('ca va') || norm.includes('comment ca va') ||
     norm.includes('comment vas tu') || norm.includes('tu vas bien')
   ) {
-    return `### 😊 Tout fonctionne parfaitement !
+    const greeting = userName ? `très bien, merci **${userName}** !` : 'parfaitement bien !';
+    return `### 😊 Tout fonctionne ${greeting}
 
-Je suis à 100% de mes capacités opérationnelles, avec une latence ultra-faible et tous les systèmes de vérification formelle prêts à l'action.
+Tous mes voyants sont au vert : latence ultra-faible, débit de calcul optimal et solveurs formels prêts à l'action.
 
-Et vous, comment se passe votre journée ? Quel sujet ou projet souhaitez-vous que nous abordions ?`;
+Et vous, comment se passe votre journée ? Avez-vous une question, une curiosité ou un projet à développer ?`;
   }
 
   // 4. Capabilities / What can you do?
@@ -251,7 +335,7 @@ Et vous, comment se passe votre journée ? Quel sujet ou projet souhaitez-vous q
   ) {
     return `### ⚡ Capacités et Domaines d'Intervention de NEXUS-OMEGA
 
-Voici un aperçu de ce que je peux réaliser pour vous, sans friction et avec 0% d'erreur :
+Voici un panorama de ce que je peux réaliser pour vous, sans friction et avec 0% d'erreur :
 
 1. 📚 **Savoir Universel & Sciences** :
    - Explications physiques approfondies (diffusion de Rayleigh, gravité, mécanique quantique, relativité).
@@ -287,12 +371,12 @@ Voici un aperçu de ce que je peux réaliser pour vous, sans friction et avec 0%
 
 ---
 *En bonus : Il y a 10 sortes de personnes dans le monde : celles qui comprennent le binaire, et celles qui ne le comprennent pas.*`,
-      `### 😄 Voici une bonne blague !
+      `### 😄 En voici une bonne !
 
 **Un mathématicien, un physicien et un informaticien sont dans une voiture qui tombe en panne au bord de la route :**
 
-- Le **physicien** dit : *« C'est sûrement un problème de friction ou de surchauffe dans le bloc moteur. »*
-- Le **mathématicien** dit : *« Calculons d'abord l'énergie cinétique résiduelle pour modéliser la panne. »*
+- Le **physicien** dit : *« C'est sûrement un problème de friction thermique ou de surchauffe dans le bloc moteur. »*
+- Le **mathématicien** dit : *« Calculons d'abord l'énergie cinétique résiduelle pour modéliser le point de rupture. »*
 - L'**informaticien** réfléchit et propose : *« Et si on sortait tous de la voiture, et qu'on rentrait à nouveau dedans pour voir si ça redémarre ? »* 🚗💨`
     ];
     return jokes[Math.floor(Math.random() * jokes.length)];
@@ -321,14 +405,71 @@ Et le vaste univers offre ainsi sa merveille
 À quiconque l'écoute et le contemple encor.`;
   }
 
-  // 7. Polite / Thanks
+  // 7. Riddle / Game ("Devinette", "Faisons un jeu")
+  if (norm.includes('devinette') || norm.includes('faisons un jeu') || norm.includes('jouons a un jeu')) {
+    return `### 🧩 Voici une devinette pour stimuler vos neurones !
+
+> *« Plus j'ai chaud, plus je suis frais. Qui suis-je ? »*
+
+---
+*(Prenez votre temps pour réfléchir ! Proposez votre réponse dans le prochain message et je vous dirai si vous avez trouvé !)*`;
+  }
+
+  // 8. Polite / Thanks
   if (
     norm === 'merci' || norm.startsWith('merci ') ||
     norm === 'parfait merci' || norm === 'super merci'
   ) {
-    return `### 🙏 Avec grand plaisir !
+    const thanksName = userName ? `, ${userName}` : '';
+    return `### 🙏 Avec grand plaisir${thanksName} !
 
-Je reste entièrement à votre disposition. Avez-vous une autre question, un calcul à vérifier ou un projet à développer ?`;
+Je reste entièrement à votre écoute. Souhaitez-vous approfondir ce sujet, en explorer un nouveau, ou vérifier un calcul ?`;
+  }
+
+  // 9. Philosophical / AI replacement questions
+  if (norm.includes('ia va t elle remplacer les humains') || norm.includes('remplacer les humains')) {
+    return `### 🤖 L'IA va-t-elle remplacer les humains ? Réflexion & Analyse
+
+Cette question centrale interpelle philosophes, scientifiques et économistes. Voici la synthèse des perspectives les plus lucides :
+
+#### 1. Remplacement vs Augmentation (La Symbiose Cognitive)
+- **Ce que l'IA fait mieux** : Traitement massif de données, détection de patterns statistiques, calculs formels à haute vitesse, automatisation des tâches répétitives ou fastidieuses.
+- **Ce qui reste irremplaçablement humain** :
+  - **La conscience et la sensibilité** : Ressentir la joie, la douleur, la compassion et la beauté esthétique.
+  - **Le sens moral et l'éthique** : Décider de ce qui est juste ou injuste dépasse la logique computationnelle.
+  - **L'intentionnalité** : L'IA ne « désire » rien ; elle répond à des objectifs formulés par les êtres humains.
+
+#### 2. L'évolution du travail
+L'histoire des révolutions industrielles montre que la technologie déplace les compétences plus qu'elle ne supprime le besoin humain :
+- Les humains qui collaborent efficacement avec l'IA surpasseront tant les humains sans IA que les IA isolées sans supervision humaine.
+- Les métiers de l'empathie (santé, enseignement, soin), de la création artistique authentique et de la stratégie philosophique prendront une valeur accrue.
+
+#### 3. Conclusion
+L'IA est un **amplificateur de l'intellect humain**, tout comme le télescope a amplifié notre vision. L'avenir dépend de la manière dont nous orientons cette puissance collective.`;
+  }
+
+  // 10. Which programming language to learn first?
+  if (
+    norm.includes('quel langage de programmation') ||
+    norm.includes('quel langage apprendre') ||
+    norm.includes('apprendre a coder')
+  ) {
+    return `### 💻 Quel langage de programmation apprendre en premier ?
+
+Le choix idéal dépend avant tout de votre objectif :
+
+#### 1. 🐍 Python (Le Choix N°1 Universel)
+- **Pourquoi ?** Syntaxe limpide et quasi-naturelle en anglais, prise en main immédiate.
+- **Domaines de prédilection** : Intelligence Artificielle, Data Science, Automatisation de scripts, Backend web.
+- **Idéal pour** : Les grands débutants qui souhaitent comprendre la logique algorithmique sans se heurter à une syntaxe complexe.
+
+#### 2. 🌐 JavaScript / TypeScript (Le Maître du Web)
+- **Pourquoi ?** C'est le langage natif de tous les navigateurs internet du monde.
+- **Domaines de prédilection** : Création de sites web interactifs, applications mobiles (React Native), serveurs Node.js.
+- **Idéal pour** : Ceux qui veulent un retour visuel instantané et construire des interfaces web interactives.
+
+#### 3. 🎯 Notre conseil :
+Commencez par **Python** pendant 2 à 4 semaines pour acquérir les concepts universels (variables, boucles, conditions, fonctions), puis orientez-vous vers **JavaScript** si vous préférez le Web ou restez sur Python pour l'IA et l'analyse de données !`;
   }
 
   return null;
@@ -494,9 +635,10 @@ export async function generateAIResponse(
   const norm = normalizeText(userQuery);
   const startTime = Date.now();
   const subject = extractSubject(userQuery);
+  const profile = extractConversationProfile(_activeConversation);
 
-  // 1. Conversational Chit-chat (Bonjour, qui es-tu, ça va, blague, poème, etc.)
-  const conversationalReply = handleConversational(norm);
+  // 1. Conversational Chit-chat (Bonjour, qui es-tu, ça va, blague, poème, nom d'utilisateur, etc.)
+  const conversationalReply = handleConversational(norm, userQuery, profile);
   if (conversationalReply) {
     const duration = Date.now() - startTime + 80;
     const trace = buildReasoningTrace(userQuery, 'conversational', duration);
