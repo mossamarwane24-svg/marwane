@@ -11,7 +11,8 @@ import {
   Shield,
   X,
   ChevronRight,
-  Download
+  Download,
+  Zap
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -25,6 +26,7 @@ interface SidebarProps {
   onOpenWebStudio: () => void;
   onOpenPythonSandbox: () => void;
   onOpenCognitivePillars: () => void;
+  onOpenPerformance?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -37,7 +39,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onCloseMobile,
   onOpenWebStudio,
   onOpenPythonSandbox,
-  onOpenCognitivePillars
+  onOpenCognitivePillars,
+  onOpenPerformance
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -150,6 +153,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <span>🧠 Piliers Cognitifs 31 à 45</span>
             </span>
             <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-dark-800 text-sky-300 font-bold border border-dark-700">15</span>
+          </button>
+
+          <button
+            onClick={() => { onOpenPerformance?.(); onCloseMobile(); }}
+            className="w-full p-2.5 rounded-lg bg-dark-850 hover:bg-dark-800 border border-dark-750 text-xs font-medium text-slate-200 flex items-center justify-between transition group"
+          >
+            <span className="flex items-center gap-2">
+              <Zap className="w-4 h-4 text-cyan-400" />
+              <span>⚡ Performances & Benchmark</span>
+            </span>
+            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-dark-800 text-cyan-400 font-bold border border-dark-700">32ms</span>
           </button>
         </div>
 

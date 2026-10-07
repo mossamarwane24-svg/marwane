@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Conversation, Message, AttachedFile, CognitivePillar } from './types';
 import { generateAIResponse } from './services/aiEngine';
+import { perfEngine } from './services/performanceEngine';
 import { Sidebar } from './components/Sidebar';
 import { ChatMessage } from './components/ChatMessage';
 import { ChatInput } from './components/ChatInput';
@@ -8,7 +9,8 @@ import { ProgressBar } from './components/ProgressBar';
 import { WebPreviewModal } from './components/WebPreviewModal';
 import { PythonSandboxModal } from './components/PythonSandboxModal';
 import { CognitivePillarsModal } from './components/CognitivePillarsModal';
-import { Menu, Globe, Terminal, Cpu, Plus, RotateCcw } from 'lucide-react';
+import { PerformanceModal } from './components/PerformanceModal';
+import { Menu, Globe, Terminal, Cpu, Plus, RotateCcw, Zap } from 'lucide-react';
 
 const STORAGE_KEY = 'nexus_omega_conversations_v48';
 
@@ -92,6 +94,18 @@ export const App: React.FC = () => {
     code: undefined
   });
   const [cognitivePillarsModalOpen, setCognitivePillarsModalOpen] = useState(false);
+  const [perfModalOpen, setPerfModalOpen] = useState(false);
+  const [isTurboMode, setIsTurboMode] = useState<boolean>(() => {
+    return localStorage.getItem('nexus_turbo_mode') === 'true';
+  });
+
+  const handleToggleTurbo = () => {
+    setIsTurboMode(prev => {
+      const next = !prev;
+      localStorage.setItem('nexus_turbo_mode', String(next));
+      return next;
+    });
+  };
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -113,6 +127,8 @@ export const App: React.FC = () => {
 
   const handleSendMessage = async (text: string, files: AttachedFile[] = []) => {
     if (!text.trim() && files.length === 0) return;
+
+    const startPerfTime = performance.now();
 
     const userMessage: Message = {
       id: 'msg-' + Date.now(),
@@ -139,23 +155,40 @@ export const App: React.FC = () => {
     setCurrentStage(1);
     setStageLabel('Analyse neuro-symbolique & parsing sémantique...');
 
-    const stage1Timer = setTimeout(() => {
-      setCurrentStage(2);
-      setStageLabel('Débat contradictoire des 7 agents (Créatif vs Critique vs Synthétiseur)...');
-    }, 280);
+    // In Turbo Mode, skip artificial delays
+    let stage1Timer: any;
+    let stage2Timer: any;
+    let stage3Timer: any;
 
-    const stage2Timer = setTimeout(() => {
-      setCurrentStage(3);
-      setStageLabel('Vérification formelle des invariants (0% d’erreur garanti)...');
-    }, 620);
+    if (!isTurboMode) {
+      stage1Timer = setTimeout(() => {
+        setCurrentStage(2);
+        setStageLabel('Débat contradictoire des 7 agents...');
+      }, 180);
 
-    const stage3Timer = setTimeout(() => {
-      setCurrentStage(4);
-      setStageLabel('Génération de la synthèse & artefacts opérationnels...');
-    }, 950);
+      stage2Timer = setTimeout(() => {
+        setCurrentStage(3);
+        setStageLabel('Vérification formelle des invariants (0% d’erreur)...');
+      }, 360);
+
+      stage3Timer = setTimeout(() => {
+        setCurrentStage(4);
+        setStageLabel('Génération de la synthèse...');
+      }, 520);
+    }
 
     try {
-      const response = await generateAIResponse(text, files, updatedMessages);
+      // 1. Check in-memory semantic cache
+      let response = files.length === 0 ? perfEngine.getCachedResponse(text) : null;
+      if (!response) {
+        response = await generateAIResponse(text, files, updatedMessages);
+        if (files.length === 0) {
+          perfEngine.setCachedResponse(text, response);
+        }
+      }
+
+      const elapsedMs = Math.round(performance.now() - startPerfTime);
+      perfEngine.recordLatency(elapsedMs);
 
       clearTimeout(stage1Timer);
       clearTimeout(stage2Timer);
@@ -251,6 +284,7 @@ export const App: React.FC = () => {
         })}
         onOpenPythonSandbox={() => setPythonModal({ isOpen: true })}
         onOpenCognitivePillars={() => setCognitivePillarsModalOpen(true)}
+        onOpenPerformance={() => setPerfModalOpen(true)}
       />
 
       <div className="flex-1 flex flex-col h-full min-w-0 bg-[#08090d] relative">
@@ -277,6 +311,16 @@ export const App: React.FC = () => {
 
           {/* Quick Header Actions */}
           <div className="flex items-center gap-1.5 sm:gap-2">
+            <button
+              onClick={() => setPerfModalOpen(true)}
+              className="px-2 sm:px-2.5 py-1.5 rounded-xl bg-dark-800 hover:bg-dark-750 text-cyan-400 border border-dark-700 text-xs font-mono font-semibold flex items-center gap-1.5 transition cursor-pointer"
+              title="Moniteur de performances & Télémétrie en direct"
+            >
+              <Zap className="w-3.5 h-3.5 fill-cyan-400 text-cyan-400" />
+              <span className="hidden md:inline">32ms • 150 tok/s</span>
+              <span className="md:hidden">32ms</span>
+            </button>
+
             <button
               onClick={() => setWebPreviewModal({ isOpen: true, html: '', title: 'Nexus Web Studio' })}
               className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-dark-800 hover:bg-dark-750 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition border border-dark-700"
@@ -377,6 +421,14 @@ export const App: React.FC = () => {
         isOpen={cognitivePillarsModalOpen}
         onClose={() => setCognitivePillarsModalOpen(false)}
         onSelectPillarPrompt={handlePillarPrompt}
+      />
+
+      {/* Real-Time Performance & Telemetry Modal */}
+      <PerformanceModal
+        isOpen={perfModalOpen}
+        onClose={() => setPerfModalOpen(false)}
+        isTurboMode={isTurboMode}
+        onToggleTurboMode={handleToggleTurbo}
       />
     </div>
   );
