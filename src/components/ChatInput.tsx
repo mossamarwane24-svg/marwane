@@ -42,6 +42,32 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     }
   };
 
+  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') !== -1) {
+        const file = items[i].getAsFile();
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            setAttachedFiles((prev) => [
+              ...prev,
+              {
+                id: 'file-pasted-' + Date.now() + Math.random(),
+                name: `image_collee_${Date.now()}.png`,
+                type: file.type,
+                size: file.size,
+                dataUrl: event.target?.result as string
+              }
+            ]);
+          };
+          reader.readAsDataURL(file);
+        }
+      }
+    }
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -177,6 +203,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
+            onPaste={handlePaste}
             placeholder="Posez n'importe quelle question, demandez du code, un calcul ou un site web..."
             rows={1}
             className="flex-1 bg-transparent text-sm text-slate-100 placeholder-slate-500 resize-none focus:outline-none max-h-44 py-2 leading-relaxed"

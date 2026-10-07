@@ -9,7 +9,8 @@ import {
   Terminal,
   Globe,
   FileText,
-  User
+  User,
+  RotateCcw
 } from 'lucide-react';
 
 interface ChatMessageProps {
@@ -25,11 +26,20 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
 }) => {
   const isAssistant = message.role === 'assistant';
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [copiedMessage, setCopiedMessage] = useState(false);
+  const [inPlaceExecResults, setInPlaceExecResults] = useState<Record<string, { stdout: string; plotImage?: string | null; timeMs: number }>>({});
+  const [executingCodeId, setExecutingCodeId] = useState<string | null>(null);
 
   const handleCopy = async (text: string, id: string) => {
     await navigator.clipboard.writeText(text);
     setCopiedCode(id);
     setTimeout(() => setCopiedCode(null), 2000);
+  };
+
+  const handleCopyMessage = async () => {
+    await navigator.clipboard.writeText(message.content);
+    setCopiedMessage(true);
+    setTimeout(() => setCopiedMessage(false), 2000);
   };
 
   const handleDownloadFile = (content: string, filename: string) => {
@@ -42,6 +52,36 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
     URL.revokeObjectURL(url);
   };
 
+  const handleInPlacePythonRun = async (code: string, codeId: string) => {
+    setExecutingCodeId(codeId);
+    try {
+      const res = await fetch('/api/execute-python', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code })
+      });
+      const data = await res.json();
+      setInPlaceExecResults(prev => ({
+        ...prev,
+        [codeId]: {
+          stdout: data.stdout || data.stderr || 'Exécution terminée sans sortie.',
+          plotImage: data.plotImage || null,
+          timeMs: data.executionTimeMs || 0
+        }
+      }));
+    } catch (err: any) {
+      setInPlaceExecResults(prev => ({
+        ...prev,
+        [codeId]: {
+          stdout: 'Erreur d’exécution : ' + err.message,
+          timeMs: 0
+        }
+      }));
+    } finally {
+      setExecutingCodeId(null);
+    }
+  };
+
   const renderFormattedContent = (content: string) => {
     const parts = content.split(/(```[\s\S]*?```)/g);
 
@@ -52,6 +92,8 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
         const code = lines.slice(1).join('\n');
         const isPython = lang.toLowerCase() === 'python' || lang.toLowerCase() === 'py';
         const codeId = `code-${message.id}-${index}`;
+        const execResult = inPlaceExecResults[codeId];
+        const isRunningThis = executingCodeId === codeId;
 
         return (
           <div key={index} className="my-3 rounded-xl bg-dark-950 border border-dark-700 overflow-hidden shadow-lg">
@@ -60,13 +102,34 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
               <span className="font-mono text-cyan-400 font-semibold uppercase">{lang || 'CODE'}</span>
               <div className="flex items-center gap-2">
                 {isPython && (
-                  <button
-                    onClick={() => onOpenPythonSandbox(code)}
-                    className="px-2.5 py-1 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-semibold flex items-center gap-1 transition"
-                  >
-                    <Play className="w-3 h-3 fill-white" />
-                    <span>▶ Exécuter Python</span>
-                  </button>
+                  <>
+                    <button
+                      onClick={() => handleInPlacePythonRun(code, codeId)}
+                      disabled={isRunningThis}
+                      className="px-2.5 py-1 rounded bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-semibold flex items-center gap-1 transition"
+                      title="Exécuter directement dans le chat"
+                    >
+                      {isRunningThis ? (
+                        <>
+                          <RotateCcw className="w-3 h-3 animate-spin" />
+                          <span>Exécution...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Play className="w-3 h-3 fill-white" />
+                          <span>▶ Exécuter</span>
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => onOpenPythonSandbox(code)}
+                      className="hidden sm:flex px-2 py-1 rounded bg-dark-750 hover:bg-dark-700 text-slate-300 text-xs items-center gap-1 transition"
+                      title="Ouvrir dans l'éditeur interactif complet"
+                    >
+                      <Terminal className="w-3 h-3 text-cyan-400" />
+                      <span>Éditeur</span>
+                    </button>
+                  </>
                 )}
                 <button
                   onClick={() => handleCopy(code, codeId)}
@@ -84,10 +147,29 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
                 </button>
               </div>
             </div>
+
             {/* Code Body */}
             <pre className="p-4 overflow-x-auto font-mono text-xs text-slate-200 leading-relaxed">
               <code>{code}</code>
             </pre>
+
+            {/* In-place Execution Result */}
+            {execResult && (
+              <div className="border-t border-dark-750 bg-dark-900 p-3 text-xs font-mono">
+                <div className="flex items-center justify-between text-slate-400 mb-1 pb-1 border-b border-dark-800">
+                  <span className="text-cyan-400 font-semibold flex items-center gap-1.5">
+                    <Terminal className="w-3 h-3" /> Sortie Python (In-Chat)
+                  </span>
+                  <span>⏱️ {execResult.timeMs} ms</span>
+                </div>
+                <pre className="text-slate-200 whitespace-pre-wrap">{execResult.stdout}</pre>
+                {execResult.plotImage && (
+                  <div className="mt-2 rounded-lg overflow-hidden border border-dark-700">
+                    <img src={execResult.plotImage} alt="Matplotlib Plot" className="w-full" />
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         );
       }
@@ -95,29 +177,76 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
       return (
         <div key={index} className="space-y-2 leading-relaxed text-sm text-slate-200">
           {part.split('\n\n').map((block, bIdx) => {
-            if (block.startsWith('### ')) {
+            const trimmed = block.trim();
+
+            // Display math formula block $$ ... $$
+            if (trimmed.startsWith('$$') && trimmed.endsWith('$$')) {
+              const formula = trimmed.slice(2, -2).trim();
+              return (
+                <div key={bIdx} className="my-3 p-3.5 rounded-xl bg-dark-950 border border-dark-700 font-mono text-sm sm:text-base text-cyan-300 text-center shadow-inner overflow-x-auto">
+                  {formula.replace(/\\mathbf\{([^}]+)\}/g, '$1')}
+                </div>
+              );
+            }
+
+            // Headings
+            if (trimmed.startsWith('### ')) {
               return (
                 <h3 key={bIdx} className="text-base sm:text-lg font-bold text-white mt-4 mb-2 flex items-center gap-2">
-                  {block.replace('### ', '')}
+                  {trimmed.replace('### ', '')}
                 </h3>
               );
             }
-            if (block.startsWith('#### ')) {
+            if (trimmed.startsWith('#### ')) {
               return (
                 <h4 key={bIdx} className="text-sm sm:text-base font-semibold text-cyan-400 mt-3 mb-1">
-                  {block.replace('#### ', '')}
+                  {trimmed.replace('#### ', '')}
                 </h4>
               );
             }
-            if (block.startsWith('> ')) {
+
+            // Blockquote
+            if (trimmed.startsWith('> ')) {
               return (
                 <blockquote key={bIdx} className="my-2 pl-3 border-l-2 border-indigo-500 bg-indigo-950/20 p-2.5 rounded-r-lg text-slate-300 text-xs sm:text-sm">
-                  {block.replace('> ', '')}
+                  {trimmed.replace('> ', '')}
                 </blockquote>
               );
             }
-            if (block.startsWith('- ') || block.startsWith('* ')) {
-              const items = block.split('\n');
+
+            // Markdown Table Parser
+            if (trimmed.includes('|') && trimmed.split('\n').length >= 2 && trimmed.split('\n')[1].includes('---')) {
+              const rows = trimmed.split('\n').filter(r => r.trim().length > 0);
+              const headerCols = rows[0].split('|').slice(1, -1).map(c => c.trim());
+              const bodyRows = rows.slice(2).map(r => r.split('|').slice(1, -1).map(c => c.trim()));
+
+              return (
+                <div key={bIdx} className="my-3 overflow-x-auto rounded-xl border border-dark-700">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead className="bg-dark-850 text-slate-300 border-b border-dark-700">
+                      <tr>
+                        {headerCols.map((col, cIdx) => (
+                          <th key={cIdx} className="p-2.5 font-bold">{col}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-dark-800 bg-dark-900/60">
+                      {bodyRows.map((row, rIdx) => (
+                        <tr key={rIdx} className="hover:bg-dark-800/40 transition">
+                          {row.map((cell, cIdx) => (
+                            <td key={cIdx} className="p-2.5 text-slate-300" dangerouslySetInnerHTML={{ __html: formatInline(cell) }} />
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              );
+            }
+
+            // Bullet Lists
+            if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+              const items = trimmed.split('\n');
               return (
                 <ul key={bIdx} className="space-y-1 my-2 pl-2">
                   {items.map((item, itIdx) => (
@@ -129,8 +258,10 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
                 </ul>
               );
             }
-            if (/^\d+\.\s/.test(block)) {
-              const items = block.split('\n');
+
+            // Numbered Lists
+            if (/^\d+\.\s/.test(trimmed)) {
+              const items = trimmed.split('\n');
               return (
                 <ol key={bIdx} className="space-y-1.5 my-2 pl-2">
                   {items.map((item, itIdx) => {
@@ -148,7 +279,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
             }
 
             return (
-              <p key={bIdx} dangerouslySetInnerHTML={{ __html: formatInline(block) }} className="text-xs sm:text-sm text-slate-300" />
+              <p key={bIdx} dangerouslySetInnerHTML={{ __html: formatInline(trimmed) }} className="text-xs sm:text-sm text-slate-300" />
             );
           })}
         </div>
@@ -184,18 +315,32 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
         {/* Message Content */}
         <div className="flex-1 min-w-0">
           {/* Header Role and Time */}
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className="font-bold text-xs sm:text-sm text-white">
-              {isAssistant ? 'NEXUS-OMEGA' : 'Vous'}
-            </span>
-            {isAssistant && (
-              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-dark-800 text-cyan-400 font-semibold border border-dark-700">
-                Piliers 31-45
+          <div className="flex items-center justify-between mb-1.5">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-xs sm:text-sm text-white">
+                {isAssistant ? 'NEXUS-OMEGA' : 'Vous'}
               </span>
+              {isAssistant && (
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-dark-800 text-cyan-400 font-semibold border border-dark-700">
+                  Piliers 31-45
+                </span>
+              )}
+              <span className="text-[10px] text-slate-500 font-mono">
+                {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </span>
+            </div>
+
+            {/* Quick Copy Message Action */}
+            {isAssistant && (
+              <button
+                onClick={handleCopyMessage}
+                className="text-slate-500 hover:text-slate-300 text-xs flex items-center gap-1 transition p-1"
+                title="Copier l'intégralité de la réponse"
+              >
+                {copiedMessage ? <Check className="w-3.5 h-3.5 text-cyan-400" /> : <Copy className="w-3.5 h-3.5" />}
+                <span className="hidden sm:inline text-[11px]">{copiedMessage ? 'Copié' : 'Copier'}</span>
+              </button>
             )}
-            <span className="text-[10px] text-slate-500 font-mono">
-              {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-            </span>
           </div>
 
           {/* Attached Files in User Message */}

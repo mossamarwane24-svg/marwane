@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Download, ExternalLink, Smartphone, Tablet, Monitor, Code, Eye, Copy, Check, X, Globe } from 'lucide-react';
+import { generateModernWebsite } from '../utils/webTemplates';
 
 interface WebPreviewModalProps {
   isOpen: boolean;
@@ -20,14 +21,18 @@ export const WebPreviewModal: React.FC<WebPreviewModalProps> = ({
 
   if (!isOpen) return null;
 
+  const activeHtml = htmlContent && htmlContent.trim().length > 0
+    ? htmlContent
+    : generateModernWebsite(title || 'Nexus Studio Pro', 'saas');
+
   const handleOpenNewTab = () => {
-    const blob = new Blob([htmlContent], { type: 'text/html' });
+    const blob = new Blob([activeHtml], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     window.open(url, '_blank');
   };
 
   const handleDownload = () => {
-    const blob = new Blob([htmlContent], { type: 'text/html' });
+    const blob = new Blob([activeHtml], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -37,7 +42,7 @@ export const WebPreviewModal: React.FC<WebPreviewModalProps> = ({
   };
 
   const handleCopyCode = async () => {
-    await navigator.clipboard.writeText(htmlContent);
+    await navigator.clipboard.writeText(activeHtml);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -160,7 +165,7 @@ export const WebPreviewModal: React.FC<WebPreviewModalProps> = ({
               }`}
             >
               <iframe
-                srcDoc={htmlContent}
+                srcDoc={activeHtml}
                 className="w-full h-full border-0"
                 title="Live Website Preview"
                 sandbox="allow-scripts allow-modals allow-forms allow-same-origin"
@@ -169,7 +174,7 @@ export const WebPreviewModal: React.FC<WebPreviewModalProps> = ({
           ) : (
             <div className="w-full h-full max-w-5xl bg-dark-950 rounded-xl border border-dark-750 flex flex-col overflow-hidden">
               <div className="px-4 py-2 bg-dark-850 border-b border-dark-750 flex items-center justify-between text-xs text-slate-400">
-                <span className="font-mono">index.html ({Math.round(htmlContent.length / 1024)} Ko)</span>
+                <span className="font-mono">index.html ({Math.round(activeHtml.length / 1024)} Ko)</span>
                 <button
                   onClick={handleCopyCode}
                   className="px-2.5 py-1 rounded bg-dark-700 hover:bg-dark-600 text-slate-200 flex items-center gap-1 transition"
@@ -179,7 +184,7 @@ export const WebPreviewModal: React.FC<WebPreviewModalProps> = ({
                 </button>
               </div>
               <pre className="flex-1 p-4 overflow-auto font-mono text-xs text-slate-200 leading-relaxed">
-                <code>{htmlContent}</code>
+                <code>{activeHtml}</code>
               </pre>
             </div>
           )}

@@ -10,7 +10,19 @@ import { PythonSandboxModal } from './components/PythonSandboxModal';
 import { CognitivePillarsModal } from './components/CognitivePillarsModal';
 import { Menu, Globe, Terminal, Cpu, Plus } from 'lucide-react';
 
-const STORAGE_KEY = 'nexus_omega_conversations_v45';
+const STORAGE_KEY = 'nexus_omega_conversations_v48';
+
+const sanitizeMessage = (m: Message): Message => {
+  let content = m.content;
+  if (content.includes('Minecraft')) {
+    content = content.replace(/.*Minecraft.*\n?/gi, '');
+  }
+  return {
+    ...m,
+    content,
+    artifacts: m.artifacts?.filter((a: any) => a.type !== 'minecraft-2d')
+  };
+};
 
 const INITIAL_WELCOME_MESSAGE: Message = {
   id: 'msg-welcome',
@@ -36,10 +48,15 @@ Je suis votre système d'intelligence artificielle universel de nouvelle génér
 export const App: React.FC = () => {
   const [conversations, setConversations] = useState<Conversation[]>(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
+      const saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('nexus_omega_conversations_v45');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map((conv: Conversation) => ({
+            ...conv,
+            messages: conv.messages.map(sanitizeMessage)
+          }));
+        }
       }
     } catch (e) {
       console.error('LocalStorage load error', e);
