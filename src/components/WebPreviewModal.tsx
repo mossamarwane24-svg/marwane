@@ -53,7 +53,7 @@ export const WebPreviewModal: React.FC<WebPreviewModalProps> = ({
             </div>
             <div>
               <h2 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
-                {title} <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 font-mono">100% Fonctionnel</span>
+                {title} <span className="text-xs px-2 py-0.5 rounded-full bg-dark-800 text-cyan-400 font-mono border border-dark-750">Fonctionnel</span>
               </h2>
               <p className="text-[11px] text-slate-400">
                 Responsive • Dégradés modernes • Boutons actifs • Fichier autonome 1 clic
@@ -71,7 +71,7 @@ export const WebPreviewModal: React.FC<WebPreviewModalProps> = ({
                   tab === 'preview' ? 'bg-dark-650 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
-                <Eye className="w-3.5 h-3.5 text-emerald-400" />
+                <Eye className="w-3.5 h-3.5 text-cyan-400" />
                 <span>Aperçu Direct</span>
               </button>
               <button
@@ -80,18 +80,18 @@ export const WebPreviewModal: React.FC<WebPreviewModalProps> = ({
                   tab === 'code' ? 'bg-dark-650 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
-                <Code className="w-3.5 h-3.5 text-cyan-400" />
+                <Code className="w-3.5 h-3.5 text-indigo-400" />
                 <span>Code HTML/CSS</span>
               </button>
             </div>
 
-            {/* Device Switcher (Preview mode only) */}
+            {/* Device Switcher */}
             {tab === 'preview' && (
               <div className="hidden sm:flex bg-dark-800 rounded-lg p-0.5 border border-dark-700">
                 <button
                   onClick={() => setDevice('desktop')}
                   className={`p-1.5 rounded-md text-xs transition ${
-                    device === 'desktop' ? 'bg-dark-650 text-emerald-400' : 'text-slate-400 hover:text-slate-200'
+                    device === 'desktop' ? 'bg-dark-650 text-cyan-400' : 'text-slate-400 hover:text-slate-200'
                   }`}
                   title="Vue Ordinateur (Plein écran)"
                 >
@@ -100,7 +100,7 @@ export const WebPreviewModal: React.FC<WebPreviewModalProps> = ({
                 <button
                   onClick={() => setDevice('tablet')}
                   className={`p-1.5 rounded-md text-xs transition ${
-                    device === 'tablet' ? 'bg-dark-650 text-emerald-400' : 'text-slate-400 hover:text-slate-200'
+                    device === 'tablet' ? 'bg-dark-650 text-cyan-400' : 'text-slate-400 hover:text-slate-200'
                   }`}
                   title="Vue Tablette (768px)"
                 >
@@ -109,7 +109,7 @@ export const WebPreviewModal: React.FC<WebPreviewModalProps> = ({
                 <button
                   onClick={() => setDevice('mobile')}
                   className={`p-1.5 rounded-md text-xs transition ${
-                    device === 'mobile' ? 'bg-dark-650 text-emerald-400' : 'text-slate-400 hover:text-slate-200'
+                    device === 'mobile' ? 'bg-dark-650 text-cyan-400' : 'text-slate-400 hover:text-slate-200'
                   }`}
                   title="Vue Mobile Tactile (375px)"
                 >
@@ -121,7 +121,7 @@ export const WebPreviewModal: React.FC<WebPreviewModalProps> = ({
             {/* Actions */}
             <button
               onClick={handleOpenNewTab}
-              className="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-dark-950 font-bold text-xs flex items-center gap-1.5 transition"
+              className="px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs flex items-center gap-1.5 transition"
               title="Tester dans un onglet indépendant"
             >
               <ExternalLink className="w-3.5 h-3.5" />
@@ -174,11 +174,11 @@ export const WebPreviewModal: React.FC<WebPreviewModalProps> = ({
                   onClick={handleCopyCode}
                   className="px-2.5 py-1 rounded bg-dark-700 hover:bg-dark-600 text-slate-200 flex items-center gap-1 transition"
                 >
-                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copied ? <Check className="w-3.5 h-3.5 text-cyan-400" /> : <Copy className="w-3.5 h-3.5" />}
                   <span>{copied ? 'Copié !' : 'Copier tout'}</span>
                 </button>
               </div>
-              <pre className="flex-1 p-4 overflow-auto font-mono text-xs text-emerald-300 leading-relaxed selection:bg-emerald-500/30">
+              <pre className="flex-1 p-4 overflow-auto font-mono text-xs text-slate-200 leading-relaxed">
                 <code>{htmlContent}</code>
               </pre>
             </div>

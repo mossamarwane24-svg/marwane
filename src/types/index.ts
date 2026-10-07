@@ -57,7 +57,7 @@ export interface AttachedFile {
 
 export interface ProjectArtifact {
   id: string;
-  type: 'minecraft-2d' | 'website' | 'python-code' | 'document' | 'math-calc' | 'world-simulation' | 'science-hypothesis';
+  type: 'website' | 'python-code' | 'document' | 'math-calc' | 'world-simulation' | 'science-hypothesis';
   title: string;
   description: string;
   content: string; // raw code or data

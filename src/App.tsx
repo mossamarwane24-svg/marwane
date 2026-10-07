@@ -4,12 +4,11 @@ import { generateAIResponse } from './services/aiEngine';
 import { Sidebar } from './components/Sidebar';
 import { ChatMessage } from './components/ChatMessage';
 import { ChatInput } from './components/ChatInput';
-import { GreenProgressBar } from './components/GreenProgressBar';
-import { MinecraftModal } from './components/MinecraftModal';
+import { ProgressBar } from './components/ProgressBar';
 import { WebPreviewModal } from './components/WebPreviewModal';
 import { PythonSandboxModal } from './components/PythonSandboxModal';
 import { CognitivePillarsModal } from './components/CognitivePillarsModal';
-import { Menu, Sparkles, Gamepad2, Globe, Terminal, Cpu, ShieldCheck, Plus, Check } from 'lucide-react';
+import { Menu, Globe, Terminal, Cpu, Plus } from 'lucide-react';
 
 const STORAGE_KEY = 'nexus_omega_conversations_v45';
 
@@ -24,13 +23,12 @@ Je suis votre système d'intelligence artificielle universel de nouvelle génér
 
 #### 🚀 Ce que je fais pour vous, concrètement et sans erreur :
 1. 🧠 **Réponse d'expert à ABSOLUMENT TOUTES vos questions** : Sciences, mathématiques exactes, histoire, technologies, philosophie, programmation, culture générale et conseils méthodologiques.
-2. 📐 **Calculs mathématiques formels exacts (0% d'erreur)** : Je reconnais toute opération arithmétique ou symbolique et calcule le résultat juste avec preuve déductive.
-3. 🎮 **Moteur Minecraft 2D Procédural & Physique** : Un jeu complet généré avec 6 types de blocs (herbe, terre, pierre, bois, or, eau), arbres, gravité, cassage/pose et jouable immédiatement !
-4. 🌐 **Web Studio Responsive & Moderne** : Création en 1 clic de sites web fonctionnels avec dégradés, boutons interactifs et fichier HTML autonome téléchargeable.
-5. 🐍 **Exécution RÉELLE de Python 3.11** : Bac à sable sécurisé dans le chat avec sortie stdout, calculs SymPy, NumPy et graphiques Matplotlib.
-6. 👁️ **Indicateur de raisonnement visible avant chaque réponse** : Suivez le débat contradictoire entre mes 7 agents (Créatif, Critique, Fact-Checker, Éthicien, Stratège, Explorateur, Synthétiseur).
+2. 📐 **Calculs mathématiques formels exacts (0% d'erreur)** : Reconnaissance immédiate des opérations et calcul exact avec preuve déductive.
+3. 🌐 **Web Studio Responsive & Moderne** : Création en 1 clic de sites web fonctionnels avec boutons interactifs et fichier HTML autonome téléchargeable.
+4. 🐍 **Exécution RÉELLE de Python 3.11** : Bac à sable sécurisé dans le chat avec sortie stdout, calculs SymPy, NumPy et graphiques Matplotlib.
+5. 👁️ **Indicateur de raisonnement visible avant chaque réponse** : Suivez le débat contradictoire entre mes 7 agents (Créatif, Critique, Fact-Checker, Éthicien, Stratège, Explorateur, Synthétiseur).
 
-> 💡 **Pour démarrer immédiatement**, cliquez sur un des boutons ci-dessous ou écrivez simplement votre question !`,
+> Pour démarrer immédiatement, écrivez simplement votre question ou cliquez sur une des suggestions ci-dessous.`,
   timestamp: Date.now(),
   isVerified: true
 };
@@ -67,7 +65,6 @@ export const App: React.FC = () => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
 
   // Modals state
-  const [minecraftModalOpen, setMinecraftModalOpen] = useState(false);
   const [webPreviewModal, setWebPreviewModal] = useState<{ isOpen: boolean; html: string; title: string }>({
     isOpen: false,
     html: '',
@@ -108,7 +105,6 @@ export const App: React.FC = () => {
       attachedFiles: files
     };
 
-    // Update conversation with user message
     const updatedMessages = [...activeConversation.messages, userMessage];
     const newTitle = activeConversation.messages.length <= 1 && text.trim()
       ? text.slice(0, 30) + (text.length > 30 ? '...' : '')
@@ -126,7 +122,6 @@ export const App: React.FC = () => {
     setCurrentStage(1);
     setStageLabel('Analyse neuro-symbolique & parsing sémantique...');
 
-    // Progress bar simulation
     const stage1Timer = setTimeout(() => {
       setCurrentStage(2);
       setStageLabel('Débat contradictoire des 7 agents (Créatif vs Critique vs Synthétiseur)...');
@@ -213,7 +208,6 @@ export const App: React.FC = () => {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-dark-950 text-slate-100 font-sans">
-      {/* Sidebar with Auto-saved history, new chat, and tool launchers */}
       <Sidebar
         conversations={conversations}
         activeConversationId={activeConversationId}
@@ -222,7 +216,6 @@ export const App: React.FC = () => {
         onDeleteConversation={handleDeleteConversation}
         isOpenMobile={isMobileSidebarOpen}
         onCloseMobile={() => setIsMobileSidebarOpen(false)}
-        onOpenMinecraft={() => setMinecraftModalOpen(true)}
         onOpenWebStudio={() => setWebPreviewModal({
           isOpen: true,
           html: '',
@@ -230,15 +223,12 @@ export const App: React.FC = () => {
         })}
         onOpenPythonSandbox={() => setPythonModal({ isOpen: true })}
         onOpenCognitivePillars={() => setCognitivePillarsModalOpen(true)}
-        onQuickMath={() => handleSendMessage('Calcule : 25 * 48 - sqrt(625)')}
       />
 
-      {/* Main Chat Area */}
       <div className="flex-1 flex flex-col h-full min-w-0 bg-[#08090d] relative">
         {/* Top Navbar */}
         <header className="h-14 sm:h-16 border-b border-dark-800 bg-dark-900/90 backdrop-blur-md px-3 sm:px-6 flex items-center justify-between shrink-0 z-30">
           <div className="flex items-center gap-2.5">
-            {/* Mobile Hamburger Button ☰ */}
             <button
               onClick={() => setIsMobileSidebarOpen(true)}
               className="lg:hidden p-2 rounded-xl bg-dark-800 hover:bg-dark-700 text-slate-300 hover:text-white transition"
@@ -251,7 +241,7 @@ export const App: React.FC = () => {
               <span className="font-extrabold text-sm sm:text-base text-white truncate max-w-[200px] sm:max-w-md">
                 {activeConversation.title}
               </span>
-              <span className="hidden sm:inline-flex text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 font-mono font-semibold border border-emerald-500/30">
+              <span className="hidden sm:inline-flex text-[10px] px-2 py-0.5 rounded-full bg-dark-800 text-cyan-400 font-mono font-semibold border border-dark-700">
                 0% d'erreur
               </span>
             </div>
@@ -260,12 +250,12 @@ export const App: React.FC = () => {
           {/* Quick Header Actions */}
           <div className="flex items-center gap-1.5 sm:gap-2">
             <button
-              onClick={() => setMinecraftModalOpen(true)}
+              onClick={() => setWebPreviewModal({ isOpen: true, html: '', title: 'Nexus Web Studio' })}
               className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-dark-800 hover:bg-dark-750 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition border border-dark-700"
-              title="Lancer Minecraft 2D"
+              title="Ouvrir le Web Studio"
             >
-              <Gamepad2 className="w-4 h-4 text-emerald-400" />
-              <span className="hidden md:inline">Minecraft 2D</span>
+              <Globe className="w-4 h-4 text-cyan-400" />
+              <span className="hidden md:inline">Web Studio</span>
             </button>
 
             <button
@@ -273,22 +263,22 @@ export const App: React.FC = () => {
               className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-dark-800 hover:bg-dark-750 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition border border-dark-700"
               title="Ouvrir le terminal Python 3.11 réel"
             >
-              <Terminal className="w-4 h-4 text-teal-400" />
+              <Terminal className="w-4 h-4 text-indigo-400" />
               <span className="hidden md:inline">Python 3.11</span>
             </button>
 
             <button
               onClick={() => setCognitivePillarsModalOpen(true)}
-              className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 border border-indigo-500/30 text-xs font-semibold flex items-center gap-1.5 transition"
+              className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-dark-800 hover:bg-dark-750 text-slate-300 border border-dark-700 text-xs font-semibold flex items-center gap-1.5 transition"
               title="Explorer les piliers cognitifs 31 à 45"
             >
-              <Cpu className="w-4 h-4 text-indigo-400" />
+              <Cpu className="w-4 h-4 text-sky-400" />
               <span className="hidden md:inline">Piliers 31-45</span>
             </button>
 
             <button
               onClick={handleNewChat}
-              className="p-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-dark-950 font-bold transition shadow-sm"
+              className="p-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition shadow-sm"
               title="Nouveau chat"
             >
               <Plus className="w-5 h-5 stroke-[2.5]" />
@@ -302,16 +292,14 @@ export const App: React.FC = () => {
             <ChatMessage
               key={message.id}
               message={message}
-              onOpenMinecraft={() => setMinecraftModalOpen(true)}
               onOpenWebPreview={(html, title) => setWebPreviewModal({ isOpen: true, html, title: title || 'Aperçu du Site' })}
               onOpenPythonSandbox={(code) => setPythonModal({ isOpen: true, code })}
             />
           ))}
 
-          {/* Green Animated Progress Bar while generating */}
           {isLoading && (
             <div className="max-w-4xl mx-auto px-4 py-2">
-              <GreenProgressBar currentStage={currentStage} stageLabel={stageLabel} />
+              <ProgressBar currentStage={currentStage} stageLabel={stageLabel} />
             </div>
           )}
 
@@ -327,12 +315,6 @@ export const App: React.FC = () => {
           />
         </footer>
       </div>
-
-      {/* Minecraft 2D Game Modal */}
-      <MinecraftModal
-        isOpen={minecraftModalOpen}
-        onClose={() => setMinecraftModalOpen(false)}
-      />
 
       {/* Web Studio / Preview Modal */}
       <WebPreviewModal

@@ -11,7 +11,7 @@ const DEFAULT_PYTHON_SNIPPET = `import numpy as np
 import matplotlib.pyplot as plt
 import sympy as sp
 
-print("🚀 Bienvenue dans le Bac à Sable Python Sécurisé de NEXUS-OMEGA")
+print("Bac à Sable Python de NEXUS-OMEGA")
 print("-" * 55)
 
 # 1. Calcul formel exact (Pilier 31)
@@ -25,7 +25,7 @@ t = np.linspace(0, 4 * np.pi, 300)
 signal = np.sin(t) + 0.3 * np.sin(5 * t)
 
 plt.figure(figsize=(8, 3.8), facecolor='#0c0d12')
-plt.plot(t, signal, color='#10b981', linewidth=2, label='Signal Synthétique')
+plt.plot(t, signal, color='#6366f1', linewidth=2, label='Signal Synthétique')
 plt.title('Attracteur & Signal Harmonique (0% Erreur)', color='white')
 plt.grid(True, alpha=0.2)
 plt.legend()
@@ -33,7 +33,7 @@ plt.tight_layout()
 plt.show()
 
 print("-" * 55)
-print("✅ Calcul et tracé générés avec 0% d'erreur !")
+print("Calcul et tracé générés avec 0% d'erreur.")
 `;
 
 export const PythonSandboxModal: React.FC<PythonSandboxModalProps> = ({
@@ -88,12 +88,10 @@ export const PythonSandboxModal: React.FC<PythonSandboxModalProps> = ({
   const handleAutoFix = () => {
     setIsFixing(true);
     setTimeout(() => {
-      // Auto-correct common syntax mistakes
       let fixed = code;
       if (fixed.includes('print ') && !fixed.includes('print(')) {
         fixed = fixed.replace(/print\s+(.*)/g, 'print($1)');
       }
-      // Ensure imports
       if (!fixed.includes('import sys') && errorOutput.includes('sys')) {
         fixed = 'import sys\n' + fixed;
       }
@@ -125,19 +123,19 @@ export const PythonSandboxModal: React.FC<PythonSandboxModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
-      <div className="relative w-full max-w-6xl h-[92vh] max-h-[880px] bg-dark-900 border border-emerald-500/30 rounded-2xl flex flex-col shadow-2xl overflow-hidden">
+      <div className="relative w-full max-w-6xl h-[92vh] max-h-[880px] bg-dark-900 border border-slate-700 rounded-2xl flex flex-col shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="px-4 py-3 bg-dark-850 border-b border-dark-700 flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center font-mono font-bold">
+            <div className="w-8 h-8 rounded-lg bg-dark-800 border border-dark-700 text-indigo-400 flex items-center justify-center font-mono font-bold">
               🐍
             </div>
             <div>
               <h2 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
-                Bac à Sable Python Réel <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 font-mono">Python 3.11</span>
+                Bac à Sable Python Réel <span className="text-xs px-2 py-0.5 rounded-full bg-dark-800 text-cyan-400 font-mono border border-dark-700">Python 3.11</span>
               </h2>
               <p className="text-[11px] text-slate-400">
-                NumPy, Matplotlib, SymPy pré-intégrés • 100% Isolé • Auto-correction active
+                NumPy, Matplotlib, SymPy intégrés • Isolé • Auto-correction active
               </p>
             </div>
           </div>
@@ -146,7 +144,7 @@ export const PythonSandboxModal: React.FC<PythonSandboxModalProps> = ({
             <button
               onClick={handleRunCode}
               disabled={isRunning}
-              className="px-4 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-dark-950 font-bold text-xs flex items-center gap-1.5 transition shadow-sm"
+              className="px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-bold text-xs flex items-center gap-1.5 transition shadow-sm"
             >
               {isRunning ? (
                 <>
@@ -155,7 +153,7 @@ export const PythonSandboxModal: React.FC<PythonSandboxModalProps> = ({
                 </>
               ) : (
                 <>
-                  <Play className="w-3.5 h-3.5 fill-dark-950" />
+                  <Play className="w-3.5 h-3.5 fill-white" />
                   <span>▶ Exécuter le code</span>
                 </>
               )}
@@ -176,7 +174,7 @@ export const PythonSandboxModal: React.FC<PythonSandboxModalProps> = ({
               onClick={handleCopy}
               className="px-3 py-1.5 rounded-lg bg-dark-700 hover:bg-dark-600 text-slate-200 text-xs font-medium flex items-center gap-1.5 transition"
             >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+              {copied ? <Check className="w-3.5 h-3.5 text-cyan-400" /> : <Copy className="w-3.5 h-3.5" />}
               <span>{copied ? 'Copié' : 'Copier'}</span>
             </button>
 
@@ -203,14 +201,14 @@ export const PythonSandboxModal: React.FC<PythonSandboxModalProps> = ({
           <div className="flex flex-col h-full overflow-hidden">
             <div className="px-4 py-2 bg-dark-850 border-b border-dark-700 flex items-center justify-between text-xs text-slate-400">
               <span className="font-mono flex items-center gap-1.5">
-                <Terminal className="w-3.5 h-3.5 text-emerald-400" /> Éditeur Python
+                <Terminal className="w-3.5 h-3.5 text-indigo-400" /> Éditeur Python
               </span>
               <span className="text-[11px] text-slate-500">Syntaxe certifiée</span>
             </div>
             <textarea
               value={code}
               onChange={(e) => setCode(e.target.value)}
-              className="flex-1 p-4 bg-dark-950 text-slate-100 font-mono text-xs sm:text-sm leading-relaxed resize-none focus:outline-none selection:bg-emerald-500/30"
+              className="flex-1 p-4 bg-dark-950 text-slate-100 font-mono text-xs sm:text-sm leading-relaxed resize-none focus:outline-none"
               spellCheck={false}
               placeholder="# Écrivez votre code Python ici..."
             />
@@ -223,7 +221,7 @@ export const PythonSandboxModal: React.FC<PythonSandboxModalProps> = ({
                 <Sparkles className="w-3.5 h-3.5 text-cyan-400" /> Sortie Standard & Graphiques
               </span>
               {execTime !== null && (
-                <span className="text-[11px] text-emerald-400 font-mono">
+                <span className="text-[11px] text-cyan-400 font-mono">
                   ⏱️ Temps : {execTime} ms
                 </span>
               )}
@@ -231,8 +229,8 @@ export const PythonSandboxModal: React.FC<PythonSandboxModalProps> = ({
 
             <div className="flex-1 p-4 overflow-auto space-y-4">
               {isRunning && (
-                <div className="flex items-center gap-2 text-emerald-400 text-xs font-mono animate-pulse">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></div>
+                <div className="flex items-center gap-2 text-cyan-400 text-xs font-mono animate-pulse">
+                  <div className="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></div>
                   Exécution dans le bac à sable isolé en cours...
                 </div>
               )}
@@ -245,7 +243,7 @@ export const PythonSandboxModal: React.FC<PythonSandboxModalProps> = ({
               )}
 
               {output && (
-                <div className="font-mono text-xs text-emerald-300 bg-dark-950/80 p-3.5 rounded-lg border border-dark-700 whitespace-pre-wrap">
+                <div className="font-mono text-xs text-slate-200 bg-dark-950/80 p-3.5 rounded-lg border border-dark-700 whitespace-pre-wrap">
                   {output}
                 </div>
               )}

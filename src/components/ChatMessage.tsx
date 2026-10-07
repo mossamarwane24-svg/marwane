@@ -1,33 +1,25 @@
 import React, { useState } from 'react';
-import { Message, ProjectArtifact } from '../types';
+import { Message } from '../types';
 import { ReasoningAccordion } from './ReasoningAccordion';
-import { GreenConfirmationBanner } from './GreenConfirmationBanner';
 import {
   Copy,
   Check,
   Play,
-  ExternalLink,
   Download,
   Terminal,
-  Gamepad2,
   Globe,
-  FileCode,
   FileText,
-  User,
-  Sparkles,
-  Image as ImageIcon
+  User
 } from 'lucide-react';
 
 interface ChatMessageProps {
   message: Message;
-  onOpenMinecraft: (seed?: number) => void;
   onOpenWebPreview: (html: string, title?: string) => void;
   onOpenPythonSandbox: (code?: string) => void;
 }
 
 export const ChatMessage: React.FC<ChatMessageProps> = ({
   message,
-  onOpenMinecraft,
   onOpenWebPreview,
   onOpenPythonSandbox
 }) => {
@@ -50,7 +42,6 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
     URL.revokeObjectURL(url);
   };
 
-  // Helper to render markdown text with headings, bold, code blocks, lists
   const renderFormattedContent = (content: string) => {
     const parts = content.split(/(```[\s\S]*?```)/g);
 
@@ -66,14 +57,14 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
           <div key={index} className="my-3 rounded-xl bg-dark-950 border border-dark-700 overflow-hidden shadow-lg">
             {/* Code Header Bar */}
             <div className="px-4 py-2 bg-dark-850 border-b border-dark-750 flex items-center justify-between text-xs text-slate-400">
-              <span className="font-mono text-emerald-400 font-semibold uppercase">{lang || 'CODE'}</span>
+              <span className="font-mono text-cyan-400 font-semibold uppercase">{lang || 'CODE'}</span>
               <div className="flex items-center gap-2">
                 {isPython && (
                   <button
                     onClick={() => onOpenPythonSandbox(code)}
-                    className="px-2.5 py-1 rounded bg-emerald-500 hover:bg-emerald-400 text-dark-950 font-bold flex items-center gap-1 transition"
+                    className="px-2.5 py-1 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-semibold flex items-center gap-1 transition"
                   >
-                    <Play className="w-3 h-3 fill-dark-950" />
+                    <Play className="w-3 h-3 fill-white" />
                     <span>▶ Exécuter Python</span>
                   </button>
                 )}
@@ -81,7 +72,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
                   onClick={() => handleCopy(code, codeId)}
                   className="px-2.5 py-1 rounded bg-dark-750 hover:bg-dark-700 text-slate-200 flex items-center gap-1 transition"
                 >
-                  {copiedCode === codeId ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                  {copiedCode === codeId ? <Check className="w-3 h-3 text-cyan-400" /> : <Copy className="w-3 h-3" />}
                   <span>{copiedCode === codeId ? 'Copié' : 'Copier'}</span>
                 </button>
                 <button
@@ -94,14 +85,13 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
               </div>
             </div>
             {/* Code Body */}
-            <pre className="p-4 overflow-x-auto font-mono text-xs text-emerald-300 leading-relaxed selection:bg-emerald-500/30">
+            <pre className="p-4 overflow-x-auto font-mono text-xs text-slate-200 leading-relaxed">
               <code>{code}</code>
             </pre>
           </div>
         );
       }
 
-      // Regular markdown paragraphs, lists, bold text
       return (
         <div key={index} className="space-y-2 leading-relaxed text-sm text-slate-200">
           {part.split('\n\n').map((block, bIdx) => {
@@ -114,14 +104,14 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
             }
             if (block.startsWith('#### ')) {
               return (
-                <h4 key={bIdx} className="text-sm sm:text-base font-semibold text-emerald-400 mt-3 mb-1">
+                <h4 key={bIdx} className="text-sm sm:text-base font-semibold text-cyan-400 mt-3 mb-1">
                   {block.replace('#### ', '')}
                 </h4>
               );
             }
             if (block.startsWith('> ')) {
               return (
-                <blockquote key={bIdx} className="my-2 pl-3 border-l-2 border-emerald-500 bg-emerald-950/20 p-2.5 rounded-r-lg text-slate-300 text-xs sm:text-sm">
+                <blockquote key={bIdx} className="my-2 pl-3 border-l-2 border-indigo-500 bg-indigo-950/20 p-2.5 rounded-r-lg text-slate-300 text-xs sm:text-sm">
                   {block.replace('> ', '')}
                 </blockquote>
               );
@@ -132,7 +122,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
                 <ul key={bIdx} className="space-y-1 my-2 pl-2">
                   {items.map((item, itIdx) => (
                     <li key={itIdx} className="flex items-start gap-2 text-xs sm:text-sm text-slate-300">
-                      <span className="text-emerald-400 shrink-0">•</span>
+                      <span className="text-cyan-400 shrink-0">•</span>
                       <span dangerouslySetInnerHTML={{ __html: formatInline(item.replace(/^[\-\*]\s+/, '')) }} />
                     </li>
                   ))}
@@ -148,7 +138,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
                     if (!match) return null;
                     return (
                       <li key={itIdx} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-300">
-                        <span className="font-mono text-emerald-400 font-bold shrink-0">{match[1]}.</span>
+                        <span className="font-mono text-cyan-400 font-bold shrink-0">{match[1]}.</span>
                         <span dangerouslySetInnerHTML={{ __html: formatInline(match[2]) }} />
                       </li>
                     );
@@ -166,17 +156,14 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
     });
   };
 
-  // Helper for bold, code inline, math
   const formatInline = (str: string) => {
     return str
       .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>')
       .replace(/\*(.*?)\*/g, '<em class="text-slate-200">$1</em>')
-      .replace(/`([^`]+)`/g, '<code class="px-1.5 py-0.5 rounded bg-dark-800 text-emerald-300 font-mono text-[11px] border border-dark-700">$1</code>');
+      .replace(/`([^`]+)`/g, '<code class="px-1.5 py-0.5 rounded bg-dark-800 text-cyan-300 font-mono text-[11px] border border-dark-700">$1</code>');
   };
 
-  const hasMinecraft = message.artifacts?.some(a => a.type === 'minecraft-2d');
-  const hasWebsite = message.artifacts?.some(a => a.type === 'website');
-  const hasPython = message.artifacts?.some(a => a.type === 'python-code');
+  const relevantArtifacts = message.artifacts || [];
 
   return (
     <div className={`py-4 sm:py-6 px-3 sm:px-6 transition-colors ${isAssistant ? 'bg-dark-950/40 border-y border-dark-800/60' : ''}`}>
@@ -184,7 +171,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
         {/* Avatar */}
         <div className="shrink-0">
           {isAssistant ? (
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-500 via-teal-400 to-cyan-500 flex items-center justify-center font-black text-dark-950 text-sm shadow-md shadow-emerald-500/20">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-500 via-sky-500 to-cyan-400 flex items-center justify-center font-black text-slate-950 text-sm shadow-md">
               Ω
             </div>
           ) : (
@@ -202,7 +189,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
               {isAssistant ? 'NEXUS-OMEGA' : 'Vous'}
             </span>
             {isAssistant && (
-              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-400 font-semibold border border-emerald-500/30">
+              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-dark-800 text-cyan-400 font-semibold border border-dark-700">
                 Piliers 31-45
               </span>
             )}
@@ -222,7 +209,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
                     </div>
                   ) : (
                     <div className="p-2.5 flex items-center gap-2 text-xs text-slate-300">
-                      <FileText className="w-4 h-4 text-emerald-400" />
+                      <FileText className="w-4 h-4 text-cyan-400" />
                       <span>{file.name}</span>
                     </div>
                   )}
@@ -231,34 +218,9 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
             </div>
           )}
 
-          {/* Assistant Reasoning Accordion (Visible trace before answer) */}
+          {/* Assistant Reasoning Accordion */}
           {isAssistant && message.reasoningTrace && (
             <ReasoningAccordion trace={message.reasoningTrace} />
-          )}
-
-          {/* Green Confirmation Banner for completed projects */}
-          {isAssistant && (hasMinecraft || hasWebsite || hasPython) && (
-            <GreenConfirmationBanner
-              title="Projet généré et testé sans erreur"
-              hasArtifacts={true}
-              onOpenMinecraft={hasMinecraft ? () => onOpenMinecraft() : undefined}
-              onOpenWebPreview={
-                hasWebsite
-                  ? () => {
-                      const site = message.artifacts?.find(a => a.type === 'website');
-                      if (site) onOpenWebPreview(site.content, site.title);
-                    }
-                  : undefined
-              }
-              onOpenPythonSandbox={
-                hasPython
-                  ? () => {
-                      const py = message.artifacts?.find(a => a.type === 'python-code');
-                      onOpenPythonSandbox(py?.content);
-                    }
-                  : undefined
-              }
-            />
           )}
 
           {/* Formatted Content */}
@@ -266,14 +228,14 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
 
           {/* Real Python execution result rendered right inside message */}
           {message.pythonExecResult && (
-            <div className="mt-3 p-3 rounded-xl bg-dark-950 border border-emerald-500/30 font-mono text-xs">
+            <div className="mt-3 p-3 rounded-xl bg-dark-950 border border-dark-700 font-mono text-xs">
               <div className="flex items-center justify-between text-slate-400 mb-2 pb-1 border-b border-dark-800">
-                <span className="flex items-center gap-1.5 text-emerald-400 font-semibold">
-                  <Terminal className="w-3.5 h-3.5" /> Résultat d'exécution en direct (Python 3.11)
+                <span className="flex items-center gap-1.5 text-cyan-400 font-semibold">
+                  <Terminal className="w-3.5 h-3.5" /> Résultat d'exécution (Python 3.11)
                 </span>
                 <span>⏱️ {message.pythonExecResult.executionTimeMs} ms</span>
               </div>
-              <pre className="text-emerald-300 whitespace-pre-wrap">{message.pythonExecResult.stdout}</pre>
+              <pre className="text-slate-200 whitespace-pre-wrap">{message.pythonExecResult.stdout}</pre>
               {message.pythonExecResult.plotImage && (
                 <div className="mt-2 rounded-lg overflow-hidden border border-dark-700">
                   <img src={message.pythonExecResult.plotImage} alt="Python Plot" className="w-full" />
@@ -282,39 +244,28 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
             </div>
           )}
 
-          {/* Artifact Cards (Interactive buttons) */}
-          {message.artifacts && message.artifacts.length > 0 && (
+          {/* Artifact Cards (Websites, Python) */}
+          {relevantArtifacts.length > 0 && (
             <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {message.artifacts.map((art) => (
+              {relevantArtifacts.map((art) => (
                 <div
                   key={art.id}
-                  className="p-3.5 rounded-xl bg-dark-850 border border-dark-700 hover:border-emerald-500/50 transition flex flex-col justify-between shadow-lg"
+                  className="p-3.5 rounded-xl bg-dark-850 border border-dark-700 hover:border-cyan-500/50 transition flex flex-col justify-between shadow-lg"
                 >
                   <div>
                     <div className="flex items-center gap-2 mb-1.5">
-                      {art.type === 'minecraft-2d' && <Gamepad2 className="w-4 h-4 text-emerald-400" />}
                       {art.type === 'website' && <Globe className="w-4 h-4 text-cyan-400" />}
-                      {art.type === 'python-code' && <Terminal className="w-4 h-4 text-teal-400" />}
+                      {art.type === 'python-code' && <Terminal className="w-4 h-4 text-indigo-400" />}
                       <span className="font-bold text-xs text-white">{art.title}</span>
                     </div>
                     <p className="text-[11px] text-slate-400 mb-3">{art.description}</p>
                   </div>
 
                   <div className="flex items-center gap-2 pt-2 border-t border-dark-750">
-                    {art.type === 'minecraft-2d' && (
-                      <button
-                        onClick={() => onOpenMinecraft()}
-                        className="flex-1 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-dark-950 font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95"
-                      >
-                        <Play className="w-3.5 h-3.5 fill-dark-950" />
-                        <span>Jouer au Jeu</span>
-                      </button>
-                    )}
-
                     {art.type === 'website' && (
                       <button
                         onClick={() => onOpenWebPreview(art.content, art.title)}
-                        className="flex-1 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-dark-950 font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95"
+                        className="flex-1 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition active:scale-95"
                       >
                         <Globe className="w-3.5 h-3.5" />
                         <span>Tester le Site</span>
@@ -324,9 +275,9 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
                     {art.type === 'python-code' && (
                       <button
                         onClick={() => onOpenPythonSandbox(art.content)}
-                        className="flex-1 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-dark-950 font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95"
+                        className="flex-1 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition active:scale-95"
                       >
-                        <Play className="w-3.5 h-3.5 fill-dark-950" />
+                        <Play className="w-3.5 h-3.5 fill-white" />
                         <span>Exécuter</span>
                       </button>
                     )}
@@ -335,11 +286,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
                       onClick={() =>
                         handleDownloadFile(
                           art.content,
-                          art.type === 'minecraft-2d'
-                            ? 'minecraft-2d.html'
-                            : art.type === 'website'
-                            ? 'index.html'
-                            : 'script.py'
+                          art.type === 'website' ? 'index.html' : 'script.py'
                         )
                       }
                       className="p-1.5 rounded-lg bg-dark-750 hover:bg-dark-700 text-slate-300 transition"

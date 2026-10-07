@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { PILLARS_31_TO_45 } from '../data/pillars';
 import { CognitivePillar } from '../types';
-import { ShieldCheck, Cpu, Network, Sparkles, Scale, Activity, ArrowRight, CheckCircle2, Play, X, Layers } from 'lucide-react';
+import { ShieldCheck, Cpu, Activity, ArrowRight, CheckCircle2, Play, X } from 'lucide-react';
 
 interface CognitivePillarsModalProps {
   isOpen: boolean;
@@ -35,25 +35,25 @@ export const CognitivePillarsModal: React.FC<CognitivePillarsModalProps> = ({
       let outputText = '';
       switch (pillar.number) {
         case 31:
-          outputText = "✅ [Neuro-Symbolique] Inférence SMT réussie. 12 variables vérifiées. Zéro hallucination détectée.";
+          outputText = "[Neuro-Symbolique] Inférence SMT réussie. 12 variables vérifiées. Zéro hallucination détectée.";
           break;
         case 32:
-          outputText = "🛡️ [RSI Contrôlée] Mutation d'optimisation de mémoire testée en sandbox #402. Gain = +14.2% vitesse. Invariant de sécurité inviolé. Veto humain en attente.";
+          outputText = "[RSI Contrôlée] Mutation d'optimisation de mémoire testée en sandbox #402. Gain = +14.2% vitesse. Invariant de sécurité inviolé. Veto humain en attente.";
           break;
         case 33:
-          outputText = "🌍 [Modèle du Monde] 10,000 trajectoires de Monte-Carlo simulées à t+5 ans. Point d'équilibre géopolitique identifié avec certitude 98.4%.";
+          outputText = "[Modèle du Monde] 10,000 trajectoires de Monte-Carlo simulées à t+5 ans. Point d'équilibre géopolitique identifié avec certitude 98.4%.";
           break;
         case 34:
-          outputText = "🧠 [Méta-Cognition] Évaluation introspective : Biais d'ancrage = 0.00%. Calibration probabiliste ECE = 0.004. Allocation compute = optimale.";
+          outputText = "[Méta-Cognition] Évaluation introspective : Biais d'ancrage = 0.00%. Calibration probabiliste ECE = 0.004. Allocation compute = optimale.";
           break;
         case 35:
-          outputText = "⚖️ [Multi-Agents] 7 agents ont délibéré. Objection de 'Critique Impitoyable' levée par 'Fact-Checker'. Consensus souverain scellé.";
+          outputText = "[Multi-Agents] 7 agents ont délibéré. Objection de 'Critique Impitoyable' levée par 'Fact-Checker'. Consensus souverain scellé.";
           break;
         case 36:
-          outputText = "🔬 [Découverte Scientifique] Hypothèse générée : Catalyseur supraconducteur dopé à l'yttrium. Design expérimental 4-phases validé.";
+          outputText = "[Découverte Scientifique] Hypothèse générée : Catalyseur supraconducteur dopé à l'yttrium. Design expérimental 4-phases validé.";
           break;
         default:
-          outputText = `⚡ [Pilier ${pillar.number}] Simulation exécutée avec succès. Toutes les garanties formelles sont satisfaites à 100%.`;
+          outputText = `[Pilier ${pillar.number}] Simulation exécutée avec succès. Toutes les garanties formelles sont satisfaites à 100%.`;
       }
       setSimOutput(outputText);
       setSimulating(false);
@@ -66,12 +66,12 @@ export const CognitivePillarsModal: React.FC<CognitivePillarsModalProps> = ({
         {/* Modal Header */}
         <div className="px-5 py-3.5 bg-dark-850 border-b border-dark-700 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center text-dark-950 font-black text-lg">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-cyan-500 flex items-center justify-center text-slate-950 font-black text-lg">
               Ω
             </div>
             <div>
               <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-                Architecture Cognitive Universelle <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 font-mono">Piliers 31 à 45</span>
+                Architecture Cognitive Universelle <span className="text-xs px-2 py-0.5 rounded-full bg-dark-800 text-cyan-400 font-mono border border-dark-750">Piliers 31 à 45</span>
               </h2>
               <p className="text-xs text-slate-400">
                 L’ensemble des 15 principes fondamentaux intégrant neuro-symbolique, RSI contrôlée et société multi-agents
@@ -94,7 +94,7 @@ export const CognitivePillarsModal: React.FC<CognitivePillarsModalProps> = ({
               onClick={() => setSelectedCategory(cat)}
               className={`px-3 py-1 rounded-lg text-xs font-medium whitespace-nowrap transition ${
                 selectedCategory === cat
-                  ? 'bg-emerald-500 text-dark-950 font-bold shadow-sm'
+                  ? 'bg-cyan-600 text-white font-bold shadow-sm'
                   : 'text-slate-400 hover:text-white hover:bg-dark-700'
               }`}
             >
@@ -118,12 +118,12 @@ export const CognitivePillarsModal: React.FC<CognitivePillarsModalProps> = ({
                   }}
                   className={`p-3 rounded-xl cursor-pointer transition-all border ${
                     isSelected
-                      ? 'bg-dark-800/90 border-emerald-500 shadow-md shadow-emerald-500/10'
+                      ? 'bg-dark-800/90 border-cyan-500 shadow-md shadow-cyan-500/10'
                       : 'bg-dark-850/60 border-dark-700 hover:border-slate-600 hover:bg-dark-800'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-dark-700 text-emerald-400">
+                    <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-dark-700 text-cyan-400">
                       Pilier #{p.number}
                     </span>
                     <span className="text-[11px] text-slate-400">{p.category}</span>
@@ -139,15 +139,15 @@ export const CognitivePillarsModal: React.FC<CognitivePillarsModalProps> = ({
           <div className="md:col-span-7 h-full overflow-y-auto p-5 space-y-5 bg-[#090b10]">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-md bg-dark-800 text-cyan-400 border border-dark-700">
                   Pilier #{activePillar.number} • {activePillar.category}
                 </span>
                 <span className="text-xs text-slate-400 flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Vérification Active
+                  <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" /> Vérification Active
                 </span>
               </div>
               <h2 className="text-xl font-extrabold text-white">{activePillar.title}</h2>
-              <p className="text-sm text-emerald-400/90 font-medium mt-1">{activePillar.tagline}</p>
+              <p className="text-sm text-cyan-400 font-medium mt-1">{activePillar.tagline}</p>
             </div>
 
             {/* Description */}
@@ -163,7 +163,7 @@ export const CognitivePillarsModal: React.FC<CognitivePillarsModalProps> = ({
               <div className="grid grid-cols-1 gap-2">
                 {activePillar.keyMechanisms.map((mech, i) => (
                   <div key={i} className="flex items-start gap-2.5 p-2.5 rounded-lg bg-dark-800/60 border border-dark-750 text-xs text-slate-200">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
                     <span>{mech}</span>
                   </div>
                 ))}
@@ -171,8 +171,8 @@ export const CognitivePillarsModal: React.FC<CognitivePillarsModalProps> = ({
             </div>
 
             {/* Formal Guarantee */}
-            <div className="p-3.5 rounded-xl bg-emerald-950/20 border border-emerald-500/30 text-xs text-emerald-300">
-              <strong className="text-emerald-400 block mb-1">🛡️ Garantie Formelle Inviolable :</strong>
+            <div className="p-3.5 rounded-xl bg-dark-850 border border-slate-700 text-xs text-slate-300">
+              <strong className="text-cyan-400 block mb-1">Garantie Formelle :</strong>
               {activePillar.formalGuarantee}
             </div>
 
@@ -180,20 +180,20 @@ export const CognitivePillarsModal: React.FC<CognitivePillarsModalProps> = ({
             <div className="p-4 rounded-xl bg-dark-850 border border-dark-700 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                  <Activity className="w-4 h-4 text-emerald-400" /> Simulateur Interactif en Direct
+                  <Activity className="w-4 h-4 text-cyan-400" /> Simulateur Interactif
                 </span>
                 <button
                   onClick={() => handleRunSimulation(activePillar)}
                   disabled={simulating}
-                  className="px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-dark-950 text-xs font-bold flex items-center gap-1.5 transition"
+                  className="px-3.5 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold flex items-center gap-1.5 transition"
                 >
-                  <Play className="w-3.5 h-3.5 fill-dark-950" />
+                  <Play className="w-3.5 h-3.5 fill-white" />
                   <span>{simulating ? 'Simulation...' : 'Tester ce Pilier'}</span>
                 </button>
               </div>
 
               {simOutput && (
-                <div className="p-3 rounded-lg bg-dark-950 border border-emerald-500/40 text-xs font-mono text-emerald-300 animate-fadeIn">
+                <div className="p-3 rounded-lg bg-dark-950 border border-cyan-500/40 text-xs font-mono text-cyan-300 animate-fadeIn">
                   {simOutput}
                 </div>
               )}
@@ -206,7 +206,7 @@ export const CognitivePillarsModal: React.FC<CognitivePillarsModalProps> = ({
                   onSelectPillarPrompt(activePillar);
                   onClose();
                 }}
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-dark-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg hover:opacity-95 transition"
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-500 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg hover:opacity-95 transition"
               >
                 <span>Poser une question spécifique sur le Pilier #{activePillar.number}</span>
                 <ArrowRight className="w-4 h-4" />

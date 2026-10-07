@@ -1,6 +1,6 @@
 # NEXUS-OMEGA | Système d'IA Universel Neuro-Symbolique & Multi-Agents (Piliers 31 à 45)
 
-NEXUS-OMEGA est une plateforme d'intelligence artificielle de pointe intégrant l'architecture cognitive des piliers 31 à 45, combinant raisonnement neuro-symbolique déductif, société de 7 agents spécialisés en débat contradictoire permanent, un bac à sable d'exécution Python réelle, un générateur de jeux procéduraux (Minecraft 2D physique) et un Web Studio interactif moderne.
+NEXUS-OMEGA est une plateforme d'intelligence artificielle de pointe intégrant l'architecture cognitive des piliers 31 à 45, combinant raisonnement neuro-symbolique déductif, société de 7 agents spécialisés en débat contradictoire permanent, un bac à sable d'exécution Python réelle et un Web Studio interactif moderne.
 
 ---
 
@@ -35,27 +35,19 @@ NEXUS-OMEGA est une plateforme d'intelligence artificielle de pointe intégrant 
 ### 💻 Code & Développement
 - **Exécution RÉELLE de Python 3.11** directement dans le chat (NumPy, SymPy, Matplotlib) avec affichage des graphiques et sortie stdout.
 - **Détection et auto-correction** des erreurs de code en 1 clic.
-- **Moteur Minecraft 2D Procédural & Physique** :
-  - Génération procédurale du monde (reliefs, collines, cavernes)
-  - 6 types de blocs : herbe, terre, pierre, bois, or, eau
-  - Déplacements flèches / ZQSD et contrôles tactiles mobiles
-  - Saut et gravité réaliste
-  - Casser (clic gauche) / poser (clic droit) avec son synthétisé et particules
-  - Arbres générés aléatoirement
-  - Jouable directement in-app, en nouvel onglet ou fichier `.html` téléchargeable.
 - **Web Studio Responsive** :
-  - Design moderne avec dégradés néon et glassmorphism
+  - Design moderne avec interface sombre soignée
   - Boutons et modales interactifs opérationnels
   - Aperçu direct (desktop, tablette, mobile) et téléchargement 1 clic.
 
 ### 📱 Interface & Utilisation
-- Thème sombre premium glassmorphism.
+- Thème sombre épuré aux tons cyan, indigo et ardoise.
 - 100% responsive ordinateur, tablette et téléphone tactile.
 - Bouton menu ☰ visible sur mobile pour ouvrir la barre latérale.
 - Bouton "✏️ Nouveau chat" tout en haut du menu.
 - Historique sauvegardé automatiquement en LocalStorage avec recherche instantanée.
 - Upload et analyse de tous types de fichiers et images.
-- Barre de progression verte animée et bannière de confirmation sans erreur.
+- Barre d'avancement animée montrant les 4 étapes de réflexion cognitive.
 
 ---
 

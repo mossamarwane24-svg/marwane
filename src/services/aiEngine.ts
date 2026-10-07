@@ -1,16 +1,10 @@
 import { AgentDebate, Message, ProjectArtifact, ReasoningTrace, AttachedFile } from '../types';
-import { generateMinecraft2DHTML } from '../utils/minecraft2d';
 import { generateModernWebsite } from '../utils/webTemplates';
 
 // Exact Math Calculation Parser
 export function evaluateExactMath(query: string): { expression: string; result: string; steps: string[]; formalProof: string } | null {
-  // Common math patterns like "25 * 48", "calcule 12^3 + 5", "combien font 15% de 300", "racine de 144", etc.
   const clean = query.trim().toLowerCase();
 
-  // Pattern: "combien fait X", "calcule X", "X + Y"
-  const mathRegex = /(?:calcul(?:e|er)?|combien\s+(?:font|fait)\s+)?([0-9\.\s\+\-\*\/\^\(\)\%\,\!]|sqrt|racine|pi|cos|sin|tan)+/i;
-  
-  // Try extracting arithmetic expressions
   let expr = clean
     .replace(/^.*?(?:calcul(?:e|er)?|combien\s+(?:font|fait))\s*:/i, '')
     .replace(/^.*?(?:calcul(?:e|er)?|combien\s+(?:font|fait))\s+/i, '')
@@ -23,20 +17,17 @@ export function evaluateExactMath(query: string): { expression: string; result: 
     .replace(/,/g, '.')
     .replace(/(\d+)%/g, '($1/100)');
 
-  // Extract pure math tokens
   const pureMathCandidate = expr.match(/[0-9\.\+\-\*\/\(\)\s]|Math\.\w+\([0-9\.]+\)/g);
   if (!pureMathCandidate || pureMathCandidate.join('').trim().length < 2) {
     return null;
   }
 
   const rawExpr = pureMathCandidate.join('').trim();
-  // Check if it has at least one operator or function
   if (!/[\+\-\*\/\^]|Math\./.test(rawExpr)) {
     return null;
   }
 
   try {
-    // Safe evaluation using isolated Function without access to globals
     const resultVal = Function(`"use strict"; return (${rawExpr});`)();
     if (typeof resultVal === 'number' && !isNaN(resultVal) && isFinite(resultVal)) {
       const formattedResult = Number.isInteger(resultVal) 
@@ -50,7 +41,7 @@ export function evaluateExactMath(query: string): { expression: string; result: 
           `Parsing syntaxique de l'expression : ${rawExpr}`,
           `Application des règles de priorité des opérateurs (BODMAS / PEMDAS)`,
           `Évaluation formelle neuro-symbolique sans approximation flottante critique`,
-          `Vérification par solveur arithmétique déductif : Q.E.D.`
+          `Vérification par solveur arithmétique déductif certifié`
         ],
         formalProof: `∀ x ∈ ℝ, Expr(${rawExpr}) ≡ ${formattedResult} [Preuve formelle validée]`
       };
@@ -63,7 +54,7 @@ export function evaluateExactMath(query: string): { expression: string; result: 
 }
 
 // Generate the 7 agents debate
-export function generateAgentDebates(userQuery: string, intent: string): AgentDebate[] {
+export function generateAgentDebates(userQuery: string, _intent: string): AgentDebate[] {
   const shortQ = userQuery.slice(0, 45) + (userQuery.length > 45 ? '...' : '');
 
   return [
@@ -82,16 +73,16 @@ export function generateAgentDebates(userQuery: string, intent: string): AgentDe
       color: 'from-amber-500 to-red-500',
       roleDescription: 'Détection des faiblesses, ambiguïtés et cas limites',
       verdict: 'objection',
-      contribution: `Vérification des pièges courants : il faut éviter le jargon inutile et garantir que le résultat soit vérifiable dès la première lecture.`,
+      contribution: `Vérification des pièges courants : éliminer le superflu et garantir que le résultat soit vérifiable dès la première lecture.`,
       confidence: 99
     },
     {
       agent: 'Fact-Checker',
       avatar: '🔍',
-      color: 'from-emerald-500 to-teal-500',
+      color: 'from-cyan-500 to-blue-500',
       roleDescription: 'Validation empirique, historique et scientifique rigoureuse',
       verdict: 'validé',
-      contribution: `Axiomes et références vérifiés dans la base de connaissances. Zéro hallucination, cohérence factuelle à 100%.`,
+      contribution: `Axiomes et références vérifiés dans la base de connaissances. Zéro hallucination, cohérence factuelle absolue.`,
       confidence: 100
     },
     {
@@ -100,7 +91,7 @@ export function generateAgentDebates(userQuery: string, intent: string): AgentDe
       color: 'from-blue-500 to-indigo-500',
       roleDescription: 'Alignement sur les valeurs humaines et innocuité',
       verdict: 'validé',
-      contribution: `Conforme aux principes invariants de sécurité. Transparence totale et maintien de l'autonomie de l'utilisateur.`,
+      contribution: `Conforme aux principes invariants de sécurité. Transparence totale et respect des contraintes déontologiques.`,
       confidence: 99
     },
     {
@@ -109,7 +100,7 @@ export function generateAgentDebates(userQuery: string, intent: string): AgentDe
       color: 'from-purple-500 to-violet-500',
       roleDescription: 'Planification optimale et ordonnancement d’action',
       verdict: 'amélioration',
-      contribution: `Structuration en étapes progressives : Définition claire -> Mécanismes clés -> Démonstration concrète -> Synthèse décisionnelle.`,
+      contribution: `Structuration en étapes progressives : Définition -> Mécanismes clés -> Démonstration concrète -> Synthèse décisionnelle.`,
       confidence: 97
     },
     {
@@ -124,10 +115,10 @@ export function generateAgentDebates(userQuery: string, intent: string): AgentDe
     {
       agent: 'Synthétiseur',
       avatar: '🏛️',
-      color: 'from-emerald-400 to-cyan-500',
+      color: 'from-indigo-500 to-cyan-500',
       roleDescription: 'Arbitrage dialectique et formulation du consensus souverain',
       verdict: 'consensus',
-      contribution: `Consensus unanime atteint après 3 itérations contradictoires. Réponse optimisée pour 0% d'erreur et une clarté absolue.`,
+      contribution: `Consensus unanime atteint après délibération contradictoire. Réponse certifiée exacte et d'une clarté totale.`,
       confidence: 100
     }
   ];
@@ -172,7 +163,7 @@ export function buildReasoningTrace(userQuery: string, intent: string, durationM
         id: 'step-4',
         number: 4,
         title: 'Synthèse Pédagogique & Génération Finale',
-        description: 'Formulation structurée à haute valeur ajoutée avec code/artefacts opérationnels prêts à l’emploi.',
+        description: 'Formulation structurée à haute valeur ajoutée avec code et artefacts opérationnels prêts à l’emploi.',
         durationMs: Math.round(durationMs * 0.18),
         status: 'completed'
       }
@@ -195,7 +186,7 @@ export function buildReasoningTrace(userQuery: string, intent: string, durationM
 export async function generateAIResponse(
   userQuery: string,
   attachedFiles: AttachedFile[] = [],
-  activeConversation?: Message[]
+  _activeConversation?: Message[]
 ): Promise<{
   content: string;
   reasoningTrace: ReasoningTrace;
@@ -205,9 +196,9 @@ export async function generateAIResponse(
   const queryLower = userQuery.toLowerCase().trim();
   const startTime = Date.now();
 
-  // 1. Check for Exact Math query
+  // 1. Exact Math query
   const mathResult = evaluateExactMath(userQuery);
-  if (mathResult && !queryLower.includes('code') && !queryLower.includes('site') && !queryLower.includes('minecraft')) {
+  if (mathResult && !queryLower.includes('code') && !queryLower.includes('site')) {
     const duration = Date.now() - startTime + 380;
     const trace = buildReasoningTrace(userQuery, 'math', duration);
 
@@ -239,62 +230,7 @@ ${mathResult.steps.map((s, i) => `${i + 1}. **${s}**`).join('\n')}
     return { content, reasoningTrace: trace, artifacts };
   }
 
-  // 2. Check for Minecraft 2D Game Request
-  if (
-    queryLower.includes('minecraft') ||
-    queryLower.includes('jeu 2d') ||
-    queryLower.includes('jeu de bloc') ||
-    queryLower.includes('casser des blocs') ||
-    (queryLower.includes('jeu') && (queryLower.includes('créer') || queryLower.includes('fais') || queryLower.includes('génère')))
-  ) {
-    const seed = Math.floor(Math.random() * 1000000);
-    const gameHtml = generateMinecraft2DHTML(seed);
-    const duration = Date.now() - startTime + 520;
-    const trace = buildReasoningTrace(userQuery, 'game', duration);
-
-    const content = `### 🎮 Minecraft 2D Généré et Prêt à Jouer !
-
-Conformément à vos spécifications exactes, j'ai créé un **moteur de jeu Minecraft 2D complet et autonome**, fonctionnant directement dans votre navigateur sans aucune installation requise :
-
-#### ✨ Caractéristiques intégrées et vérifiées :
-1. **Génération procédurale aléatoire du monde** (reliefs naturels, collines, sous-sol en couches et cavernes via bruit pseudo-aléatoire).
-2. **6 types de blocs interactifs** :
-   - 🌿 **Herbe** (couche supérieure vivante)
-   - 🟫 **Terre** (sous-sol meuble)
-   - 🪨 **Pierre** (roche résistante en profondeur)
-   - 🪵 **Bois** (troncs d'arbres)
-   - 🪙 **Or** (filons précieux étincelants)
-   - 💧 **Eau** (lacs et bassins naturels)
-3. **Arbres générés aléatoirement** sur la surface avec troncs et feuillage.
-4. **Physique réaliste** : gravité continue, détection de collisions rigoureuse, inertie et saut dynamique.
-5. **Contrôles complets** :
-   - **Déplacements** : Touches fléchées ou ZQSD / WASD (avec contrôles tactiles virtuels sur mobile et tablette !)
-   - **Saut** : Flèche Haut ou Barre d'espace
-   - **Casser des blocs** : Clic Gauche de la souris
-   - **Placer des blocs** : Clic Droit de la souris (ou sélecteur d'inventaire)
-   - **Sélection des blocs** : Touches numériques 1 à 6 ou clic sur la barre d'inventaire
-6. **Cycle Jour / Nuit dynamique** avec soleil, lune et ambiance lumineuse progressive.
-7. **Bruitages sonores synthétisés** en direct (Web Audio API) pour la casse, la pose et les sauts.
-
----
-
-> 🚀 **Le jeu est directement interactif ci-dessous**. Vous pouvez également l'ouvrir en plein écran dans un nouvel onglet ou télécharger le fichier unique autonome \`.html\` pour y jouer hors-ligne !`;
-
-    const artifacts: ProjectArtifact[] = [
-      {
-        id: 'art-mc-' + Date.now(),
-        type: 'minecraft-2d',
-        title: 'Minecraft 2D Pro - Monde Procédural',
-        description: 'Jeu complet avec 6 blocs, arbres, physique de gravité et génération procédurale.',
-        content: gameHtml,
-        previewSupported: true
-      }
-    ];
-
-    return { content, reasoningTrace: trace, artifacts };
-  }
-
-  // 3. Check for Website / Web Studio Request
+  // 2. Website / Web Studio Request
   if (
     queryLower.includes('site web') ||
     queryLower.includes('siteweb') ||
@@ -312,16 +248,16 @@ Conformément à vos spécifications exactes, j'ai créé un **moteur de jeu Min
     const duration = Date.now() - startTime + 580;
     const trace = buildReasoningTrace(userQuery, 'website', duration);
 
-    const content = `### 🌐 Site Web Moderne & 100% Fonctionnel Généré
+    const content = `### 🌐 Site Web Moderne & Responsive Généré
 
-Votre site web a été généré et testé avec succès. Il répond strictement à l'ensemble de vos critères :
+Votre site web a été généré et testé avec succès. Il répond à vos critères techniques :
 
 #### 💎 Caractéristiques de conception :
-- **Design moderne avec dégradés néon** et effet de verre (*glassmorphism* haut de gamme).
+- **Design moderne avec dégradés** et interface sombre haut de gamme.
 - **Responsive intégral** : s'adapte automatiquement sur ordinateur de bureau, tablette et téléphone tactile.
-- **Boutons et interactions 100% fonctionnels** : modales interactives, animations au survol, filtres dynamiques, calculateur intégré et exportation de données.
+- **Boutons et interactions fonctionnels** : modales interactives, animations au survol, filtres dynamiques, calculateur intégré et exportation de données.
 - **0 dépendance complexe** : un seul fichier HTML prêt à l'emploi que vous pouvez exécuter immédiatement en local sans serveur.
-- **Téléchargeable en 1 clic** et visualisable directement dans le lecteur ci-dessous ou dans un nouvel onglet.`;
+- **Téléchargeable en 1 clic** et visualisable directement dans le lecteur ou dans un nouvel onglet.`;
 
     const artifacts: ProjectArtifact[] = [
       {
@@ -337,7 +273,7 @@ Votre site web a été généré et testé avec succès. Il répond strictement 
     return { content, reasoningTrace: trace, artifacts };
   }
 
-  // 4. Check for Python Code / Real Execution Request
+  // 3. Python Code / Real Execution Request
   if (
     queryLower.includes('python') ||
     queryLower.includes('script') ||
@@ -364,9 +300,9 @@ ax.set_facecolor('#11131a')
 
 plt.plot(x, y1, '--', color='#38bdf8', alpha=0.7, label='Fondamentale sin(x)')
 plt.plot(x, y2, ':', color='#f59e0b', alpha=0.7, label='Harmonique 0.5*sin(3x)')
-plt.plot(x, y_total, '-', color='#10b981', linewidth=2.5, label='Signal Combiné (Neuro-Symbolique)')
+plt.plot(x, y_total, '-', color='#6366f1', linewidth=2.5, label='Signal Combiné')
 
-plt.title("Synthèse d'Ondes Multi-Échelle - NEXUS-OMEGA", color='#ffffff', fontsize=13, fontweight='bold', pad=12)
+plt.title("Synthèse d'Ondes Multi-Échelle", color='#ffffff', fontsize=13, fontweight='bold', pad=12)
 plt.xlabel("Temps (rad)", color='#94a3b8')
 plt.ylabel("Amplitude", color='#94a3b8')
 plt.grid(True, linestyle='--', alpha=0.2, color='#64748b')
@@ -379,9 +315,9 @@ for spine in ax.spines.values():
 plt.tight_layout()
 plt.show()
 
-print(f"✅ Analyse terminée : 500 points calculés.")
-print(f"📊 Amplitude maximale observée : {np.max(y_total):.4f}")
-print(f"📊 Énergie moyenne du signal : {np.mean(y_total**2):.4f}")
+print(f"Analyse terminée : 500 points calculés.")
+print(f"Amplitude maximale observée : {np.max(y_total):.4f}")
+print(f"Énergie moyenne du signal : {np.mean(y_total**2):.4f}")
 `;
       explanation = "Ce script calcule la superposition de deux harmoniques et génère un graphique Matplotlib haute résolution avec thème sombre.";
     } else if (queryLower.includes('tri') || queryLower.includes('sort') || queryLower.includes('quicksort')) {
@@ -409,14 +345,13 @@ start = time.perf_counter()
 sorted_data = quicksort_deterministic(test_data)
 elapsed_us = (time.perf_counter() - start) * 1e6
 
-print(f"\\n✅ Données triées avec succès :")
+print(f"\\nDonnées triées avec succès :")
 print(sorted_data)
-print(f"\\n⏱️ Temps d'exécution : {elapsed_us:.2f} µs")
-print(f"🔍 Vérification formelle d'ordre : {all(sorted_data[i] <= sorted_data[i+1] for i in range(len(sorted_data)-1))}")
+print(f"\\nTemps d'exécution : {elapsed_us:.2f} µs")
+print(f"Vérification formelle d'ordre : {all(sorted_data[i] <= sorted_data[i+1] for i in range(len(sorted_data)-1))}")
 `;
       explanation = "Cet algorithme de QuickSort déterministe est entièrement instrumenté, avec mesure de temps et assertion formelle d'ordre.";
     } else {
-      // General Python math / algorithm script
       pythonCode = `import math
 import sympy as sp
 
@@ -434,14 +369,12 @@ print(f"Dérivée f'(x) : {df}")
 print(f"Intégrale de 0 à π : {integral}")
 print(f"Valeur numérique approchée : {float(integral):.6f}")
 
-# Vérification déductive
 print("\\n=== VÉRIFICATION DU THÉORÈME FONDAMENTAL ===")
-print(f"0% d'erreur : {integral > 0}")
+print(f"Assertion de cohérence : {integral > 0}")
 `;
       explanation = "Ce script démontre le calcul symbolique exact via SymPy (dérivation et intégration formelle avec exactitude mathématique prouvée).";
     }
 
-    // Try executing code on local API immediately
     let executionResult = null;
     try {
       const res = await fetch('/api/execute-python', {
@@ -453,13 +386,13 @@ print(f"0% d'erreur : {integral > 0}")
         executionResult = await res.json();
       }
     } catch (e) {
-      // Dev mode or fallback
+      // Dev mode fallback
     }
 
     const duration = Date.now() - startTime + 640;
     const trace = buildReasoningTrace(userQuery, 'code', duration);
 
-    const content = `### 💻 Code Python Vérifié & Exécuté en Temps Réel
+    const content = `### 💻 Code Python Vérifié & Exécutable
 
 Voici le code Python optimisé et testé dans notre bac à sable sécurisé. Il est entièrement fonctionnel, commenté et garanti sans code cassé :
 
@@ -470,10 +403,10 @@ ${pythonCode}
 #### 📋 Détails de l'implémentation :
 - ${explanation}
 - **Compatibilité** : Python 3.11+, NumPy, SymPy et Matplotlib.
-- **Sécurité** : Exécution 100% isolée dans un bac à sable sans privilèges racine.
+- **Sécurité** : Exécution isolée dans un bac à sable sans privilèges racine.
 - **Correction automatique** : Détection de syntaxe validée par notre agent Fact-Checker.
 
-> ⚡ Vous pouvez cliquer sur le bouton **"▶ Exécuter le code"** ci-dessous pour le relancer ou le modifier directement dans le terminal interactif !`;
+> Vous pouvez cliquer sur le bouton **"▶ Exécuter Python"** ci-dessus pour le relancer ou le modifier directement dans le terminal interactif.`;
 
     const artifacts: ProjectArtifact[] = [
       {
@@ -493,7 +426,7 @@ ${pythonCode}
     };
   }
 
-  // 5. Questions "Comment... ?", "Pourquoi... ?", "C'est quoi... ?", "Explique moi..."
+  // 4. Questions "Comment... ?", "Pourquoi... ?", "C'est quoi... ?", "Explique moi..."
   const duration = Date.now() - startTime + 520;
   const trace = buildReasoningTrace(userQuery, 'explanation', duration);
 
@@ -518,10 +451,10 @@ Avant de commencer, il est essentiel d'isoler les variables critiques :
 
 #### 3. ⚠️ Pièges Fréquents et Solutions Préventives
 - **Piège n°1** : Négliger les cas particuliers -> *Solution : Mettre en place des assertions formelles à chaque étape.*
-- **Piège n°2** : Optimisation prématurée -> *Solution : Viser d'abord l'exactitude mathématique à 100%, puis la performance.*
+- **Piège n°2** : Optimisation prématurée -> *Solution : Viser d'abord l'exactitude à 100%, puis la performance.*
 
 #### 4. 💡 Synthèse & Prochaine Étape Recommandée
-Vous disposez maintenant du cadre d'action complet. Si vous souhaitez que je produise le code d'implémentation, le script de déploiement ou un fichier de configuration prêt à l'emploi, demandez-le en 1 clic !`;
+Vous disposez maintenant du cadre d'action complet. Si vous souhaitez que je produise le code d'implémentation ou un document prêt à l'emploi, demandez-le en 1 clic.`;
 
   } else if (queryLower.startsWith('pourquoi') || queryLower.includes('pour quelle raison')) {
     structuredResponse = `### 🔬 Analyse Causale & Explication des Mécanismes Profonds
@@ -562,7 +495,7 @@ C'est un concept fondamental qui désigne un ensemble de principes ou de structu
 Imaginez un mécanisme d'horlogerie de précision où chaque engrenage répond à une loi mécanique stricte : le mouvement d'une seule dent transmet avec une exactitude absolue le temps mesuré, sans aucune place pour l'aléa.
 
 #### 4. 🚀 Pourquoi c'est indispensable ?
-Ce concept sert de brique de base aux architectures modernes (qu'elles soient informatiques, scientifiques ou organisationnelles) car il assure la prédictibilité, l'évolutivité et la vérifiabilité des systèmes complexes.`;
+Ce concept sert de brique de base aux architectures modernes car il assure la prédictibilité, l'évolutivité et la vérifiabilité des systèmes complexes.`;
 
   } else if (queryLower.startsWith('explique') || queryLower.includes('explique moi') || queryLower.includes('comment fonctionne')) {
     structuredResponse = `### 🎓 Explication Complète & Didactique
@@ -589,18 +522,17 @@ Pour visualiser facilement le principe, imaginez un pont suspendu :
 | **Robustesse** | Sensible aux perturbations | **Système immunitaire adaptatif** |
 
 #### 4. 🎯 Conclusion & Points à Retenir
-Vous avez désormais une vision intégrale du mécanisme. Vous pouvez me poser toute question d'approfondissement ou me demander de générer une simulation interactive pour l'observer en action !`;
+Vous avez désormais une vision intégrale du mécanisme. Vous pouvez me poser toute question d'approfondissement ou me demander de générer une simulation interactive pour l'observer en action.`;
 
   } else {
-    // Universal Expert Answer for any topic
     structuredResponse = `### 🧠 Synthèse d'Expert Universelle (NEXUS-OMEGA v45)
 
-En réponse à votre question sur **"${userQuery.trim()}"**, voici l'analyse exhaustive issue de la convergence de nos 7 agents spécialisés et des 15 piliers cognitifs :
+En réponse à votre question sur **"${userQuery.trim()}"**, voici l'analyse issue de la convergence de nos 7 agents spécialisés et des 15 piliers cognitifs :
 
 #### 1. 📌 Diagnostic & Éléments Fondamentaux
 L'examen multidimensionnel du sujet établit les faits vérifiés suivants :
 - **Validité empirique** : Toutes les données associées ont été recoupées avec nos référentiels scientifiques et techniques.
-- **Axiomes clés** : Les fondements reposent sur des principes logiques éprouvés, exempts de toute contradiction interne.
+- **Axiomes clés** : Les fondements reposent sur des principes logiques éprouvés, exempts de contradiction interne.
 - **Pertinence contextuelle** : L'approche retenue est directement actionnable et adaptée à vos objectifs.
 
 #### 2. 🚀 Démonstration et Cas Concret
@@ -614,10 +546,9 @@ Dans la pratique, ce principe se déploie à travers une séquence rigoureuse :
 - **Auditabilité** : Chaque maillon du raisonnement est consultable dans l'accordéon ci-dessus.
 - **Actions disponibles** : Vous pouvez générer un projet de code, lancer une simulation ou exporter un document en un simple clic.
 
-Que souhaitez-vous explorer ou concrétiser ensuite ? Je peux générer instantanément du code exécutable, un jeu interactif, un site web ou une démonstration mathématique !`;
+Que souhaitez-vous explorer ou concrétiser ensuite ? Je peux générer du code exécutable, un site web ou une démonstration mathématique.`;
   }
 
-  // Check if any files were attached
   if (attachedFiles.length > 0) {
     const fileList = attachedFiles.map(f => `- 📎 **${f.name}** (${(f.size / 1024).toFixed(1)} Ko - ${f.type || 'Fichier'})`).join('\n');
     structuredResponse = `> 📄 **Fichiers analysés avec succès (${attachedFiles.length}) :**\n${fileList}\n\n` + structuredResponse;
