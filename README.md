@@ -6,6 +6,7 @@ Fiches de révision pour un contrôle de 5ème sur **les aires** et **les pource
 
 | Fichier | À quoi ça sert | Pages |
 |---|---|---|
+| **`apprendre-les-formules-5e.pdf`** | 🧠 **Comprendre** : d'où viennent les formules (avec des dessins), la méthode pour les retenir, un exercice à trous et une feuille à plier | 7 |
 | **`fiche-revision-maths-5e.pdf`** | 📘 **Apprendre** : le cours, les formules, les exemples corrigés, le bloc « à retenir par cœur » | 5 |
 | **`exercices-maths-5e.pdf`** | ✍️ **S'entraîner** : 34 exercices avec corrections détaillées, du plus facile au contrôle blanc noté sur 20 | 9 |
 
@@ -36,8 +37,13 @@ Fiches de révision pour un contrôle de 5ème sur **les aires** et **les pource
 ## 🔧 Regénérer les PDF
 
 ```bash
+pip install reportlab
 python3 outils/generer-fiches-pdf.py
 ```
 
-Lit tout le contenu dans `outils/generer-fiches-pdf.py` et réécrit les deux PDF à la racine.
-Dépendance : `reportlab` (`pip install reportlab`) + les polices DejaVu (présentes sur la plupart des systèmes Linux).
+Tout le contenu (textes **et** dessins vectoriels) est écrit en Python dans `outils/generer-fiches-pdf.py` :
+le script réécrit les trois PDF à la racine. Les dessins (rectangle quadrillé, triangle dédoublé en
+parallélogramme, disque, grille des 100 cases des pourcentages) sont tracés directement avec l'API canvas
+de reportlab — aucune image externe n'est nécessaire.
+
+Polices : DejaVu Sans, présentes sur la plupart des systèmes Linux (`/usr/share/fonts/truetype/dejavu/`).

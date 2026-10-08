@@ -20,6 +20,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import (
     BaseDocTemplate,
+    Flowable,
     Frame,
     PageTemplate,
     Paragraph,
@@ -143,6 +144,266 @@ def steps(items, color=VERT):
             '<font name="DJ-B" color="#%s">%d.</font> %s' % (color.hexval()[2:], i, fmt(it)),
             ST["boxtext"]))
     return out
+
+
+# ------------------------------------------------------- dessins (figures)
+class Figure(Flowable):
+    """Un dessin vectoriel placé dans le flux du document."""
+
+    def __init__(self, width, height, drawer):
+        Flowable.__init__(self)
+        self.width = width
+        self.height = height
+        self.drawer = drawer
+
+    def wrap(self, availWidth, availHeight):
+        return (self.width, self.height)
+
+    def draw(self):
+        self.drawer(self.canv, self.width, self.height)
+
+
+CASE = colors.HexColor("#dbeafe")
+CASE2 = colors.HexColor("#eff6ff")
+BORD = colors.HexColor("#93c5fd")
+
+
+def d_rectangle_grille(c, w, h):
+    """Un rectangle 4 x 3 rempli de 12 petits carrés numérotés."""
+    cols, rows, cell = 4, 3, 32
+    x0, y0 = 46, 24
+    gw, gh = cols * cell, rows * cell
+    n = 1
+    for j in range(rows):
+        for i in range(cols):
+            x, y = x0 + i * cell, y0 + j * cell
+            c.setFillColor(CASE if (i + j) % 2 == 0 else CASE2)
+            c.setStrokeColor(BORD)
+            c.setLineWidth(0.7)
+            c.rect(x, y, cell, cell, fill=1, stroke=1)
+            c.setFillColor(BLEU_FONCE)
+            c.setFont("DJ", 8)
+            c.drawCentredString(x + cell / 2, y + cell / 2 - 2.8, str(n))
+            n += 1
+    c.setStrokeColor(BLEU_FONCE)
+    c.setLineWidth(2)
+    c.rect(x0, y0, gw, gh, fill=0, stroke=1)
+
+    # cote "4 cm"
+    yb = y0 + gh + 17
+    c.setStrokeColor(ROUGE)
+    c.setLineWidth(0.9)
+    c.line(x0, yb, x0 + gw, yb)
+    c.line(x0, yb - 4, x0, yb + 4)
+    c.line(x0 + gw, yb - 4, x0 + gw, yb + 4)
+    c.setFillColor(ROUGE)
+    c.setFont("DJ-B", 9)
+    c.drawCentredString(x0 + gw / 2, yb + 5, "4 cm")
+
+    # cote "3 cm"
+    xb = x0 - 17
+    c.line(xb, y0, xb, y0 + gh)
+    c.line(xb - 4, y0, xb + 4, y0)
+    c.line(xb - 4, y0 + gh, xb + 4, y0 + gh)
+    c.saveState()
+    c.translate(xb - 7, y0 + gh / 2)
+    c.rotate(90)
+    c.drawCentredString(0, 0, "3 cm")
+    c.restoreState()
+
+    # explications a droite
+    c.setFillColor(BLEU_FONCE)
+    c.setFont("DJ-B", 10.5)
+    c.drawString(215, 104, "4 carrés par rangée")
+    c.drawString(215, 88, "3 rangées")
+    c.setFont("DJ", 10.5)
+    c.setFillColor(GRIS)
+    c.drawString(215, 68, "4 × 3 = 12 carrés")
+    c.setFont("DJ-B", 10.5)
+    c.setFillColor(VERT_FONCE)
+    c.drawString(215, 50, "= 12 cm² d'aire")
+
+
+def d_carre(c, w, h):
+    """Le carré : un rectangle particulier."""
+    cell = 30
+    x0, y0 = 40, 20
+    for j in range(3):
+        for i in range(3):
+            x, y = x0 + i * cell, y0 + j * cell
+            c.setFillColor(CASE if (i + j) % 2 == 0 else CASE2)
+            c.setStrokeColor(BORD)
+            c.setLineWidth(0.7)
+            c.rect(x, y, cell, cell, fill=1, stroke=1)
+    c.setStrokeColor(BLEU_FONCE)
+    c.setLineWidth(2)
+    c.rect(x0, y0, 3 * cell, 3 * cell, fill=0, stroke=1)
+
+    yb = y0 + 3 * cell + 17
+    c.setStrokeColor(ROUGE)
+    c.setLineWidth(0.9)
+    c.line(x0, yb, x0 + 3 * cell, yb)
+    c.line(x0, yb - 4, x0, yb + 4)
+    c.line(x0 + 3 * cell, yb - 4, x0 + 3 * cell, yb + 4)
+    c.setFillColor(ROUGE)
+    c.setFont("DJ-B", 9)
+    c.drawCentredString(x0 + 1.5 * cell, yb + 5, "c")
+
+    c.setFillColor(BLEU_FONCE)
+    c.setFont("DJ-B", 10.5)
+    c.drawString(180, 100, "Le carré, c'est un rectangle")
+    c.drawString(180, 84, "où la longueur et la largeur")
+    c.drawString(180, 68, "sont égales.")
+    c.setFont("DJ", 10.5)
+    c.setFillColor(GRIS)
+    c.drawString(180, 46, "L × l  devient  côté × côté")
+
+
+def d_triangle(c, w, h):
+    """Un triangle + le même retourné = un parallélogramme."""
+    b, ht, dx = 58.0, 52.0, 28.0
+    dec = 60.0                      # decalage vertical des panneaux
+
+    def poly(pts, fill, stroke, lw=1.2, dash=None):
+        p = c.beginPath()
+        p.moveTo(*pts[0])
+        for q in pts[1:]:
+            p.lineTo(*q)
+        p.close()
+        c.setFillColor(fill)
+        c.setStrokeColor(stroke)
+        c.setLineWidth(lw)
+        if dash:
+            c.setDash(*dash)
+        c.drawPath(p, fill=1, stroke=1)
+        if dash:
+            c.setDash()
+
+    # ---- panneau 1 : le triangle
+    t1 = [(10, dec), (10 + b, dec), (10 + b + dx, dec + ht)]
+    poly(t1, colors.HexColor("#bfdbfe"), BLEU)
+    c.setFont("DJ-B", 11)
+    c.setFillColor(BLEU_FONCE)
+    c.drawCentredString(58, dec + 19, "1")
+
+    # ---- panneau 2 : le même, retourné
+    t2 = [(124 + b + dx, dec + ht), (124 + dx, dec + ht), (124, dec)]
+    poly(t2, colors.HexColor("#dbeafe"), BLEU)
+    c.setFillColor(BLEU_FONCE)
+    c.drawCentredString(148, dec + 21, "1")
+
+    # ---- operateurs
+    c.setFillColor(GRIS)
+    c.setFont("DJ-B", 15)
+    c.drawCentredString(108, dec + 22, "+")
+    c.setFillColor(GRIS)
+    c.drawCentredString(228, dec + 22, "=")
+
+    # ---- panneau 3 : le parallelogramme obtenu
+    pa = [(240, dec), (240 + b, dec), (240 + b + dx, dec + ht), (240 + dx, dec + ht)]
+    poly(pa, colors.HexColor("#eff6ff"), BLEU, lw=1.4)
+    # la diagonale commune aux deux triangles
+    c.setStrokeColor(BLEU_FONCE)
+    c.setLineWidth(1.6)
+    c.line(240, dec, 240 + b + dx, dec + ht)
+    c.setFillColor(BLEU_FONCE)
+    c.setFont("DJ-B", 10)
+    c.drawCentredString(289, dec + 13, "1")
+    c.drawCentredString(277, dec + 32, "1")
+
+    # ---- legende
+    c.setFont("DJ", 8.6)
+    c.setFillColor(GRIS)
+    c.drawCentredString(48, dec - 13, "1 triangle")
+    c.drawCentredString(167, dec - 13, "le même, retourné")
+    c.drawCentredString(284, dec - 13, "= 1 parallélogramme")
+
+    # ---- conclusion
+    c.setFont("DJ", 9.4)
+    c.setFillColor(GRIS)
+    c.drawCentredString(w / 2, 22,
+                        "Un parallélogramme a la même aire qu'un rectangle de « base × hauteur ».")
+    c.setFont("DJ-B", 10.2)
+    c.setFillColor(VERT_FONCE)
+    c.drawCentredString(w / 2, 7, "Donc l'aire d'1 triangle = (base × hauteur) ÷ 2")
+
+
+def d_disque(c, w, h):
+    """Le disque et son rayon."""
+    cx, cy, r = 92, 76, 58
+    c.setFillColor(CASE)
+    c.setStrokeColor(BLEU)
+    c.setLineWidth(2)
+    c.circle(cx, cy, r, fill=1, stroke=1)
+    # rayon
+    c.setStrokeColor(ROUGE)
+    c.setLineWidth(1.5)
+    c.setDash(4, 3)
+    c.line(cx, cy, cx + r, cy)
+    c.setDash()
+    c.setFillColor(ROUGE)
+    c.circle(cx, cy, 3, fill=1, stroke=0)
+    c.setFont("DJ-B", 11)
+    c.drawString(cx + r / 2 - 8, cy + 5, "r")
+    # diametre
+    c.setStrokeColor(colors.HexColor("#94a3b8"))
+    c.setLineWidth(1.2)
+    c.setDash(3, 3)
+    c.line(cx - r, cy, cx + r, cy)
+    c.setDash()
+
+    c.setFillColor(BLEU_FONCE)
+    c.setFont("DJ-B", 10.5)
+    c.drawString(200, 108, "Un disque n'est pas rempli")
+    c.drawString(200, 92, "de carrés (le bord est rond).")
+    c.setFont("DJ", 10.5)
+    c.setFillColor(GRIS)
+    c.drawString(200, 72, "Donc on la retient par cœur :")
+    c.setFont("DJ-B", 12)
+    c.setFillColor(BLEU_FONCE)
+    c.drawString(200, 52, "A = π × r × r")
+    c.setFont("DJ", 10)
+    c.setFillColor(GRIS)
+    c.drawString(200, 34, "π se dit « pi » et vaut ≈ 3,14")
+
+
+def d_pourcent(c, w, h):
+    """Grille de 100 cases dont 25 colorees."""
+    cell = 13.5
+    cols, rows = 10, 10
+    x0, y0 = 30, 18
+    n = 0
+    for j in range(rows - 1, -1, -1):
+        for i in range(cols):
+            x, y = x0 + i * cell, y0 + j * cell
+            if n < 25:
+                c.setFillColor(colors.HexColor("#fdba74"))
+            else:
+                c.setFillColor(colors.HexColor("#fff7ed"))
+            c.setStrokeColor(colors.HexColor("#fdba74") if n < 25
+                             else colors.HexColor("#fed7aa"))
+            c.setLineWidth(0.6)
+            c.rect(x, y, cell, cell, fill=1, stroke=1)
+            n += 1
+    c.setStrokeColor(ORANGE)
+    c.setLineWidth(2)
+    c.rect(x0, y0, cols * cell, rows * cell, fill=0, stroke=1)
+
+    c.setFillColor(ORANGE_FONCE)
+    c.setFont("DJ-B", 11)
+    c.drawString(190, 128, "25 cases coloriées")
+    c.setFont("DJ", 11)
+    c.setFillColor(GRIS)
+    c.drawString(190, 110, "sur les 100 cases")
+    c.setFont("DJ-B", 12)
+    c.setFillColor(ORANGE_FONCE)
+    c.drawString(190, 86, "= 25 %")
+    c.setFont("DJ", 10.5)
+    c.setFillColor(GRIS)
+    c.drawString(190, 60, "« pour cent » = « sur 100 »")
+    c.setFont("DJ-B", 12)
+    c.setFillColor(BLEU_FONCE)
+    c.drawString(190, 30, "25 % de 60 = (25 ÷ 100) × 60")
 
 
 def exo(num, titre, rappel, consigne, correction, resultat, style="exo_t"):
@@ -269,6 +530,12 @@ def render(story, content):
             story.append(Spacer(1, 10))
         elif kind == "exo":
             story.append(exo(*item[1:]))
+        elif kind == "figure":
+            story.append(Figure(item[1], item[2], item[3]))
+            story.append(Spacer(1, 9))
+        elif kind == "flow":
+            story.append(item[1])
+            story.append(Spacer(1, 5))
         elif kind == "space":
             story.append(Spacer(1, item[1]))
         elif kind == "pagebreak":
@@ -629,6 +896,192 @@ def contenu_exercices():
     return NIV
 
 
+def contenu_formules():
+    """Fiche « apprendre les formules » : d'où elles viennent + comment les retenir."""
+    C = []
+    C += [
+        ("h1", "Apprendre les formules (sans les apprendre bêtement)",
+         "Pourquoi les formules sont comme ça — et comment les retenir"),
+        ("p", "Une formule qu'on <b>comprend</b>, on la retient 10 fois mieux qu'une formule "
+              "qu'on récite sans savoir d'où elle sort. Cette fiche explique <b>comment on les fabrique</b>, "
+              "puis donne une méthode pour les mettre dans ta tête."),
+
+        ("h2", "1. D'où vient la formule du rectangle ? (la plus importante)", BLEU),
+        ("p", "Prends un rectangle de 4 cm sur 3 cm. On le remplit avec des petits carrés de "
+              "1 cm de côté : chacun a une aire de <b>1 cm²</b>."),
+        ("figure", 498, 150, d_rectangle_grille),
+        ("p", "On compte : <b>4 carrés par rangée</b> et <b>3 rangées</b>, donc "
+              "`4 × 3 = 12` carrés, donc <b>12 cm²</b>. C'est exactement ça une aire : "
+              "le <b>nombre de petits carrés de 1 cm²</b> qui remplissent la figure."),
+        ("formule", "Aire du rectangle :  A = Longueur × largeur"),
+        ("astuce", "<b>L'image à garder dans la tête :</b> « des rangées de petits carrés ». "
+                   "Largeur = combien il y a de carrés sur une rangée. Longueur... peu importe l'ordre : "
+                   "on multiplie les deux, c'est tout."),
+
+        ("h2", "2. Et le carré ? C'est un rectangle particulier", BLEU),
+        ("figure", 498, 130, d_carre),
+        ("p", "Dans un carré, la longueur et la largeur sont <b>égales</b> : les deux valent le côté. "
+              "Donc dans la formule `L × l`, on écrit `c × c`."),
+        ("formule", "Aire du carré :  A = côté × côté"),
+        ("astuce", "<b>Tu n'as pas deux formules à retenir !</b> Si tu connais celle du rectangle, "
+                   "celle du carré vient toute seule."),
+
+        ("h2", "3. Pourquoi le triangle, c'est « ÷ 2 » ?", BLEU),
+        ("p", "C'est LA formule que tout le monde oublie. Alors comprends-la une fois pour toutes :"),
+        ("figure", 498, 165, d_triangle),
+        ("ol", [
+            "Je prends <b>deux triangles identiques</b>.",
+            "Je tourne le deuxième et je le colle au premier sur le côté penché.",
+            "J'obtiens un <b>parallélogramme</b>, et ce parallélogramme a la même aire "
+            "qu'un rectangle de base × hauteur.",
+            "Un seul triangle, c'est donc <b>la moitié</b> : `(base × hauteur) ÷ 2`.",
+        ]),
+        ("formule", "Aire du triangle :  A = (base × hauteur) ÷ 2"),
+        ("piege", "<b>Le piège du contrôle :</b> si tu trouves un nombre <b>rond et trop grand</b>, "
+                  "c'est sûrement que tu as oublié le ÷ 2. Exemple : base 14 et hauteur 9 → "
+                  "`14 × 9 = 126` … et la bonne réponse est `126 ÷ 2 = 63 cm²`."),
+
+        ("h2", "4. Le disque : celle-là, on l'apprend par cœur", BLEU),
+        ("figure", 498, 150, d_disque),
+        ("p", "Un disque a un bord <b>rond</b> : on ne peut pas le remplir parfaitement avec des petits carrés, "
+              "le compte ne tombe jamais juste. C'est pour ça que la formule fait intervenir "
+              "un nombre bizarre, <b>π</b> (on dit « pi »), qui vaut toujours environ <b>3,14</b>."),
+        ("formule", "Aire du disque :  A = π × r × r     (π ≈ 3,14)"),
+        ("astuce", "<b>Le rythme à retenir :</b> « pi - rayon - rayon ». Dis-le trois fois à voix haute, "
+                   "ça rentre tout seul. Et <b>r</b>, c'est le <b>rayon</b>, la moitié du diamètre : "
+                   "si l'énoncé donne le diamètre, tu divises par 2 <b>avant</b> de calculer."),
+
+        ("h2", "5. Les pourcentages : tout vient du mot « cent »", ORANGE),
+        ("p", "« Pour <b>cent</b> », ça veut dire « sur <b>100</b> ». Donc 25 %, c'est 25 cases sur 100 :"),
+        ("figure", 498, 150, d_pourcent),
+        ("p", "Maintenant le point clé : en maths, le petit mot <b>« de »</b> veut dire <b>« × »</b>. "
+              "« 25 % <b>de</b> 60 », c'est donc « 25 % <b>×</b> 60 », soit :"),
+        ("formule_o", "t % d'un nombre = (t ÷ 100) × nombre"),
+        ("p", "On peut réécrire la même chose dans l'autre ordre, ce qui est plus facile à calculer :"),
+        ("formule_o", "t % d'un nombre = (nombre ÷ 100) × t"),
+        ("exemple", "Les deux écritures donnent la même chose",
+         ["Avec la première : `(25 ÷ 100) × 60 = 0,25 × 60 = 15`",
+          "Avec la seconde : `(60 ÷ 100) × 25 = 0,6 × 25 = 15`"],
+         "Les deux donnent 15. Choisis celle que tu préfères et garde-la toujours."),
+        ("astuce", "<b>Les raccourcis qui évitent de calculer :</b> 50 % = je divise par 2 • "
+                   "25 % = je divise par 4 • 10 % = je recule la virgule d'un cran • "
+                   "100 % = le nombre entier."),
+        ("pagebreak",),
+    ]
+
+    C += [
+        ("h2", "6. Ma méthode pour les retenir : la règle du 3 - 2 - 1", VERT),
+        ("p", "Pour chaque formule, tu fais exactement ça. Ça prend 2 minutes par formule, "
+              "soit 10 minutes pour tout :"),
+        ("ol", [
+            "<b>3 fois : je la lis</b> à voix haute, lentement. À voix haute, pas dans ma tête !",
+            "<b>2 fois : je l'écris</b> sur une feuille, sans regarder le modèle.",
+            "<b>1 fois : je la récite</b> de mémoire, les yeux fermés, puis je vérifie si c'était juste.",
+        ]),
+        ("astuce", "<b>Pourquoi ça marche :</b> ton cerveau retient ce qu'il <b>fabrique</b>, pas ce qu'il "
+                   "<b>relit</b>. Écrire et réciter, c'est se forcer à se souvenir — et c'est exactement "
+                   "ce qu'on te demandera au contrôle."),
+        ("h3", "Le petit chant des formules (à répéter à voix haute)"),
+        ("memo", [
+            "★ Carré : côté fois côté !",
+            "★ Rectangle : longueur fois largeur !",
+            "★ Triangle : base fois hauteur, divisé par deux !",
+            "★ Disque : pi fois rayon fois rayon !",
+            "★ Pour cent : sur cent, et je multiplie !",
+        ]),
+        ("p", "Dis-le sur un rythme, comme une comptine. Bizarre, mais ça marche vraiment."),
+
+        ("h2", "7. À toi : je remplis les trous", VERT),
+        ("small", "Écris sur la ligne, sans regarder les fiches. Les réponses sont tout à la fin du document — "
+                  "ne va les voir qu'une fois que tu as tout rempli !"),
+        ("table", [
+            ["N°", "À compléter"],
+            ["1", "Aire du carré = …………… × ……………"],
+            ["2", "Aire du rectangle = …………… × ……………"],
+            ["3", "Aire du triangle = (…………… × ……………) ÷ ……………"],
+            ["4", "Aire du disque = …………… × …………… × ……………"],
+            ["5", "Le rayon, c'est la moitié du ………………………"],
+            ["6", "1 m² = …………… dm²"],
+            ["7", "t % d'un nombre = (nombre ÷ ……………) × ……………"],
+            ["8", "50 % d'un nombre : je divise par ……………"],
+            ["9", "25 % d'un nombre : je divise par ……………"],
+            ["10", "10 % d'un nombre : je recule la …………… d'un cran"],
+            ["11", "Aire d'un carré de 6 cm de côté = …………… cm²"],
+            ["12", "Aire d'un triangle de base 10 cm et de hauteur 4 cm = …………… cm²"],
+            ["13", "50 % de 84 = ……………"],
+            ["14", "25 % de 40 = ……………"],
+            ["15", "10 % de 350 = ……………"],
+        ]),
+        ("pagebreak",),
+
+        ("h2", "8. Ma feuille à plier (pour réviser partout)", BLEU),
+        ("p", "Imprime cette page, puis <b>plie-la en deux</b> sur la ligne du milieu : "
+              "tu ne vois plus que les questions. Tu réponds de mémoire, puis tu déplies pour vérifier. "
+              "Parfait pour réviser dans le bus ou avant de dormir."),
+    ]
+
+    lignes = [
+        ("Aire du carré", "côté × côté"),
+        ("Aire du rectangle", "Longueur × largeur"),
+        ("Aire du triangle", "(base × hauteur) ÷ 2"),
+        ("Aire du disque", "π × r × r   (π ≈ 3,14)"),
+        ("Le rayon, c'est…", "la moitié du diamètre"),
+        ("Figure compliquée", "je découpe, je calcule, j'additionne"),
+        ("t % d'un nombre", "(nombre ÷ 100) × t"),
+        ("50 %", "je divise par 2"),
+        ("25 %", "je divise par 4"),
+        ("10 %", "je recule la virgule"),
+        ("Je cherche le pourcentage", "(partie ÷ total) × 100"),
+        ("Soldes (− 20 %)", "je calcule la réduction, puis je la soustrais"),
+        ("Augmentation", "je calcule l'augmentation, puis je l'ajoute"),
+    ]
+    data = [[Paragraph("<b>Je récite…</b>", ST["cell"]),
+             Paragraph("<b>…la réponse est</b>", ST["cell"])]]
+    for q, r in lignes:
+        data.append([Paragraph(q, ST["cell"]), Paragraph(fmt(r), ST["cell"])])
+    t = Table(data, colWidths=[None, None])
+    t.setStyle(TableStyle([
+        ("GRID", (0, 0), (-1, -1), 0.6, colors.HexColor("#dbe2ea")),
+        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#f1f5f9")),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("TOPPADDING", (0, 0), (-1, -1), 6),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+        ("LINEAFTER", (0, 0), (0, -1), 1.2, colors.HexColor("#94a3b8")),
+    ]))
+    C.append(("flow", t))
+    C.append(("small", "↑ La ligne du milieu est le pli. Plie pour ne voir que la colonne de gauche."))
+    C.append(("pagebreak",))
+
+    C += [
+        ("h2", "Réponses (ne regarde qu'après avoir tout rempli !)", ROUGE),
+        ("table", [
+            ["N°", "Réponse"],
+            ["1", "côté × côté"],
+            ["2", "Longueur × largeur"],
+            ["3", "(base × hauteur) ÷ 2"],
+            ["4", "π × r × r"],
+            ["5", "diamètre"],
+            ["6", "100"],
+            ["7", "… ÷ 100) × t"],
+            ["8", "2"],
+            ["9", "4"],
+            ["10", "virgule"],
+            ["11", "36 cm²   (6 × 6)"],
+            ["12", "20 cm²   ((10 × 4) ÷ 2)"],
+            ["13", "42   (84 ÷ 2)"],
+            ["14", "10   (40 ÷ 4)"],
+            ["15", "35   (je recule la virgule)"],
+        ]),
+        ("reussite", "<b>Si tu as 15/15</b> : les formules sont dans ta tête, tu peux passer aux exercices. "
+                     "<b>Si tu as moins de 12</b> : refais les parties 1 à 5 de cette fiche en lisant bien les "
+                     "dessins, puis recommence les trous. Tu vas y arriver !"),
+        ("astuce", "<b>Le dernier conseil avant de dormir :</b> relis juste les 5 lignes du « petit chant » "
+                   "et la liste « à retenir par cœur » de la fiche de révision. Ton cerveau range tout ça "
+                   "pendant la nuit."),
+    ]
+    return C
+
+
 def main():
     register_fonts()
     global ST
@@ -646,6 +1099,11 @@ def main():
           "Entraînement — Maths 5ème (aires et pourcentages)",
           "34 exercices corrigés",
           contenu_exercices())
+
+    build(os.path.join(racine, "apprendre-les-formules-5e.pdf"),
+          "Apprendre les formules — Maths 5ème",
+          "Aires et pourcentages : d'où viennent les formules",
+          contenu_formules())
 
 
 if __name__ == "__main__":
