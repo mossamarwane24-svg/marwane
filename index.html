@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mes fiches de maths 5ème</title>
+<style>
+  *{box-sizing:border-box;}
+  body{
+    margin:0;padding:0 14px 50px;
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    background:#f4f6fb;color:#334155;line-height:1.6;
+  }
+  .wrap{max-width:760px;margin:0 auto;}
+  header{
+    background:linear-gradient(135deg,#1e3a8a,#2563eb);
+    color:#fff;border-radius:0 0 22px 22px;
+    padding:30px 20px 26px;margin:0 -14px 24px;text-align:center;
+  }
+  header h1{margin:0 0 6px;font-size:27px;line-height:1.25;}
+  header p{margin:0;opacity:.93;font-size:15px;}
+  h2{font-size:19px;margin:30px 0 12px;color:#1e3a8a;}
+  .carte{
+    display:flex;gap:14px;align-items:flex-start;
+    background:#fff;border-radius:16px;padding:16px 18px;margin-bottom:14px;
+    box-shadow:0 2px 10px rgba(15,23,42,.08);
+    text-decoration:none;color:inherit;border:2px solid transparent;
+    transition:border-color .15s,transform .15s;
+  }
+  .carte:hover{border-color:#93c5fd;transform:translateY(-2px);}
+  .carte .ico{
+    font-size:26px;flex:0 0 44px;width:44px;height:44px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;background:#eaf1ff;
+  }
+  .carte .ico.o{background:#fff2e5;}
+  .carte .ico.v{background:#e8f7ee;}
+  .carte .txt{flex:1;min-width:0;}
+  .carte .txt b{display:block;font-size:17px;color:#0f172a;margin-bottom:3px;}
+  .carte .txt span{font-size:14.5px;color:#64748b;}
+  .carte .txt .fichier{
+    display:inline-block;margin-top:7px;font-family:ui-monospace,Menlo,Consolas,monospace;
+    font-size:12.5px;background:#f1f5f9;color:#475569;border-radius:6px;padding:2px 8px;
+    word-break:break-all;
+  }
+  .carte .fl{flex:0 0 auto;align-self:center;color:#2563eb;font-size:22px;font-weight:700;}
+  .etape{
+    background:#fff9e0;border-left:5px solid #eab308;border-radius:10px;
+    padding:14px 16px;margin:18px 0;font-size:15.5px;
+  }
+  .etape b{color:#a16207;}
+  .info{
+    background:#e8f7ee;border-left:5px solid #15803d;border-radius:10px;
+    padding:14px 16px;margin:18px 0;font-size:15px;
+  }
+  .info b{color:#15803d;}
+  footer{text-align:center;font-size:13.5px;color:#94a3b8;margin-top:30px;}
+  @media (max-width:520px){
+    .carte .fl{display:none;}
+    header h1{font-size:22px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Mes fiches de maths 📘</h1>
+  <p>Contrôle de 5ème — les aires et les pourcentages</p>
+</header>
+
+<div class="etape">
+  <b>👉 Comment ça marche :</b> clique sur une carte ci-dessous. Le fichier s'ouvre directement
+  dans ton navigateur. Si tu veux l'imprimer, appuie sur <b>Ctrl + P</b> (ou l'icône imprimante 🖨️).
+</div>
+
+<h2>🧠 Commence par là (pour apprendre)</h2>
+
+<a class="carte" href="apprendre-les-formules-5e.pdf" target="_blank">
+  <div class="ico">🧠</div>
+  <div class="txt">
+    <b>Apprendre les formules</b>
+    <span>D'où viennent les formules (avec des dessins), la méthode pour les retenir,
+    un exercice à trous et une feuille à plier. 7 pages.</span>
+    <span class="fichier">apprendre-les-formules-5e.pdf</span>
+  </div>
+  <div class="fl">›</div>
+</a>
+
+<a class="carte" href="fiche-revision-maths-5e.pdf" target="_blank">
+  <div class="ico">📘</div>
+  <div class="txt">
+    <b>La fiche de révision (le cours)</b>
+    <span>Toutes les formules, les exemples corrigés pas à pas et le bloc
+    « à retenir par cœur ». 5 pages.</span>
+    <span class="fichier">fiche-revision-maths-5e.pdf</span>
+  </div>
+  <div class="fl">›</div>
+</a>
+
+<h2>✍️ Pour s'entraîner</h2>
+
+<a class="carte" href="exercices-maths-5e.pdf" target="_blank">
+  <div class="ico o">✍️</div>
+  <div class="txt">
+    <b>34 exercices corrigés</b>
+    <span>Du plus facile au contrôle blanc noté sur 20. Chaque exercice a une correction détaillée. 9 pages.</span>
+    <span class="fichier">exercices-maths-5e.pdf</span>
+  </div>
+  <div class="fl">›</div>
+</a>
+
+<h2>💻 Les versions interactives (dans le navigateur)</h2>
+
+<a class="carte" href="revision-maths-5e-aires-pourcentages.html" target="_blank">
+  <div class="ico v">🟦</div>
+  <div class="txt">
+    <b>La fiche avec des dessins</b>
+    <span>Le cours avec les figures dessinées (carré, rectangle, triangle, disque) et les exemples colorés.</span>
+    <span class="fichier">revision-maths-5e-aires-pourcentages.html</span>
+  </div>
+  <div class="fl">›</div>
+</a>
+
+<a class="carte" href="exercices-maths-5e-aires-pourcentages.html" target="_blank">
+  <div class="ico v">✅</div>
+  <div class="txt">
+    <b>Le quiz interactif</b>
+    <span>33 exercices avec boutons « coup de pouce », corrections à ouvrir et <b>barre de progression</b>
+    (tu coches les exercices réussis).</span>
+    <span class="fichier">exercices-maths-5e-aires-pourcentages.html</span>
+  </div>
+  <div class="fl">›</div>
+</a>
+
+<div class="info">
+  <b>💡 Le bon plan pour ce soir :</b> ouvre « Apprendre les formules » (20 min), écris le petit chant
+  de mémoire, puis fais les <b>exercices 1 à 7</b>. Demain matin, relis juste la dernière page de la fiche de révision.
+</div>
+
+<footer>
+  Bon courage pour ton contrôle ! 💪<br>
+  Si un fichier ne s'ouvre pas, dis-le et je te le remets autrement.
+</footer>
+
+</div>
+</body>
+</html>
