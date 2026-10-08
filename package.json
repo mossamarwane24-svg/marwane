@@ -1,0 +1,10 @@
+{
+  "name": "menu-demo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Démo CLI du petit menu présenté dans la vidéo YouTube",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  }
+}
