@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Révision Maths 5ème — Aires &amp; Pourcentages</title>
+<style>
+  :root{
+    --bleu:#2563eb; --bleu-clair:#eaf1ff;
+    --orange:#ea7317; --orange-clair:#fff2e5;
+    --vert:#15803d; --vert-clair:#e8f7ee;
+    --rouge:#dc2626; --rouge-clair:#fdecec;
+    --jaune:#a16207; --jaune-clair:#fff9e0;
+    --gris:#334155; --gris-clair:#f4f6fb;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; padding:0 12px 60px;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    background:var(--gris-clair); color:var(--gris); line-height:1.6;
+    font-size:17px;
+  }
+  .wrap{max-width:820px;margin:0 auto;}
+  header{
+    background:linear-gradient(135deg,#1e3a8a,#2563eb);
+    color:#fff; border-radius:0 0 22px 22px; padding:26px 20px 22px;
+    margin:0 -12px 22px; text-align:center;
+  }
+  header h1{margin:0 0 6px;font-size:26px;line-height:1.25;}
+  header p{margin:0;opacity:.92;font-size:15px;}
+  .badge{
+    display:inline-block;background:rgba(255,255,255,.18);border-radius:999px;
+    padding:3px 12px;font-size:13px;margin-top:10px;
+  }
+  nav{
+    background:#fff;border-radius:16px;padding:14px 16px;margin-bottom:22px;
+    box-shadow:0 2px 10px rgba(15,23,42,.07);
+  }
+  nav strong{display:block;margin-bottom:8px;font-size:15px;}
+  nav a{
+    display:inline-block;margin:4px 8px 4px 0;padding:7px 14px;border-radius:999px;
+    text-decoration:none;font-size:14px;font-weight:600;
+    background:var(--bleu-clair);color:var(--bleu);
+  }
+  nav a.o{background:var(--orange-clair);color:var(--orange);}
+  nav a.q{background:var(--vert-clair);color:var(--vert);}
+  section{
+    background:#fff;border-radius:18px;padding:22px 20px;margin-bottom:22px;
+    box-shadow:0 2px 12px rgba(15,23,42,.07);
+  }
+  h2{
+    margin:0 0 16px;font-size:23px;display:flex;align-items:center;gap:10px;
+    border-bottom:3px solid var(--bleu-light,#e5e7eb);padding-bottom:10px;
+  }
+  h2 .num{
+    background:var(--bleu);color:#fff;border-radius:12px;
+    width:38px;height:38px;display:flex;align-items:center;justify-content:center;
+    font-size:20px;flex:0 0 38px;
+  }
+  h2.o{color:var(--orange);} h2.o .num{background:var(--orange);}
+  h3{font-size:18px;margin:24px 0 8px;color:#1e293b;}
+  h3:first-of-type{margin-top:6px;}
+  p{margin:8px 0;}
+  ul,ol{margin:8px 0 8px 4px;padding-left:22px;}
+  li{margin:5px 0;}
+  .formule{
+    background:var(--bleu-clair);border-left:5px solid var(--bleu);
+    border-radius:10px;padding:12px 14px;margin:12px 0;font-size:19px;
+    font-weight:700;color:#1e3a8a;text-align:center;
+  }
+  .o .formule, .formule.o{
+    background:var(--orange-clair);border-left-color:var(--orange);color:#8a3d00;
+  }
+  .astuce{
+    background:var(--jaune-clair);border-left:5px solid #eab308;
+    border-radius:10px;padding:12px 14px;margin:14px 0;
+  }
+  .astuce strong{color:var(--jaune);}
+  .piege{
+    background:var(--rouge-clair);border-left:5px solid var(--rouge);
+    border-radius:10px;padding:12px 14px;margin:14px 0;
+  }
+  .piege strong{color:var(--rouge);}
+  .exemple{
+    background:#f8fafc;border:1px dashed #cbd5e1;border-radius:12px;
+    padding:14px 16px;margin:14px 0;
+  }
+  .exemple .titre{font-weight:700;color:#0f172a;margin-bottom:6px;}
+  .etapes{counter-reset:et;list-style:none;padding-left:0;margin:8px 0;}
+  .etapes li{counter-increment:et;padding-left:38px;position:relative;margin:9px 0;}
+  .etapes li::before{
+    content:counter(et);position:absolute;left:0;top:1px;
+    width:26px;height:26px;border-radius:50%;background:var(--bleu);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;
+  }
+  .etapes.o li::before{background:var(--orange);}
+  .calc{
+    font-family:ui-monospace,Menlo,Consolas,monospace;font-size:16px;
+    background:#fff;border:1px solid #e2e8f0;border-radius:8px;
+    padding:2px 8px;display:inline-block;
+  }
+  table{
+    border-collapse:collapse;width:100%;margin:12px 0;font-size:16px;
+  }
+  th,td{border:1px solid #dbe2ea;padding:8px 10px;text-align:center;}
+  th{background:#f1f5f9;font-size:15px;}
+  .figs{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin:10px 0;}
+  .fig{
+    text-align:center;font-size:14px;flex:0 0 auto;
+  }
+  .fig svg{display:block;margin:0 auto 4px;}
+  .fig b{color:#1e3a8a;}
+  details{
+    background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;
+    padding:12px 14px;margin:10px 0;
+  }
+  details summary{
+    cursor:pointer;font-weight:700;color:#0f172a;font-size:16px;
+  }
+  details[open] summary{margin-bottom:8px;color:var(--vert);}
+  details .reponse{
+    background:var(--vert-clair);border-radius:8px;padding:9px 12px;
+    color:#14532d;font-size:16px;
+  }
+  .plan{
+    counter-reset:pl;list-style:none;padding:0;margin:10px 0;
+  }
+  .plan li{
+    counter-increment:pl;position:relative;padding:10px 0 10px 46px;
+    border-bottom:1px dashed #e2e8f0;
+  }
+  .plan li:last-child{border-bottom:none;}
+  .plan li::before{
+    content:counter(pl);position:absolute;left:0;top:10px;
+    width:32px;height:32px;border-radius:10px;background:#1e3a8a;color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:700;
+  }
+  .memo{
+    background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;
+    border-radius:18px;padding:22px 20px;margin-bottom:22px;
+  }
+  .memo h2{color:#fff;border-bottom-color:rgba(255,255,255,.3);}
+  .memo h2 .num{background:rgba(255,255,255,.2);}
+  .memo .liste{display:grid;gap:10px;margin-top:12px;}
+  .memo .item{
+    background:rgba(255,255,255,.12);border-radius:12px;padding:10px 14px;
+    font-size:16px;
+  }
+  .memo .item b{color:#fde68a;}
+  footer{text-align:center;font-size:14px;color:#64748b;margin-top:26px;}
+  @media print{
+    body{background:#fff;font-size:13px;padding:0;}
+    header{background:#1e3a8a !important;-webkit-print-color-adjust:exact;}
+    section{box-shadow:none;border:1px solid #ddd;page-break-inside:avoid;}
+    nav{display:none;}
+    details{page-break-inside:avoid;}
+    details:not([open]) .reponse{display:none;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Réviser les maths pour demain</h1>
+  <p>Les <b>aires</b> et les <b>pourcentages</b> — niveau 5ème</p>
+  <span class="badge">Tout ce qu'il faut savoir, expliqué simplement</span>
+</header>
+
+<nav>
+  <strong>Va directement à ce qui t'intéresse :</strong>
+  <a href="#plan">⏱️ Mon plan pour ce soir</a>
+  <a class="o" href="#aires">🟦 Les aires</a>
+  <a class="o" href="#pourcentages">🟧 Les pourcentages</a>
+  <a class="q" href="#quiz">✅ Quiz pour me tester</a>
+  <a class="q" href="#memo">⭐ À retenir par cœur</a>
+</nav>
+
+<!-- ============ PLAN ============ -->
+<section id="plan">
+  <h2><span class="num">⏱️</span> Mon plan de révision (1 heure et c'est bon)</h2>
+  <p>Tu as jusqu'à demain : pas besoin de stresser. Fais ça dans l'ordre, tranquillement. 🙌</p>
+  <ol class="plan">
+    <li><b>20 min — Je lis la fiche des aires</b><br>Lis tout, même si ça te paraît long. Ne cherche pas à tout retenir au premier passage.</li>
+    <li><b>15 min — Je cache et je refais les exemples</b><br>Reprends chaque exemple tout seul, sur un brouillon, sans regarder la correction. C'est là que ça rentre vraiment.</li>
+    <li><b>10 min — Je fais le même travail avec les pourcentages</b><br>Lis la partie pourcentages, refais les exemples seul.</li>
+    <li><b>10 min — Je fais le quiz en bas de page</b><br>Réponds sur brouillon, puis clique sur « Voir la réponse ». Compte tes points :</li>
+    <li><b>Demain matin — Je relis juste le bloc « À retenir par cœur »</b><br>5 minutes dans le bus ou au petit-déj, et c'est frais.</li>
+  </ol>
+  <div class="astuce">
+    <strong>💡 Le secret :</strong> ne relis pas passivement ! Ferme les yeux et essaie de réciter
+    <b>« carré : côté × côté, rectangle : longueur × largeur, triangle : base × hauteur ÷ 2, disque : π × r × r »</b>.
+    Si tu y arrives sans regarder, c'est gagné.
+  </div>
+</section>
+
+<!-- ============ AIRES ============ -->
+<section id="aires">
+  <h2><span class="num">1</span> Les aires 🟦</h2>
+
+  <h3>C'est quoi une aire ?</h3>
+  <p>L'<b>aire</b>, c'est la <b>surface</b> d'une figure : la place que ça prend « à l'intérieur ».
+  C'est comme la <b>pelouse</b> d'un jardin : la quantité d'herbe qu'on pourrait y mettre.</p>
+  <div class="piege">
+    <strong>⚠️ Ne confonds pas :</strong><br>
+    <b>Périmètre</b> = le <b>tour</b> de la figure (la <b>clôture</b> du jardin).<br>
+    <b>Aire</b> = l'<b>intérieur</b> de la figure (la <b>pelouse</b> du jardin).<br>
+    Le périmètre se mesure en <b>cm</b> (une longueur). L'aire se mesure en <b>cm²</b> (une surface) !
+  </div>
+
+  <h3>Les unités d'aire</h3>
+  <p>Une aire se mesure en <b>unités carrées</b> : mm², cm², dm², m², dam², hm², km².</p>
+  <p>Un <b>cm²</b>, c'est un carré de 1 cm sur 1 cm. 👉 Pour passer d'une unité à l'autre, on multiplie ou divise par <b>100</b> (et pas par 10 !).</p>
+  <table>
+    <tr><th>1 m² =</th><td>100 dm²</td><td>10 000 cm²</td></tr>
+    <tr><th>1 km² =</th><td>1 000 000 m²</td><td>(1 km × 1 km)</td></tr>
+  </table>
+  <div class="astuce">
+    <strong>💡 Astuce du tableau :</strong> dans un tableau de conversion d'aires, chaque colonne contient
+    <b>2 chiffres</b> (dans un tableau de longueurs, chaque colonne contient 1 chiffre).
+    <br>Exemple : <span class="calc">3,5 m² = 350 dm² = 35 000 cm²</span>
+    <br>Bonus : 1 hm² s'appelle un <b>hectare</b> (1 ha = 10 000 m²), ça sert pour les champs et les terrains.
+  </div>
+
+  <h3>Les 4 formules à savoir (LE plus important du contrôle)</h3>
+
+  <div class="figs">
+    <div class="fig">
+      <svg width="130" height="120" viewBox="0 0 130 120">
+        <rect x="15" y="10" width="100" height="100" fill="#dbeafe" stroke="#2563eb" stroke-width="2.5"/>
+        <text x="65" y="66" font-size="15" fill="#1e3a8a" text-anchor="middle" font-weight="bold">c × c</text>
+        <text x="65" y="6" font-size="13" fill="#2563eb" text-anchor="middle">côté c</text>
+      </svg>
+      <b>Carré</b>
+    </div>
+    <div class="fig">
+      <svg width="200" height="120" viewBox="0 0 200 120">
+        <rect x="20" y="20" width="160" height="80" fill="#dbeafe" stroke="#2563eb" stroke-width="2.5"/>
+        <text x="100" y="66" font-size="15" fill="#1e3a8a" text-anchor="middle" font-weight="bold">L × l</text>
+        <text x="100" y="14" font-size="13" fill="#2563eb" text-anchor="middle">Longueur L</text>
+        <text x="10" y="64" font-size="13" fill="#2563eb" text-anchor="middle">l</text>
+      </svg>
+      <b>Rectangle</b>
+    </div>
+    <div class="fig">
+      <svg width="200" height="130" viewBox="0 0 200 130">
+        <polygon points="25,110 175,110 125,25" fill="#dbeafe" stroke="#2563eb" stroke-width="2.5"/>
+        <line x1="125" y1="25" x2="125" y2="110" stroke="#dc2626" stroke-width="2" stroke-dasharray="5,4"/>
+        <rect x="125" y="98" width="12" height="12" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+        <text x="100" y="126" font-size="13" fill="#2563eb" text-anchor="middle">base</text>
+        <text x="150" y="70" font-size="13" fill="#dc2626">hauteur</text>
+        <text x="110" y="40" font-size="13" fill="#1e3a8a" font-weight="bold">b × h ÷ 2</text>
+      </svg>
+      <b>Triangle</b>
+    </div>
+    <div class="fig">
+      <svg width="160" height="150" viewBox="0 0 160 150">
+        <circle cx="80" cy="75" r="60" fill="#dbeafe" stroke="#2563eb" stroke-width="2.5"/>
+        <line x1="80" y1="75" x2="140" y2="75" stroke="#dc2626" stroke-width="2" stroke-dasharray="5,4"/>
+        <circle cx="80" cy="75" r="3.5" fill="#dc2626"/>
+        <text x="105" y="68" font-size="14" fill="#dc2626" font-weight="bold">r</text>
+        <text x="80" y="80" font-size="13" fill="#1e3a8a" font-weight="bold" text-anchor="middle">π×r×r</text>
+      </svg>
+      <b>Disque</b>
+    </div>
+  </div>
+
+  <div class="formule">Carré : A = c × c</div>
+  <div class="formule">Rectangle : A = L × l</div>
+  <div class="formule">Triangle : A = (base × hauteur) ÷ 2</div>
+  <div class="formule">Disque : A = π × r × r &nbsp;(avec π ≈ 3,14)</div>
+
+  <div class="astuce">
+    <strong>💡 Le triangle en 2 mots :</strong> un triangle, c'est <b>la moitié</b> d'un rectangle !
+    Donc on calcule comme un rectangle (base × hauteur) et on <b>divise par 2</b>.
+  </div>
+
+  <div class="piege">
+    <strong>⚠️ Erreurs qui coûtent cher :</strong>
+    <ul>
+      <li><b>Oublier ÷ 2</b> pour le triangle. C'est LA faute classique du contrôle !</li>
+      <li><b>Confondre rayon et diamètre</b> pour le disque. Le <b>rayon</b> = du centre au bord. Le <b>diamètre</b> = d'un bord à l'autre en passant par le centre, donc <b>diamètre = 2 × rayon</b>. Si l'énoncé donne le diamètre (12 cm), le rayon c'est 6 cm.</li>
+      <li><b>Confondre périmètre et aire.</b> Si l'énoncé dit « entourer, clôturer, grillager » → périmètre. Si l'énoncé dit « couvrir, peindre, gazon, carrelage » → aire.</li>
+      <li><b>Écrire l'unité au carré :</b> on écrit cm², m²... jamais « cm » tout court pour une aire.</li>
+    </ul>
+  </div>
+
+  <h3>Exemples corrigés (entraîne-toi à les refaire !)</h3>
+
+  <div class="exemple">
+    <div class="titre">Exemple 1 — Un rectangle</div>
+    <p>Un jardin rectangulaire mesure 12 m de long et 7 m de large. Quelle est son aire ?</p>
+    <ol class="etapes">
+      <li>Je repère la formule : rectangle → <span class="calc">A = L × l</span></li>
+      <li>Je remplace : <span class="calc">A = 12 × 7</span></li>
+      <li>Je calcule : <span class="calc">A = 84</span></li>
+      <li>J'écris l'unité : <b>A = 84 m²</b> ← l'unité est au carré !</li>
+    </ol>
+  </div>
+
+  <div class="exemple">
+    <div class="titre">Exemple 2 — Un triangle (attention au ÷ 2)</div>
+    <p>Un triangle a une base de 8 cm et une hauteur de 5 cm. Quelle est son aire ?</p>
+    <ol class="etapes">
+      <li>Formule : <span class="calc">A = (base × hauteur) ÷ 2</span></li>
+      <li>Je remplace : <span class="calc">A = (8 × 5) ÷ 2</span></li>
+      <li>Je calcule : <span class="calc">A = 40 ÷ 2 = 20</span></li>
+      <li>Réponse : <b>A = 20 cm²</b></li>
+    </ol>
+  </div>
+
+  <div class="exemple">
+    <div class="titre">Exemple 3 — Un disque</div>
+    <p>Un disque a un rayon de 5 cm. Quelle est son aire ? (on prend π ≈ 3,14)</p>
+    <ol class="etapes">
+      <li>Formule : <span class="calc">A = π × r × r</span></li>
+      <li>Je remplace : <span class="calc">A = 3,14 × 5 × 5</span></li>
+      <li>Je calcule : <span class="calc">A = 3,14 × 25 = 78,5</span></li>
+      <li>Réponse : <b>A = 78,5 cm²</b></li>
+    </ol>
+  </div>
+
+  <h3>Bonus : une figure compliquée (figure composée)</h3>
+  <p>Parfois, la figure n'est ni un carré ni un rectangle... Il faut la <b>découper</b> en morceaux simples.</p>
+  <div class="figs">
+    <div class="fig">
+      <svg width="190" height="180" viewBox="0 0 190 180">
+        <rect x="20" y="20" width="140" height="56" fill="#bfdbfe" stroke="#2563eb" stroke-width="2.5"/>
+        <rect x="20" y="76" width="56" height="84" fill="#93c5fd" stroke="#2563eb" stroke-width="2.5"/>
+        <text x="90" y="55" font-size="14" fill="#1e3a8a" text-anchor="middle" font-weight="bold">① 14 × 4</text>
+        <text x="48" y="122" font-size="14" fill="#1e3a8a" text-anchor="middle" font-weight="bold">②</text>
+        <text x="48" y="140" font-size="13" fill="#1e3a8a" text-anchor="middle">4×6</text>
+        <text x="90" y="176" font-size="13" fill="#475569" text-anchor="middle">en cm (valeurs d'exemple)</text>
+      </svg>
+    </div>
+  </div>
+  <div class="exemple">
+    <div class="titre">Méthode : je découpe, je calcule, j'additionne</div>
+    <ol class="etapes">
+      <li>Je découpe la figure en <b>rectangles</b> (ici ① et ②).</li>
+      <li>Aire de ① : <span class="calc">14 × 4 = 56 cm²</span></li>
+      <li>Aire de ② : <span class="calc">4 × 6 = 24 cm²</span></li>
+      <li>J'additionne : <span class="calc">56 + 24 = 80</span> → <b>Aire totale = 80 cm²</b></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ POURCENTAGES ============ -->
+<section id="pourcentages">
+  <h2 class="o"><span class="num">2</span> Les pourcentages 🟧</h2>
+
+  <h3>C'est quoi un pourcentage ?</h3>
+  <p>« Pour cent », ça veut dire <b>« sur 100 »</b>. Un pourcentage est donc une <b>fraction sur 100</b> :</p>
+  <div class="formule o">25 % = 25 sur 100 = 25/100 = 0,25</div>
+  <p>Dire « 25 % des élèves aiment les maths », c'est dire : <b>si on avait 100 élèves, 25 les aimeraient</b>.</p>
+
+  <h3>Les pourcentages à connaître par cœur ⭐</h3>
+  <table>
+    <tr><th>Pourcentage</th><th>Fraction</th><th>Comment calculer</th></tr>
+    <tr><td><b>50 %</b></td><td>1/2</td><td>je divise par 2</td></tr>
+    <tr><td><b>25 %</b></td><td>1/4</td><td>je divise par 4 (ou par 2, deux fois)</td></tr>
+    <tr><td><b>75 %</b></td><td>3/4</td><td>je divise par 4 puis je multiplie par 3</td></tr>
+    <tr><td><b>10 %</b></td><td>1/10</td><td>je divise par 10 (la virgule recule d'un cran)</td></tr>
+    <tr><td><b>20 %</b></td><td>1/5</td><td>je divise par 5 (ou 10 %, puis × 2)</td></tr>
+    <tr><td><b>100 %</b></td><td>1</td><td>c'est le tout : le nombre ne change pas</td></tr>
+    <tr><td><b>200 %</b></td><td>2</td><td>c'est le double : je multiplie par 2</td></tr>
+  </table>
+  <div class="astuce">
+    <strong>💡 Astuce du 10 % :</strong> 10 % de 45 € = 4,50 €. Tu décales juste la virgule d'un cran vers la gauche.
+    Et pour 5 % ? La moitié de 10 % ! (10 % de 60 = 6, donc 5 % de 60 = 3.)
+  </div>
+
+  <h3>Calculer un pourcentage d'un nombre (le calcul le plus fréquent)</h3>
+  <div class="formule o">Pour calculer t % d'un nombre : je fais (nombre ÷ 100) × t</div>
+  <p>Ou si tu préfères l'autre ordre : <span class="calc">(nombre × t) ÷ 100</span>. Les deux donnent le même résultat, choisis celui que tu retiens le mieux.</p>
+
+  <div class="exemple">
+    <div class="titre">Exemple 1 — 15 % de 60 kg</div>
+    <ol class="etapes o">
+      <li>Je divise par 100 : <span class="calc">60 ÷ 100 = 0,6</span> (ça, c'est 1 % de 60 kg)</li>
+      <li>Je multiplie par 15 : <span class="calc">0,6 × 15 = 9</span></li>
+      <li>Réponse : <b>15 % de 60 kg = 9 kg</b></li>
+    </ol>
+  </div>
+
+  <div class="exemple">
+    <div class="titre">Exemple 2 — 30 % de 250 €</div>
+    <ol class="etapes o">
+      <li>Je divise par 100 : <span class="calc">250 ÷ 100 = 2,5</span></li>
+      <li>Je multiplie par 30 : <span class="calc">2,5 × 30 = 75</span></li>
+      <li>Réponse : <b>30 % de 250 € = 75 €</b></li>
+    </ol>
+  </div>
+
+  <h3>Calculer un pourcentage (dans l'autre sens)</h3>
+  <p>Parfois on connaît la note et on veut la mettre en pourcentage. Exemple : j'ai eu <b>17 sur 20</b>, ça fait combien de % ?</p>
+  <div class="formule o">Je fais (partie ÷ total) × 100</div>
+  <div class="exemple">
+    <div class="titre">Exemple 3 — 17 sur 20</div>
+    <ol class="etapes o">
+      <li><span class="calc">17 ÷ 20 = 0,85</span></li>
+      <li><span class="calc">0,85 × 100 = 85</span></li>
+      <li>Réponse : <b>17/20 = 85 %</b> 🎉</li>
+    </ol>
+  </div>
+
+  <h3>Bonus : les soldes et les augmentations</h3>
+  <p>Si un prof t'en donne, la méthode est toujours la même en 2 temps :</p>
+  <div class="exemple">
+    <div class="titre">Exemple 4 — Un pull à 40 € soldé à −25 %</div>
+    <ol class="etapes o">
+      <li>Je calcule la réduction : <span class="calc">25 % de 40 = (40 ÷ 100) × 25 = 0,4 × 25 = 10 €</span></li>
+      <li>Je soustrais du prix de départ : <span class="calc">40 − 10 = 30</span></li>
+      <li>Réponse : <b>le pull coûte 30 €</b></li>
+    </ol>
+    <p style="font-size:15px">Pour une <b>augmentation</b>, même chose mais j'<b>ajoute</b> au lieu de soustraire (un prix qui augmente de 10 % : je calcule 10 %, puis je l'ajoute).</p>
+  </div>
+
+  <div class="piege">
+    <strong>⚠️ Erreurs qui coûtent cher :</strong>
+    <ul>
+      <li><b>Oublier de diviser par 100.</b> « 20 % de 50 » ce n'est pas <span class="calc">20 × 50</span>, c'est <span class="calc">(50 ÷ 100) × 20 = 10</span>.</li>
+      <li><b>Pour une réduction, oublier de soustraire.</b> Si on te demande le <b>prix final</b>, calculer la réduction ne suffit pas : il faut la retirer du prix.</li>
+      <li><b>Répondre sans unité.</b> 9 <b>kg</b>, 75 <b>€</b>, 85 <b>%</b>... toujours l'unité !</li>
+      <li><b>Confondre « t % de » et « t % en plus ».</b> « 20 % de 50 » = 10, mais « 50 augmenté de 20 % » = 60 (50 + 10). Lis bien la question !</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ QUIZ ============ -->
+<section id="quiz">
+  <h2><span class="num">✅</span> Quiz : je me teste (8 questions)</h2>
+  <p>Prends un brouillon, réponds tout seul, <b>puis</b> clique pour vérifier. 8 bonnes réponses = tu es prêt(e) ! 💪</p>
+
+  <details>
+    <summary>1. Aire d'un carré de 6 cm de côté ?</summary>
+    <div class="reponse"><b>A = c × c = 6 × 6 = 36 cm²</b></div>
+  </details>
+
+  <details>
+    <summary>2. Aire d'un rectangle de 9 m sur 4 m ?</summary>
+    <div class="reponse"><b>A = L × l = 9 × 4 = 36 m²</b></div>
+  </details>
+
+  <details>
+    <summary>3. Aire d'un triangle avec base = 10 cm et hauteur = 7 cm ?</summary>
+    <div class="reponse"><b>A = (10 × 7) ÷ 2 = 70 ÷ 2 = 35 cm²</b> (ne pas oublier de diviser par 2 !)</div>
+  </details>
+
+  <details>
+    <summary>4. Aire d'un disque de rayon 3 cm ? (π ≈ 3,14)</summary>
+    <div class="reponse"><b>A = π × r × r = 3,14 × 3 × 3 = 3,14 × 9 = 28,26 cm²</b></div>
+  </details>
+
+  <details>
+    <summary>5. Un disque a un diamètre de 12 cm. Quel est son rayon ?</summary>
+    <div class="reponse"><b>r = 12 ÷ 2 = 6 cm</b> (le rayon est la moitié du diamètre)</div>
+  </details>
+
+  <details>
+    <summary>6. Combien font 25 % de 80 élèves ?</summary>
+    <div class="reponse"><b>25 % = un quart, donc 80 ÷ 4 = 20 élèves</b> (ou (80 ÷ 100) × 25 = 20)</div>
+  </details>
+
+  <details>
+    <summary>7. Combien font 40 % de 150 € ?</summary>
+    <div class="reponse"><b>(150 ÷ 100) × 40 = 1,5 × 40 = 60 €</b></div>
+  </details>
+
+  <details>
+    <summary>8. Un téléphone à 200 € baisse de 15 %. Quel est son nouveau prix ?</summary>
+    <div class="reponse">
+      Réduction : (200 ÷ 100) × 15 = 2 × 15 = 30 €<br>
+      Nouveau prix : <b>200 − 30 = 170 €</b>
+    </div>
+  </details>
+
+  <div class="astuce">
+    <strong>💡 Résultat :</strong> 8/8 → tu peux dormir tranquille 😴 &nbsp;•&nbsp; 5 à 7 → relis juste les exemples &nbsp;•&nbsp; moins de 5 → refais les exemples corrigés sur brouillon, puis refais le quiz.
+  </div>
+</section>
+
+<!-- ============ MEMO ============ -->
+<section class="memo" id="memo">
+  <h2><span class="num">⭐</span> À retenir par cœur (relis ça demain matin)</h2>
+  <div class="liste">
+    <div class="item">Aire = l'<b>intérieur</b> • Périmètre = le <b>tour</b> • L'aire s'écrit toujours avec une unité <b>au carré</b> (cm², m²...)</div>
+    <div class="item"><b>Carré :</b> A = côté × côté</div>
+    <div class="item"><b>Rectangle :</b> A = Longueur × largeur</div>
+    <div class="item"><b>Triangle :</b> A = (base × hauteur) ÷ 2 &nbsp;← le ÷ 2, on n'oublie pas !</div>
+    <div class="item"><b>Disque :</b> A = π × r × r &nbsp;avec π ≈ 3,14 &nbsp;• le rayon, c'est la moitié du diamètre</div>
+    <div class="item"><b>Pourcentage :</b> t % d'un nombre = <b>(nombre ÷ 100) × t</b></div>
+    <div class="item"><b>Repères :</b> 50 % = la moitié • 25 % = le quart • 10 % = je recule la virgule • 100 % = le tout</div>
+    <div class="item"><b>Pourcentage inverse :</b> (partie ÷ total) × 100 &nbsp;→ exemple : 17/20 = 85 %</div>
+    <div class="item"><b>Solde / réduction :</b> je calcule la réduction, <b>puis je la soustrais</b> du prix de départ</div>
+  </div>
+</section>
+
+<footer>
+  Bon courage pour demain ! Tu vas y arriver 💪<br>
+  Fiche de révision 5ème — Aires &amp; Pourcentages (n'oublie pas ta calculatrice si le prof l'autorise !)
+</footer>
+
+</div>
+</body>
+</html>

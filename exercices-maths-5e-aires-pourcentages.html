@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entraînement Maths 5ème — Aires &amp; Pourcentages</title>
+<style>
+  :root{
+    --bleu:#2563eb; --bleu-clair:#eaf1ff; --bleu-fonce:#1e3a8a;
+    --orange:#ea7317; --orange-clair:#fff2e5; --orange-fonce:#8a3d00;
+    --vert:#15803d; --vert-clair:#e8f7ee; --vert-fonce:#14532d;
+    --rouge:#dc2626; --rouge-clair:#fdecec;
+    --jaune:#a16207; --jaune-clair:#fff9e0;
+    --violet:#7c3aed; --violet-clair:#f3ecff;
+    --gris:#334155; --gris-clair:#f4f6fb;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; padding:0 12px 60px;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    background:var(--gris-clair); color:var(--gris); line-height:1.6; font-size:17px;
+  }
+  .wrap{max-width:820px;margin:0 auto;}
+  header{
+    background:linear-gradient(135deg,#1e3a8a,#2563eb);
+    color:#fff; border-radius:0 0 22px 22px; padding:26px 20px 22px;
+    margin:0 -12px 22px; text-align:center;
+  }
+  header h1{margin:0 0 6px;font-size:26px;line-height:1.25;}
+  header p{margin:0;opacity:.92;font-size:15px;}
+  .badge{
+    display:inline-block;background:rgba(255,255,255,.18);border-radius:999px;
+    padding:3px 12px;font-size:13px;margin-top:10px;
+  }
+  nav{
+    background:#fff;border-radius:16px;padding:14px 16px;margin-bottom:22px;
+    box-shadow:0 2px 10px rgba(15,23,42,.07);
+  }
+  nav strong{display:block;margin-bottom:8px;font-size:15px;}
+  nav a{
+    display:inline-block;margin:4px 8px 4px 0;padding:7px 14px;border-radius:999px;
+    text-decoration:none;font-size:14px;font-weight:600;
+    background:var(--bleu-clair);color:var(--bleu);
+  }
+  nav a.n2{background:var(--violet-clair);color:var(--violet);}
+  nav a.n3{background:var(--orange-clair);color:var(--orange);}
+  nav a.n4{background:var(--jaune-clair);color:var(--jaune);}
+  nav a.n5{background:var(--rouge-clair);color:var(--rouge);}
+  nav a.q{background:var(--vert-clair);color:var(--vert);}
+
+  section{
+    background:#fff;border-radius:18px;padding:22px 20px;margin-bottom:22px;
+    box-shadow:0 2px 12px rgba(15,23,42,.07); scroll-margin-top:14px;
+  }
+  h2{
+    margin:0 0 8px;font-size:23px;display:flex;align-items:center;gap:10px;
+    border-bottom:3px solid #e5e7eb;padding-bottom:10px;
+  }
+  h2 .num{
+    background:var(--bleu);color:#fff;border-radius:12px;
+    width:38px;height:38px;display:flex;align-items:center;justify-content:center;
+    font-size:17px;flex:0 0 38px;font-weight:700;
+  }
+  .lv2 h2 .num{background:var(--violet);} .lv2 h2{color:var(--violet);}
+  .lv3 h2 .num{background:var(--orange);} .lv3 h2{color:var(--orange-fonce);}
+  .lv4 h2 .num{background:#a16207;} .lv4 h2{color:var(--jaune);}
+  .lv5 h2 .num{background:var(--rouge);} .lv5 h2{color:var(--rouge);}
+  .sous{font-size:15px;color:#64748b;margin:0 0 18px;}
+
+  h3{font-size:18px;margin:24px 0 8px;color:#1e293b;}
+  p{margin:8px 0;}
+  ul,ol{margin:8px 0 8px 4px;padding-left:22px;}
+  li{margin:5px 0;}
+
+  /* ---- carte exercice ---- */
+  .exo{
+    border:2px solid #e2e8f0;border-radius:14px;padding:16px;margin:18px 0;
+    background:#fff;
+  }
+  .exo-titre{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    font-weight:700;color:#0f172a;font-size:16px;margin-bottom:8px;
+  }
+  .exo-titre .pill{
+    background:var(--bleu-fonce);color:#fff;border-radius:8px;
+    padding:2px 10px;font-size:13px;font-weight:700;
+  }
+  .lv2 .exo-titre .pill{background:var(--violet);}
+  .lv3 .exo-titre .pill{background:var(--orange);}
+  .lv4 .exo-titre .pill{background:#a16207;}
+  .lv5 .exo-titre .pill{background:var(--rouge);}
+  .consigne{font-size:17px;margin:6px 0 10px;}
+  .consigne b{color:#0f172a;}
+
+  .rappel{
+    background:var(--bleu-clair);border-left:5px solid var(--bleu);
+    border-radius:10px;padding:10px 14px;margin:10px 0;font-size:15.5px;
+  }
+  .lv3 .rappel,.lv4 .rappel{
+    background:var(--orange-clair);border-left-color:var(--orange);color:var(--orange-fonce);
+  }
+  .lv5 .rappel{background:#fff1f1;border-left-color:var(--rouge);}
+  .rappel b{color:inherit;}
+  .rappel .form{
+    display:block;font-size:18px;font-weight:700;margin-top:4px;color:var(--bleu-fonce);
+  }
+  .lv3 .rappel .form,.lv4 .rappel .form{color:var(--orange-fonce);}
+
+  details{
+    border-radius:12px;padding:10px 14px;margin:8px 0;font-size:16px;
+  }
+  details summary{cursor:pointer;font-weight:700;font-size:15.5px;}
+  details[open] summary{margin-bottom:8px;}
+  details.indice{background:var(--jaune-clair);border:1px solid #fde68a;}
+  details.indice summary{color:var(--jaune);}
+  details.indice[open] summary{color:var(--jaune);}
+  details.corr{background:var(--vert-clair);border:1px solid #bbf7d0;}
+  details.corr summary{color:var(--vert);}
+  details.corr[open] summary{color:var(--vert-fonce);}
+  details .contenu{color:#1e293b;}
+  details.indice .contenu{color:#713f12;}
+  details.corr .contenu{color:var(--vert-fonce);}
+
+  .etapes{counter-reset:et;list-style:none;padding-left:0;margin:8px 0;}
+  .etapes li{counter-increment:et;padding-left:38px;position:relative;margin:9px 0;}
+  .etapes li::before{
+    content:counter(et);position:absolute;left:0;top:1px;
+    width:26px;height:26px;border-radius:50%;background:var(--vert);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;
+  }
+  .calc{
+    font-family:ui-monospace,Menlo,Consolas,monospace;font-size:15.5px;
+    background:#fff;border:1px solid #e2e8f0;border-radius:8px;
+    padding:2px 8px;display:inline-block;
+  }
+  .resultat{
+    background:#fff;border-radius:10px;padding:8px 12px;margin-top:10px;
+    font-size:17px;border:2px solid var(--vert);
+  }
+  .resultat b{color:var(--vert-fonce);}
+
+  .astuce{
+    background:var(--jaune-clair);border-left:5px solid #eab308;
+    border-radius:10px;padding:12px 14px;margin:14px 0;
+  }
+  .astuce strong{color:var(--jaune);}
+  .piege{
+    background:var(--rouge-clair);border-left:5px solid var(--rouge);
+    border-radius:10px;padding:12px 14px;margin:14px 0;
+  }
+  .piege strong{color:var(--rouge);}
+  .reussite{
+    background:var(--vert-clair);border-left:5px solid var(--vert);
+    border-radius:10px;padding:12px 14px;margin:14px 0;
+  }
+  .reussite strong{color:var(--vert);}
+
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:16px;}
+  th,td{border:1px solid #dbe2ea;padding:8px 10px;text-align:center;}
+  th{background:#f1f5f9;font-size:15px;}
+
+  .figs{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin:10px 0;}
+  .fig{text-align:center;font-size:14px;}
+  .fig svg{display:block;margin:0 auto 4px;}
+  .fig b{color:var(--bleu-fonce);}
+
+  /* ---- barre de score ---- */
+  .scorebar{
+    position:sticky;top:0;z-index:20;background:#0f172a;color:#fff;
+    border-radius:14px;padding:10px 16px;margin-bottom:22px;
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+    box-shadow:0 4px 14px rgba(15,23,42,.25);
+  }
+  .scorebar .lbl{font-size:14px;opacity:.85;}
+  .scorebar .val{font-size:20px;font-weight:800;color:#fde68a;}
+  .barre{flex:1;min-width:100px;height:10px;background:rgba(255,255,255,.2);border-radius:99px;overflow:hidden;}
+  .barre span{display:block;height:100%;width:0;background:linear-gradient(90deg,#22c55e,#fde68a);transition:width .25s;}
+  .scorebar button{
+    background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:8px;
+    padding:6px 12px;font-size:13px;cursor:pointer;font-family:inherit;
+  }
+  .scorebar button:hover{background:rgba(255,255,255,.28);}
+
+  .checkbox{
+    display:flex;align-items:center;gap:8px;margin-top:12px;font-size:15px;
+    background:#f8fafc;border:1px dashed #cbd5e1;border-radius:10px;padding:8px 12px;
+    cursor:pointer;
+  }
+  .checkbox input{width:19px;height:19px;accent-color:#15803d;cursor:pointer;}
+  .checkbox span{font-weight:600;color:#475569;}
+
+  footer{text-align:center;font-size:14px;color:#64748b;margin-top:26px;}
+  @media print{
+    body{background:#fff;font-size:13px;padding:0;}
+    header{background:#1e3a8a !important;-webkit-print-color-adjust:exact;}
+    section{box-shadow:none;border:1px solid #ddd;page-break-inside:avoid;}
+    nav,.scorebar{display:none;}
+    details{page-break-inside:avoid;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Entraînement : je m'exerce ET j'apprends</h1>
+  <p>Aires &amp; Pourcentages — 5ème</p>
+  <span class="badge">34 exercices • du plus facile au contrôle blanc</span>
+</header>
+
+<div class="scorebar">
+  <span class="lbl">Exercices réussis :</span>
+  <span class="val" id="scoreVal">0 / 34</span>
+  <div class="barre"><span id="barreFill"></span></div>
+  <button id="resetBtn" type="button">Remettre à zéro</button>
+</div>
+
+<nav>
+  <strong>Choisis ton niveau :</strong>
+  <a href="#n1">1️⃣ Guidé : les aires</a>
+  <a class="n2" href="#n2">2️⃣ Tout seul : les aires</a>
+  <a class="n3" href="#n3">3️⃣ Guidé : les pourcentages</a>
+  <a class="n4" href="#n4">4️⃣ Tout seul : les pourcentages</a>
+  <a class="n5" href="#n5">5️⃣ Contrôle blanc</a>
+  <a class="q" href="#methode">💡 Comment m'entraîner</a>
+</nav>
+
+<!-- ============ METHODE ============ -->
+<section id="methode">
+  <h2><span class="num">💡</span> Comment utiliser cette page (lis 1 minute)</h2>
+  <p>Le but, c'est que tu <b>apprennes en faisant</b>. Chaque exercice fonctionne pareil :</p>
+  <ul>
+    <li>📐 <b>Le rappel</b> en haut de l'exercice = la formule que tu dois utiliser. Lis-le AVANT de chercher.</li>
+    <li>✍️ Tu cherches sur un <b>brouillon</b> (pose l'opération, écris l'unité).</li>
+    <li>🤔 Tu bloques ? Ouvre le <b>💡 Coup de pouce</b> (il te donne juste la première étape, pas la réponse).</li>
+    <li>✅ Tu vérifies avec la <b>Correction détaillée</b>. Si c'est bon, coche « Réussi » — la barre du haut avance !</li>
+  </ul>
+  <div class="piege">
+    <strong>⚠️ La règle d'or :</strong> ne clique pas sur la correction tout de suite. Cherche d'abord,
+    <b>même si c'est faux</b>. Se tromper puis comprendre, c'est ce qui fait retenir. Regarder la solution sans chercher, ça ne marche pas.
+  </div>
+  <div class="reussite">
+    <strong>✅ Objectif : 34/34.</strong> Si tu n'as pas le temps de tout faire ce soir, fais les niveaux 1 et 3
+    (guidés), puis le <a href="#n5">contrôle blanc</a>. C'est le plus rentable.
+  </div>
+</section>
+
+<!-- ============ NIVEAU 1 ============ -->
+<section id="n1" class="lv1">
+  <h2><span class="num">N1</span> Guidé : les aires</h2>
+  <p class="sous">Ici, la formule est donnée juste avant l'exercice. Tu n'as plus qu'à l'appliquer. 7 exercices.</p>
+
+  <div class="exo">
+    <div class="exo-titre"><span class="pill">Ex 1</span> L'aire d'un carré</div>
+    <div class="rappel">Aire du carré : <span class="form">A = côté × côté</span></div>
+    <p class="consigne">Un carré a un côté de <b>7 cm</b>. Calcule son aire.</p>
+    <details class="indice"><summary>💡 Coup de pouce</summary>
+      <div class="contenu">Le côté vaut 7, donc tu calcules 7 × 7. N'oublie pas de mettre l'unité <b>au carré</b> à la fin.</div>
+    </details>
+    <details class="corr"><summary>✅ Correction détaillée</summary>
+      <div class="contenu">
+        <ol class="etapes">
+          <li>Formule : <span class="calc">A = côté × côté</span></li>
+          <li>Je remplace : <span class="calc">A = 7 × 7</span></li>
+          <li>Je calcule : <span class="calc">A = 49</span></li>
+        </ol>
+        <div class="resultat"><b>Aire = 49 cm²</b></div>
+      </div>
+    </details>
+    <label class="checkbox"><input type="checkbox" class="reussi"><span>J'ai réussi cet exercice</span></label>
+  </div>
+
+  <div class="exo">
+    <div class="exo-titre"><span class="pill">Ex 2</span> L'aire d'un rectangle</div>
+    <div class="rappel">Aire du rectangle : <span class="form">A = Longueur × largeur</span></div>
+    <p class="consigne">Un rectangle mesure <b>8 m</b> de long et <b>5 m</b> de large. Calcule son aire.</p>
+    <details class="indice"><summary>💡 Coup de pouce</summary>
+      <div class="contenu">Longueur = 8, largeur = 5. Attention à ne pas confondre avec le <b>périmètre</b> (qui serait 8+5+8+5 = 26 m). Ici on cherche la surface.</div>
+    </details>
+    <details class="corr"><summary>✅ Correction détaillée</summary>
+      <div class="contenu">
+        <ol class="etapes">
+          <li>Formule : <span class="calc">A = L × l</span></li>
+          <li>Je remplace : <span class="calc">A = 8 × 5</span></li>
+          <li>Je calcule : <span class="calc">A = 40</span></li>
+        </ol>
+        <div class="resultat"><b>Aire = 40 m²</b></div>
+      </div>
+    </details>
+    <label class="checkbox"><input type="checkbox" class="reussi"><span>J'ai réussi cet exercice</span></label>
+  </div>
+
+  <div class="exo">
+    <div class="exo-titre"><span class="pill">Ex 3</span> L'aire d'un triangle</div>
+    <div class="rappel">Aire du triangle : <span class="form">A = (base × hauteur) ÷ 2</span></div>
+    <p class="consigne">Un triangle a une base de <b>12 cm</b> et une hauteur de <b>5 cm</b>. Calcule son aire.</p>
+    <details class="indice"><summary>💡 Coup de pouce</summary>
+      <div class="contenu">Étape 1 : base × hauteur = 12 × 5. Étape 2 : et surtout, <b>tu divises par 2</b> ! C'est l'oubli n°1 au contrôle.</div>
+    </details>
+    <details class="corr"><summary>✅ Correction détaillée</summary>
+      <div class="contenu">
+        <ol class="etapes">
+          <li>Formule : <span class="calc">A = (base × hauteur) ÷ 2</span></li>
+          <li>Je remplace : <span class="calc">A = (12 × 5) ÷ 2</span></li>
+          <li>Je calcule : <span class="calc">A = 60 ÷ 2</span></li>
+          <li><span class="calc">A = 30</span></li>
+        </ol>
+        <div class="resultat"><b>Aire = 30 cm²</b></div>
+        <p style="font-size:15px">Un triangle, c'est la moitié d'un rectangle de 12 × 5 = 60 cm², donc la moitié fait bien 30 cm². 👍</p>
+      </div>
+    </details>
+    <label class="checkbox"><input type="checkbox" class="reussi"><span>J'ai réussi cet exercice</span></label>
+  </div>
+
+  <div class="exo">
+    <div class="exo-titre"><span class="pill">Ex 4</span> L'aire d'un disque</div>
+    <div class="rappel">Aire du disque : <span class="form">A = π × r × r</span> avec π ≈ 3,14</div>
+    <p class="consigne">Un disque a un rayon de <b>4 cm</b>. Calcule son aire (π ≈ 3,14).</p>
+    <details class="indice"><summary>💡 Coup de pouce</summary>
+      <div class="contenu">L'énoncé donne le <b>rayon</b> (pas le diamètre), donc on peut appliquer directement : r × r = 4 × 4, puis × 3,14.</div>
+    </details>
+    <details class="corr"><summary>✅ Correction détaillée</summary>
+      <div class="contenu">
+        <ol class="etapes">
+          <li>Formule : <span class="calc">A = π × r × r</span></li>
+          <li>Je remplace : <span class="calc">A = 3,14 × 4 × 4</span></li>
+          <li>Je calcule : <span class="calc">A = 3,14 × 16</span></li>
+          <li><span class="calc">A = 50,24</span></li>
+        </ol>
+        <div class="resultat"><b>Aire = 50,24 cm²</b></div>
+      </div>
+    </details>
+    <label class="checkbox"><input type="checkbox" class="reussi"><span>J'ai réussi cet exercice</span></label>
+  </div>
+
+  <div class="exo">
+    <div class="exo-titre"><span class="pill">Ex 5</span> Trouver la formule : on donne le périmètre</div>
+    <div class="rappel">Périmètre du carré : <span class="form">P = côté × 4</span> &nbsp;|&nbsp; Aire du carré : <span class="form">A = côté × côté</span></div>
+    <p class="consigne">Un carré a un <b>périmètre de 20 cm</b>. Calcule son aire.</p>
+    <details class="indice"><summary>💡 Coup de pouce</summary>
+      <div class="contenu">Tu ne connais pas encore le côté ! Trouve-le d'abord : le périmètre (20) divisé par 4 (les 4 côtés égaux). Ensuite tu calcules l'aire.</div>
+    </details>
+    <details class="corr"><summary>✅ Correction détaillée</summary>
+      <div class="contenu">
+        <ol class="etapes">
+          <li>Je cherche le côté : <span class="calc">côté = 20 ÷ 4 = 5 cm</span></li>
+          <li>Maintenant j'applique la formule de l'aire : <span class="calc">A = 5 × 5</span></li>
+          <li><span class="calc">A = 25</span></li>
+        </ol>
+        <div class="resultat"><b>Aire = 25 cm²</b></div>
+        <p style="font-size:15px">Cet exercice est important : parfois il faut <b>d'abord trouver une longueur</b> avant de pouvoir calculer l'aire.</p>
+      </div>
+    </details>
+    <label class="checkbox"><input type="checkbox" class="reussi"><span>J'ai réussi cet exercice</span></label>
+  </div>
+
+  <div class="exo">
+    <div class="exo-titre"><span class="pill">Ex 6</span> Encore un triangle</div>
+    <div class="rappel">Aire du triangle : <span class="form">A = (base × hauteur) ÷ 2</span></div>
+    <p class="consigne">Un triangle a une base de <b>9 cm</b> et une hauteur de <b>6 cm</b>. Calcule son aire.</p>
+    <details class="indice"><summary>💡 Coup de pouce</summary>
+      <div class="contenu">9 × 6 = 54... et ensuite, qu'est-ce qu'on fait pour un triangle ?</div>
+    </details>
+    <details class="corr"><summary>✅ Correction détaillée</summary>
+      <div class="contenu">
+        <ol class="etapes">
+          <li><span class="calc">A = (9 × 6) ÷ 2</span></li>
+          <li><span class="calc">A = 54 ÷ 2</span></li>
+          <li><span class="calc">A = 27</span></li>
+        </ol>
+        <div class="resultat"><b>Aire = 27 cm²</b></div>
+      </div>
+    </details>
+    <label class="checkbox"><input type="checkbox" class="reussi"><span>J'ai réussi cet exercice</span></label>
+  </div>
+
+  <div class="exo">
+    <div class="exo-titre"><span class="pill">Ex 7</span> Lequel est le plus grand ?</div>
+    <div class="rappel">Carré : <span class="form">A = côté × côté</span> &nbsp;|&nbsp; Rectangle : <span class="form">A = L × l</span></div>
+    <p class="consigne">Jeanne a deux gâteaux : un carré de <b>6 cm</b> de côté et un rectangle de <b>9 cm</b> sur <b>4 cm</b>. Quel gâteau a la plus grande surface ?</p>
+    <details class="indice"><summary>💡 Coup de pouce</summary>
+      <div class="contenu">Calcule les deux aires séparément, écris les deux résultats, <b>puis</b> compare-les.</div>
+    </details>
+    <details class="corr"><summary>✅ Correction détaillée</summary>
+      <div class="contenu">
+        <ol class="etapes">
+          <li>Aire du carré : <span class="calc">6 × 6 = 36 cm²</span></li>
+          <li>Aire du rectangle : <span class="calc">9 × 4 = 36 cm²</span></li>
+          <li>Je compare : <span class="calc">36 = 36</span></li>
+        </ol>
+        <div class="resultat"><b>Ils ont exactement la même aire : 36 cm² !</b></div>
+        <p style="font-size:15px">Retiens l'idée : des figures qui ont l'<b>air</b> très différentes peuvent avoir la <b>même aire</b>. 👀</p>
+      </div>
+    </details>
+    <label class="checkbox"><input type="checkbox" class="reussi"><span>J'ai réussi cet exercice</span></label>
+  </div>
+</section>
+
+<!-- ============ NIVEAU 2 ============ -->
+<section id="n2" class="lv2">
+  <h2><span class="num">N2</span> Tout seul : les aires</h2>
+  <p class="sous">Plus de rappel de formule : c'est à toi de choisir la bonne. 7 exercices. (Tu peux quand même ouvrir le coup de pouce 😉)</p>
+
+  <div class="exo">
+    <div class="exo-titre"><span class="pill">Ex 8</span> Rectangle</div>
+    <p class="consigne">Une feuille mesure <b>15 cm</b> sur <b>4 cm</b>. Calcule son aire.</p>
+    <details class="indice"><summary>💡 Coup de pouce</summary><div class="contenu">C'est un rectangle → Longueur × largeur.</div></details>
+    <details class="corr"><summary>✅ Correction détaillée</summary>
+      <div class="contenu">
+        <ol class="etapes">
+          <li><span class="calc">A = L × l = 15 × 4</span></li>
+          <li><span class="calc">A = 60</span></li>
+        </ol>
+        <div class="resultat"><b>Aire = 60 cm²</b></div>
+      </div>
+    </details>
+    <label class="checkbox"><input type="checkbox" class="reussi"><span>J'ai réussi cet exercice</span></label>
+  </div>
+
+  <div class="exo">
+    <div class="exo-titre"><span class="pill">Ex 9</span> ⚠️ Piège : diamètre ou rayon ?</div>
+    <p class="consigne">Un disque a un <b>diamètre de 10 cm</b>. Calcule son aire (π ≈ 3,14).</p>
+    <details class="indice"><summary>💡 Coup de pouce</summary>
+      <div class="contenu">Attention ! La formule utilise le <b>rayon</b>. Et le rayon, c'est la <b>moitié</b> du diamètre. Trouve le rayon en premier.</div>
+    </details>
+    <details class="corr"><summary>✅ Correction détaillée</summary>
+      <div class="contenu">
+        <ol class="etapes">
+          <li>Je trouve le rayon : <span class="calc">r = 10 ÷ 2 = 5 cm</span></li>
+          <li>Formule : <span class="calc">A = 3,14 × 5 × 5</span></li>
+          <li><span class="calc">A = 3,14 × 25</span></li>
+          <li><span class="calc">A = 78,5</span></li>
+        </ol>
+        <div class="resultat"><b>Aire = 78,5 cm²</b></div>
+        <p style="font-size:15px">La faute classique, c'est de faire <span class="calc">3,14 × 10 × 10</span>. Ça donne 314, et c'est faux ! 🚫</p>
+      </div>
+    </details>
+    <label class="checkbox"><input type="checkbox" class="reussi"><span>J'ai réussi cet exercice</span></label>
+  </div>
+
+  <div class="exo">
+    <div class="exo-titre"><span class="pill">Ex 10</span> Carré avec des décimaux</div>
+    <p class="consigne">Un carré de moquette a un côté de <b>2,5 m</b>. Calcule son aire.</p>
+    <details class="indice"><summary>💡 Coup de pouce</summary>
+      <div class="contenu">2,5 × 2,5. Astuce : <span class="calc">2,5 = 25 ÷ 10</span>, donc <span class="calc">2,5 × 2,5 = (25 × 25) ÷ 100 = 625 ÷ 100</span>.</div>
+    </details>
+    <details class="corr"><summary>✅ Correction détaillée</summary>
+      <div class="contenu">
+        <ol class="etapes">
+          <li><span class="calc">A = 2,5 × 2,5</span></li>
+          <li><span class="calc">A = 6,25</span></li>
+        </ol>
+        <div class="resultat"><b>Aire = 6,25 m²</b></div>
+      </div>
+    </details>
+    <label class="checkbox"><input type="checkbox" class="reussi"><span>J'ai réussi cet exercice</span></label>
+  </div>
+
+  <div class="exo">
+    <div class="exo-titre"><span class="pill">Ex 11</span> Triangle</div>
+    <p class="consigne">Un triangle a une base de <b>7 m</b> et une hauteur de <b>4 m</b>. Calcule son aire.</p>
+    <details class="indice"><summary>💡 Coup de pouce</summary><div class="contenu">base × hauteur, puis ÷ 2. (Fais le ÷ 2 AVANT de mettre l'unité, pas après !)</div></details>
+    <details class="corr"><summary>✅ Correction détaillée</summary>
+      <div class="contenu">
+        <ol class="etapes">
+          <li><span class="calc">A = (7 × 4) ÷ 2</span></li>
+          <li><span class="calc">A = 28 ÷ 2 = 14</span></li>
+        </ol>
+        <div class="resultat"><b>Aire = 14 m²</b></div>
+      </div>
+    </details>
+    <label class="checkbox"><input type="checkbox" class="reussi"><span>J'ai réussi cet exercice</span></label>
+  </div>
+
+  <div class="exo">
+    <div class="exo-titre"><span class="pill">Ex 12</span> Figure composée (forme en L)</div>
+    <p class="consigne">Cette figure est formée d'un rectangle de <b>10 cm</b> sur <b>3 cm</b> et d'un carré de <b>3 cm</b> de côté collé dessous. Calcule l'aire totale.</p>
+    <div class="figs">
+      <div class="fig">
+        <svg width="200" height="180" viewBox="0 0 200 180">
+          <rect x="24" y="24" width="150" height="45" fill="#dbeafe" stroke="#2563eb" stroke-width="2.5"/>
+          <rect x="24" y="69" width="45" height="45" fill="#93c5fd" stroke="#2563eb" stroke-width="2.5"/>
+          <text x="99" y="52" font-size="14" fill="#1e3a8a" text-anchor="middle" font-weight="bold">10 cm</text>
+          <text x="46" y="97" font-size="13" fill="#1e3a8a" text-anchor="middle" font-weight="bold">3</text>
+          <text x="8" y="50" font-size="13" fill="#2563eb" text-anchor="middle">3</text>
+          <line x1="24" y1="150" x2="174" y2="150" stroke="#94a3b8" stroke-width="1.5"/>
+          <text x="99" y="168" font-size="13" fill="#475569" text-anchor="middle">un grand rectangle + un petit carré</text>
+        </svg>
+      </div>
+    </div>
+    <details class="indice"><summary>💡 Coup de pouce</summary>
+      <div class="contenu">Coupe la figure en 2 morceaux simples : ① le rectangle du haut, ② le carré du bas. Calcule chaque aire, puis <b>additionne</b>.</div>
+    </details>
+    <details class="corr"><summary>✅ Correction détaillée</summary>
+      <div class="contenu">
+        <ol class="etapes">
+          <li>Aire ① (rectangle) : <span class="calc">10 × 3 = 30 cm²</span></li>
+          <li>Aire ② (carré) : <span class="calc">3 × 3 = 9 cm²</span></li>
+          <li>J'additionne les deux morceaux : <span class="calc">30 + 9 = 39</span></li>
+        </ol>
+        <div class="resultat"><b>Aire totale = 39 cm²</b></div>
+        <p style="font-size:15px">Méthode à retenir pour toute figure bizarre : <b>je découpe en figures simples, je calcule, j'additionne.</b></p>
+      </div>
+    </details>
+    <label class="checkbox"><input type="checkbox" class="reussi"><span>J'ai réussi cet exercice</span></label>
+  </div>
+
+  <div class="exo">
+    <div class="exo-titre"><span class="pill">Ex 13</span> Problème de gazon</div>
+    <p class="consigne">Un jardin rectangulaire mesure <b>25 m</b> de long et <b>12 m</b> de large. On veut le recouvrir entièrement de gazon. Quelle surface de gazon faut-il acheter ?</p>
+    <details class="indice"><summary>💡 Coup de pouce</summary>
+      <div class="contenu">« Recouvrir entièrement » = surface = aire. Ce n'est pas une histoire de clôture (ça, ce serait le périmètre).</div>
+    </details>
+    <details class="corr"><summary>✅ Correction détaillée</summary>
+      <div class="contenu">
+        <ol class="etapes">
+          <li><span class="calc">A = 25 × 12</span></li>
+          <li><span class="calc">A = 300</span></li>
+        </ol>
+        <div class="resultat"><b>Il faut 300 m² de gazon.</b></div>
+        <p style="font-size:15px"><b>Le truc pour reconnaître :</b> « gazon, peinture, carrelage, couvrir, recouvrir » → <b>aire</b>. « Clôture, grillage, entourer, bordure » → <b>périmètre</b>.</p>
+      </div>
+    </details>
+    <label class="checkbox"><input type="checkbox" class="reussi"><span>J'ai réussi cet exercice</span></label>
+  </div>
+
+  <div class="exo">
+    <div class="exo-titre"><span class="pill">Ex 14</span> Le carrelage</div>
+    <p class="consigne">Un carreau de carrelage est un carré de <b>30 cm</b> de côté. Calcule l'aire d'<b>un</b> carreau.</p>
+    <details class="indice"><summary>💡 Coup de pouce</summary><div class="contenu">Attention aux unités : 30 cm, donc l'aire sera en cm².</div></details>
+    <details class="corr"><summary>✅ Correction détaillée</summary>
+      <div class="contenu">
+        <ol class="etapes">
+          <li><span class="calc">A = 30 × 30</span></li>
+          <li><span class="calc">A = 900</span></li>
+        </ol>
+        <div class="resultat"><b>Aire d'un carreau = 900 cm²</b></div>
+      </div>
+    </details>
+    <label class="checkbox"><input type="checkbox" class="reussi"><span>J'ai réussi cet exercice</span></label>
+  </div>
+</section>
+
+<!-- ============ NIVEAU 3 ============ -->
+<section id="n3" class="lv3">
+  <h2><span class="num">N3</span> Guidé : les pourcentages</h2>
+  <p class="sous">La méthode est rappelée, et on commence par deux astuces qui évitent presque tous les calculs. 6 exercices.</p>
+
+  <div class="rappel" style="margin-bottom:18px">
+    <b>LE calcul de base :</b> t % d'un nombre = <b>(nombre ÷ 100) × t</b>
+    <span class="form">Exemple : 20 % de 60 → (60 ÷ 100) × 20 = 0,6 × 20 = 12</span>
+  </div>
+
+  <div class="exo">
+    <div class="exo-titre"><span class="pill">Ex 15</span> L'astuce des 10 %</div>
+    <div class="rappel">10 % d'un nombre = <span class="form">je recule la virgule de 1 cran</span></div>
+    <p class="consigne">Combien font <b>10 % de 80</b> ?</p>
+    <details class="indice"><summary>💡 Coup de pouce</summary><div class="contenu">80 ÷ 10 = 8. C'est tout ! (10 %, c'est un dixième.)</div></details>
+    <details class="corr"><summary>✅ Correction détaillée</summary>
+      <div class="contenu">
+        <ol class="etapes">
+          <li>Méthode rapide : <span class="calc">80 ÷ 10 = 8</span></li>
+          <li>Vérification avec la formule : <span class="calc">(80 ÷ 100) × 10 = 0,8 × 10 = 8</span></li>
+        </ol>
+        <div class="resultat"><b>10 % de 80 = 8</b></div>
+      </div>
+    </details>
+    <label class="checkbox"><input type="checkbox" class="reussi"><span>J'ai réussi cet exercice</span></label>
+  </div>
+
+  <div class="exo">
+    <div class="exo-titre"><span class="pill">Ex 16</span> L'astuce des 50 %</div>
+    <div class="rappel">50 % d'un nombre = <span class="form">je divise par 2 (c'est la moitié)</span></div>
+    <p class="consigne">Combien font <b>50 % de 46</b> ?</p>
+    <details class="indice"><summary>💡 Coup de pouce</summary><div class="contenu">La moitié de 46.</div></details>
+    <details class="corr"><summary>✅ Correction détaillée</summary>
+      <div class="contenu">
+        <ol class="etapes">
+          <li><span class="calc">46 ÷ 2 = 23</span></li>
+        </ol>
+        <div class="resultat"><b>50 % de 46 = 23</b></div>
+      </div>
+    </details>
+    <label class="checkbox"><input type="checkbox" class="reussi"><span>J'ai réussi cet exercice</span></label>
+  </div>
+
+  <div class="exo">
+    <div class="exo-titre"><span class="pill">Ex 17</span> L'astuce des 25 %</div>
+    <div class="rappel">25 % d'un nombre = <span class="form">je divise par 4 (c'est le quart)</span></div>
+    <p class="consigne">Combien font <b>25 % de 60</b> ?</p>
+    <details class="indice"><summary>💡 Coup de pouce</summary><div class="contenu">60 ÷ 2 = 30, puis encore ÷ 2. (Ou directement 60 ÷ 4.)</div></details>
+    <details class="corr"><summary>✅ Correction détaillée</summary>
+      <div class="contenu">
+        <ol class="etapes">
+          <li><span class="calc">60 ÷ 4 = 15</span></li>
+          <li>Ou en deux fois : <span class="calc">60 ÷ 2 = 30</span> puis <span class="calc">30 ÷ 2 = 15</span></li>
+        </ol>
+        <div class="resultat"><b>25 % de 60 = 15</b></div>
+      </div>
+    </details>
+    <label class="checkbox"><input type="checkbox" class="reussi"><span>J'ai réussi cet exercice</span></label>
+  </div>
+
+  <div class="exo">
+    <div class="exo-titre"><span class="pill">Ex 18</span> La méthode complète</div>
+    <div class="rappel">t % d'un nombre = <span class="form">(nombre ÷ 100) × t</span></div>
+    <p class="consigne">Combien font <b>20 % de 150</b> ?</p>
+    <details class="indice"><summary>💡 Coup de pouce</summary>
+      <div class="contenu">Étape 1 : 150 ÷ 100 = 1,5 (ça, c'est 1 %). Étape 2 : × 20.</div>
+    </details>
+    <details class="corr"><summary>✅ Correction détaillée</summary>
+      <div class="contenu">
+        <ol class="etapes">
+          <li><span class="calc">150 ÷ 100 = 1,5</span></li>
+          <li><span class="calc">1,5 × 20 = 30</span></li>
+        </ol>
+        <div class="resultat"><b>20 % de 150 = 30</b></div>
+        <p style="font-size:15px">Autre façon : 20 % = 10 % × 2. Or 10 % de 150 = 15, donc 20 % = 15 × 2 = 30. ✅</p>
+      </div>
+    </details>
+    <label class="checkbox"><input type="checkbox" class="reussi"><span>J'ai réussi cet exercice</span></label>
+  </div>
+
+  <div class="exo">
+    <div class="exo-titre"><span class="pill">Ex 19</span> 30 %</div>
+    <div class="rappel">t % d'un nombre = <span class="form">(nombre ÷ 100) × t</span></div>
+    <p class="consigne">Combien font <b>30 % de 90</b> ?</p>
+    <details class="indice"><summary>💡 Coup de pouce</summary>
+      <div class="contenu">Fais d'abord 10 % de 90 (facile : tu recules la virgule), puis multiplie par 3.</div>
+    </details>
+    <details class="corr"><summary>✅ Correction détaillée</summary>
+      <div class="contenu">
+        <ol class="etapes">
+          <li>10 % de 90 : <span class="calc">90 ÷ 10 = 9</span></li>
+          <li>30 %, c'est 3 fois 10 % : <span class="calc">9 × 3 = 27</span></li>
+          <li>Vérification : <span class="calc">(90 ÷ 100) × 30 = 0,9 × 30 = 27</span> ✅</li>
+        </ol>
+        <div class="resultat"><b>30 % de 90 = 27</b></div>
+      </div>
+    </details>
+    <label class="checkbox"><input type="checkbox" class="reussi"><span>J'ai réussi cet exercice</span></label>
+  </div>
+
+  <div class="exo">
+    <div class="exo-titre"><span class="pill">Ex 20</span> 60 %</div>
+    <div class="rappel">t % d'un nombre = <span class="form">(nombre ÷ 100) × t</span></div>
+    <p class="consigne">Combien font <b>60 % de 45</b> ?</p>
+    <details class="indice"><summary>💡 Coup de pouce</summary>
+      <div class="contenu">(45 ÷ 100) × 60. Tu peux aussi faire 45 × 60 d'abord : 45 × 60 = 2700, puis ÷ 100 = 27.</div>
+    </details>
+    <details class="corr"><summary>✅ Correction détaillée</summary>
+      <div class="contenu">
+        <ol class="etapes">
+          <li>Méthode 1 : <span class="calc">45 ÷ 100 = 0,45</span> puis <span class="calc">0,45 × 60 = 27</span></li>
+          <li>Méthode 2 : <span class="calc">45 × 60 = 2700</span> puis <span class="calc">2700 ÷ 100 = 27</span></li>
+        </ol>
+        <div class="resultat"><b>60 % de 45 = 27</b></div>
+        <p style="font-size:15px">Les deux méthodes marchent toujours. Choisis celle sur laquelle tu fais le moins d'erreurs et garde-la. 💪</p>
+      </div>
+    </details>
+    <label class="checkbox"><input type="checkbox" class="reussi"><span>J'ai réussi cet exercice</span></label>
+  </div>
+</section>
+
+<!-- ============ NIVEAU 4 ============ -->
+<section id="n4" class="lv4">
+  <h2><span class="num">N4</span> Tout seul : les pourcentages</h2>
+  <p class="sous">Sans rappel de méthode. 8 exercices, dont des problèmes comme au contrôle.</p>
+
+  <div class="exo">
+    <div class="exo-titre"><span class="pill">Ex 21</span> 10 % en euros</div>
+    <p class="consigne">Combien font <b>10 % de 250 €</b> ?</p>
+    <details class="indice"><summary>💡 Coup de pouce</summary><div class="contenu">Tu recules la virgule d'un cran. 250 → 25,0.</div></details>
+    <details class="corr"><summary>✅ Correction détaillée</summary>
+      <div class="contenu">
+        <ol class="etapes"><li><span class="calc">250 ÷ 10 = 25</span></li></ol>
+        <div class="resultat"><b>10 % de 250 € = 25 €</b></div>
+      </div>
+    </details>
+    <label class="checkbox"><input type="checkbox" class="reussi"><span>J'ai réussi cet exercice</span></label>
+  </div>
+
+  <div class="exo">
+    <div class="exo-titre"><span class="pill">Ex 22</span> 75 %</div>
+    <p class="consigne">Combien font <b>75 % de 40</b> ?</p>
+    <details class="indice"><summary>💡 Coup de pouce</summary>
+      <div class="contenu">75 % = les trois quarts. Donc : le quart de 40, puis × 3.</div>
+    </details>
+    <details class="corr"><summary>✅ Correction détaillée</summary>
+      <div class="contenu">
+        <ol class="etapes">
+          <li>Le quart : <span class="calc">40 ÷ 4 = 10</span></li>
+          <li>Les trois quarts : <span class="calc">10 × 3 = 30</span></li>
+          <li>Vérification : <span class="calc">(40 ÷ 100) × 75 = 0,4 × 75 = 30</span> ✅</li>
+        </ol>
+        <div class="resultat"><b>75 % de 40 = 30</b></div>
+      </div>
+    </details>
+    <label class="checkbox"><input type="checkbox" class="reussi"><span>J'ai réussi cet exercice</span></label>
+  </div>
+
+  <div class="exo">
+    <div class="exo-titre"><span class="pill">Ex 23</span> Un pourcentage qui n'est pas « rond »</div>
+    <p class="consigne">Combien font <b>12 % de 150</b> ?</p>
+    <details class="indice"><summary>💡 Coup de pouce</summary>
+      <div class="contenu">Méthode : 1,5 × 12. Astuce : 12 % = 10 % + 2 %. Or 10 % de 150 = 15, et 2 % = 1 % × 2 = 1,5 × 2 = 3. Donc 15 + 3 = ?</div>
+    </details>
+    <details class="corr"><summary>✅ Correction détaillée</summary>
+      <div class="contenu">
+        <ol class="etapes">
+          <li>Méthode directe : <span class="calc">150 ÷ 100 = 1,5</span> puis <span class="calc">1,5 × 12 = 18</span></li>
+          <li>Autre méthode (décomposer) : 10 % de 150 = 15 &nbsp;•&nbsp; 2 % de 150 = 3 &nbsp;•&nbsp; <span class="calc">15 + 3 = 18</span></li>
+        </ol>
+        <div class="resultat"><b>12 % de 150 = 18</b></div>
+      </div>
+    </details>
+    <label class="checkbox"><input type="checkbox" class="reussi"><span>J'ai réussi cet exercice</span></label>
+  </div>
+
+  <div class="exo">
+    <div class="exo-titre"><span class="pill">Ex 24</span> Les soldes</div>
+    <p class="consigne">Un pull coûte <b>80 €</b>. Il est soldé à <b>− 25 %</b>. Quel est son nouveau prix ?</p>
+    <details class="indice"><summary>💡 Coup de pouce</summary>
+      <div class="contenu">2 étapes ! D'abord la réduction (25 % de 80), ensuite tu la <b>soustrais</b> du prix de départ.</div>
+    </details>
+    <details class="corr"><summary>✅ Correction détaillée</summary>
+      <div class="contenu">
+        <ol class="etapes">
+          <li>Réduction : <span class="calc">25 % de 80 = 80 ÷ 4 = 20 €</span></li>
+          <li>Nouveau prix : <span class="calc">80 − 20 = 60 €</span></li>
+        </ol>
+        <div class="resultat"><b>Le pull coûte maintenant 60 €</b></div>
+        <p style="font-size:15px">⚠️ Et voici l'erreur la plus fréquente : répondre « 20 € ». 20 €, c'est juste la <b>réduction</b>, pas le prix final ! Relis bien la question.</p>
+      </div>
+    </details>
+    <label class="checkbox"><input type="checkbox" class="reussi"><span>J'ai réussi cet exercice</span></label>
+  </div>
+
+  <div class="exo">
+    <div class="exo-titre"><span class="pill">Ex 25</span> Une augmentation</div>
+    <p class="consigne">Un billet de concert coûte <b>60 €</b>. Le prix <b>augmente de 10 %</b>. Quel est le nouveau prix ?</p>
+    <details class="indice"><summary>💡 Coup de pouce</summary>
+      <div class="contenu">Même méthode que pour les soldes, mais cette fois tu <b>ajoutes</b> l'augmentation au prix de départ.</div>
+    </details>
+    <details class="corr"><summary>✅ Correction détaillée</summary>
+      <div class="contenu">
+        <ol class="etapes">
+          <li>Augmentation : <span class="calc">10 % de 60 = 6 €</span></li>
+          <li>Nouveau prix : <span class="calc">60 + 6 = 66 €</span></li>
+        </ol>
+        <div class="resultat"><b>Le billet coûte maintenant 66 €</b></div>
+      </div>
+    </details>
+    <label class="checkbox"><input type="checkbox" class="reussi"><span>J'ai réussi cet exercice</span></label>
+  </div>
+
+  <div class="exo">
+    <div class="exo-titre"><span class="pill">Ex 26</span> Dans l'autre sens : une note en %</div>
+    <p class="consigne">Léa a eu <b>18 sur 20</b> à un devoir. Quel pourcentage de réussite ça représente ?</p>
+    <details class="indice"><summary>💡 Coup de pouce</summary>
+      <div class="contenu">La méthode quand on cherche le pourcentage : <span class="calc">(partie ÷ total) × 100</span>. Ici : (18 ÷ 20) × 100.</div>
+    </details>
+    <details class="corr"><summary>✅ Correction détaillée</summary>
+      <div class="contenu">
+        <ol class="etapes">
+          <li><span class="calc">18 ÷ 20 = 0,9</span></li>
+          <li><span class="calc">0,9 × 100 = 90</span></li>
+        </ol>
+        <div class="resultat"><b>18/20 = 90 %</b> 🎉</div>
+        <p style="font-size:15px">Retiens ce raccourci : sur 20, une note se transforme en % en la multipliant par 5. 18 × 5 = 90. Magique, non ?</p>
+      </div>
+    </details>
+    <label class="checkbox"><input type="checkbox" class="reussi"><span>J'ai réussi cet exercice</span></label>
+  </div>
+
+  <div class="exo">
+    <div class="exo-titre"><span class="pill">Ex 27</span> Problème de classe</div>
+    <p class="consigne">Dans une classe de <b>30 élèves</b>, <b>40 %</b> sont des filles.<br>
+    a) Combien y a-t-il de filles ?<br>b) Combien y a-t-il de garçons ?</p>
+    <details class="indice"><summary>💡 Coup de pouce</summary>
+      <div class="contenu">Pour a) : 40 % de 30 → 0,3 × 40. Pour b) : tu peux faire 60 % de 30 (car 100 % − 40 % = 60 %), ou plus simple : tous les élèves moins les filles.</div>
+    </details>
+    <details class="corr"><summary>✅ Correction détaillée</summary>
+      <div class="contenu">
+        <ol class="etapes">
+          <li>a) Filles : <span class="calc">(30 ÷ 100) × 40 = 0,3 × 40 = 12</span> → <b>12 filles</b></li>
+          <li>b) Garçons : je peux faire <span class="calc">30 − 12 = 18</span> → <b>18 garçons</b></li>
+          <li>Vérification : <span class="calc">12 + 18 = 30</span> ✅ (et 12/30 = 40 %, ça colle)</li>
+        </ol>
+        <div class="resultat"><b>12 filles et 18 garçons</b></div>
+      </div>
+    </details>
+    <label class="checkbox"><input type="checkbox" class="reussi"><span>J'ai réussi cet exercice</span></label>
+  </div>
+
+  <div class="exo">
+    <div class="exo-titre"><span class="pill">Ex 28</span> Taux de réussite</div>
+    <p class="consigne">Sur <b>60 élèves</b> qui passent un examen, <b>45</b> sont reçus. Quel est le pourcentage de réussite ?</p>
+    <details class="indice"><summary>💡 Coup de pouce</summary>
+      <div class="contenu">(45 ÷ 60) × 100. Indice : 45 ÷ 60 = 0,75. Et 0,75, ça fait combien en % ?</div>
+    </details>
+    <details class="corr"><summary>✅ Correction détaillée</summary>
+      <div class="contenu">
+        <ol class="etapes">
+          <li><span class="calc">45 ÷ 60 = 0,75</span></li>
+          <li><span class="calc">0,75 × 100 = 75</span></li>
+        </ol>
+        <div class="resultat"><b>75 % d'élèves reçus</b></div>
+        <p style="font-size:15px">Petit bonus de vérification : 75 %, c'est les trois quarts. Et 3/4 de 60 = 45. ✅ Ça colle !</p>
+      </div>
+    </details>
+    <label class="checkbox"><input type="checkbox" class="reussi"><span>J'ai réussi cet exercice</span></label>
+  </div>
+</section>
+
+<!-- ============ CONTROLE BLANC ============ -->
+<section id="n5" class="lv5">
+  <h2><span class="num">N5</span> Contrôle blanc — 20 points</h2>
+  <p class="sous">
+    ⏱️ Mets-toi dans les conditions du contrôle : <b>pas de correction ouverte</b>, tu prends une feuille,
+    tu écris les calculs et les unités. <b>25 minutes</b>. Note-toi sur 20. Bonne chance ! 🍀
+  </p>
+
+  <div class="exo">
+    <div class="exo-titre"><span class="pill">Ex 1 — 4 pts</span> Le terrain</div>
+    <p class="consigne">
+      Un terrain rectangulaire mesure <b>35 m</b> de long et <b>18 m</b> de large.<br>
+      a) Calcule son aire en m².<br>
+      b) Convertis cette aire en dm².
+    </p>
+    <details class="corr"><summary>✅ Correction (à ne lire qu'à la fin !)</summary>
+      <div class="contenu">
+        <ol class="etapes">
+          <li>a) <span class="calc">A = 35 × 18</span></li>
+          <li><span class="calc">A = 630</span> → <b>630 m²</b></li>
+          <li>b) Pour passer des m² aux dm², on multiplie par <b>100</b> :</li>
+          <li><span class="calc">630 × 100 = 63 000</span> → <b>63 000 dm²</b></li>
+        </ol>
+        <div class="resultat"><b>a) 630 m² &nbsp;•&nbsp; b) 63 000 dm²</b></div>
+      </div>
+    </details>
+    <label class="checkbox"><input type="checkbox" class="reussi"><span>J'ai réussi cet exercice</span></label>
+  </div>
+
+  <div class="exo">
+    <div class="exo-titre"><span class="pill">Ex 2 — 3 pts</span> Le triangle</div>
+    <p class="consigne">Un triangle a une base de <b>14 cm</b> et une hauteur de <b>9 cm</b>. Calcule son aire.</p>
+    <details class="corr"><summary>✅ Correction (à ne lire qu'à la fin !)</summary>
+      <div class="contenu">
+        <ol class="etapes">
+          <li><span class="calc">A = (14 × 9) ÷ 2</span></li>
+          <li><span class="calc">A = 126 ÷ 2 = 63</span></li>
+        </ol>
+        <div class="resultat"><b>Aire = 63 cm²</b></div>
+        <p style="font-size:15px">As-tu pensé au ÷ 2 ? Si tu as répondu 126 cm², relis immédiatement la fiche sur le triangle. 😅</p>
+      </div>
+    </details>
+    <label class="checkbox"><input type="checkbox" class="reussi"><span>J'ai réussi cet exercice</span></label>
+  </div>
+
+  <div class="exo">
+    <div class="exo-titre"><span class="pill">Ex 3 — 3 pts</span> Le disque</div>
+    <p class="consigne">Un disque a un rayon de <b>6 cm</b>. Calcule son aire (π ≈ 3,14).</p>
+    <details class="corr"><summary>✅ Correction (à ne lire qu'à la fin !)</summary>
+      <div class="contenu">
+        <ol class="etapes">
+          <li><span class="calc">A = 3,14 × 6 × 6</span></li>
+          <li><span class="calc">A = 3,14 × 36</span></li>
+          <li><span class="calc">A = 113,04</span></li>
+        </ol>
+        <div class="resultat"><b>Aire = 113,04 cm²</b></div>
+      </div>
+    </details>
+    <label class="checkbox"><input type="checkbox" class="reussi"><span>J'ai réussi cet exercice</span></label>
+  </div>
+
+  <div class="exo">
+    <div class="exo-titre"><span class="pill">Ex 4 — 3 pts</span> Le pourcentage</div>
+    <p class="consigne">Calcule <b>35 % de 240 €</b>.</p>
+    <details class="corr"><summary>✅ Correction (à ne lire qu'à la fin !)</summary>
+      <div class="contenu">
+        <ol class="etapes">
+          <li><span class="calc">240 ÷ 100 = 2,4</span></li>
+          <li><span class="calc">2,4 × 35 = 84</span></li>
+        </ol>
+        <div class="resultat"><b>35 % de 240 € = 84 €</b></div>
+      </div>
+    </details>
+    <label class="checkbox"><input type="checkbox" class="reussi"><span>J'ai réussi cet exercice</span></label>
+  </div>
+
+  <div class="exo">
+    <div class="exo-titre"><span class="pill">Ex 5 — 4 pts</span> Les soldes</div>
+    <p class="consigne">Une veste coûte <b>150 €</b>. Le magasin fait <b>− 20 %</b> sur tout. Quel est le nouveau prix de la veste ?</p>
+    <details class="corr"><summary>✅ Correction (à ne lire qu'à la fin !)</summary>
+      <div class="contenu">
+        <ol class="etapes">
+          <li>Réduction : <span class="calc">20 % de 150 = 1,5 × 20 = 30 €</span></li>
+          <li>Nouveau prix : <span class="calc">150 − 30 = 120 €</span></li>
+        </ol>
+        <div class="resultat"><b>La veste coûte 120 €</b></div>
+        <p style="font-size:15px">Si tu as répondu 30 €, c'est que tu as oublié de soustraire. C'est l'erreur la plus fréquente de tous les contrôles. ✍️</p>
+      </div>
+    </details>
+    <label class="checkbox"><input type="checkbox" class="reussi"><span>J'ai réussi cet exercice</span></label>
+  </div>
+
+  <div class="exo">
+    <div class="exo-titre"><span class="pill">Ex 6 — 3 pts</span> Le taux de réussite</div>
+    <p class="consigne">Un élève a eu <b>20 bonnes réponses sur 25</b> questions. Quel pourcentage de bonnes réponses a-t-il eu ?</p>
+    <details class="corr"><summary>✅ Correction (à ne lire qu'à la fin !)</summary>
+      <div class="contenu">
+        <ol class="etapes">
+          <li><span class="calc">20 ÷ 25 = 0,8</span></li>
+          <li><span class="calc">0,8 × 100 = 80</span></li>
+        </ol>
+        <div class="resultat"><b>80 % de bonnes réponses</b></div>
+        <p style="font-size:15px">Astuce pour vérifier : 20/25, c'est pareil que 80/100 (on multiplie le haut et le bas par 4). Donc 80 %. ✅</p>
+      </div>
+    </details>
+    <label class="checkbox"><input type="checkbox" class="reussi"><span>J'ai réussi cet exercice</span></label>
+  </div>
+
+  <div class="reussite">
+    <strong>✅ Barème :</strong> total sur 20 points.
+    <ul>
+      <li><b>17 à 20</b> : excellent, tu es prêt(e) pour demain 👏</li>
+      <li><b>13 à 16</b> : bien ! Note les exercices ratés et refais-les une fois.</li>
+      <li><b>9 à 12</b> : relis les fiches (surtout les formules) et refais les niveaux 1 et 3.</li>
+      <li><b>moins de 9</b> : pas de panique, ça arrive. Concentre-toi sur le bloc « À retenir par cœur » de l'autre fiche, puis refais ce contrôle blanc.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ MEMO ============ -->
+<section>
+  <h2><span class="num">⭐</span> Tout ce qu'il faut avoir en tête</h2>
+  <table>
+    <tr><th>Ce que je cherche</th><th>Ce que je fais</th></tr>
+    <tr><td>Aire d'un carré</td><td>côté × côté</td></tr>
+    <tr><td>Aire d'un rectangle</td><td>Longueur × largeur</td></tr>
+    <tr><td>Aire d'un triangle</td><td>(base × hauteur) ÷ <b>2</b></td></tr>
+    <tr><td>Aire d'un disque</td><td>π × r × r &nbsp;(π ≈ 3,14)</td></tr>
+    <tr><td>Je connais le diamètre</td><td>je divise par 2 pour avoir le rayon</td></tr>
+    <tr><td>Figure compliquée</td><td>je découpe, je calcule, j'additionne</td></tr>
+    <tr><td>t % d'un nombre</td><td>(nombre ÷ 100) × t</td></tr>
+    <tr><td>10 % / 25 % / 50 %</td><td>÷ 10 &nbsp;/&nbsp; ÷ 4 &nbsp;/&nbsp; ÷ 2</td></tr>
+    <tr><td>Je cherche le pourcentage</td><td>(partie ÷ total) × 100</td></tr>
+    <tr><td>Soldes</td><td>je calcule la réduction, <b>puis je la soustrais</b></td></tr>
+    <tr><td>Augmentation</td><td>je calcule l'augmentation, <b>puis je l'ajoute</b></td></tr>
+  </table>
+  <div class="astuce">
+    <strong>💡 Le soir des devoirs :</strong> ne relis pas, <b>refais</b>. Prends une feuille blanche et réécris
+    les 5 formules de mémoire. Ce que tu écris de tête, tu le retiens 10 fois mieux que ce que tu relis. 💪
+  </div>
+</section>
+
+<footer>
+  Bon courage pour ton contrôle ! 💪<br>
+  Entraînement 5ème — Aires &amp; Pourcentages • pense à cocher tes réussites pour suivre ta progression
+</footer>
+
+</div>
+
+<script>
+(function(){
+  var boxes = document.querySelectorAll('.reussi');
+  var val = document.getElementById('scoreVal');
+  var fill = document.getElementById('barreFill');
+  var total = boxes.length;
+
+  function update(){
+    var n = 0;
+    for(var i=0;i<boxes.length;i++){ if(boxes[i].checked) n++; }
+    val.textContent = n + ' / ' + total;
+    fill.style.width = (total ? (n/total*100) : 0) + '%';
+  }
+
+  for(var i=0;i<boxes.length;i++){
+    boxes[i].addEventListener('change', update);
+  }
+  document.getElementById('resetBtn').addEventListener('click', function(){
+    for(var i=0;i<boxes.length;i++){ boxes[i].checked = false; }
+    update();
+  });
+  update();
+})();
+</script>
+
+</body>
+</html>
