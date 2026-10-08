@@ -1,8 +1,16 @@
 # Démo du menu de la vidéo
 
-Cette petite application Node.js reproduit uniquement la partie de démonstration visible à la fin de la vidéo : un menu avec les options « Hello World », « Abonnez-vous », « Likez ou commentez » et une option qui affiche les trois messages.
+Cette petite application reproduit uniquement la partie de démonstration visible à la fin de la vidéo : un menu avec les options « Hello World », « Abonnez-vous », « Likez ou commentez » et une option qui affiche les trois messages.
+
+La version navigateur est disponible dans `index.html` et fonctionne sans Cursor, sans Node.js et sans installation : ouvre simplement le fichier dans ton navigateur.
 
 ## Lancer le projet
+
+### Version navigateur
+
+Ouvre `index.html` directement dans Chrome, Firefox ou Edge.
+
+### Version terminal
 
 Prérequis : Node.js 18 ou une version plus récente.
 
