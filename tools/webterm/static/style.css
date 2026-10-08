@@ -1,0 +1,153 @@
+:root {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  background: #0b1020;
+  color: #e2e8f0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  overflow: hidden;
+}
+
+.hidden {
+  display: none !important;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  min-width: 44px;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  background: #111827;
+  color: #e2e8f0;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:active {
+  background: #1e293b;
+}
+
+button.armed {
+  background: #155e75;
+  border-color: #22d3ee;
+}
+
+/* Écran de connexion */
+#login {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+#login-form {
+  width: min(360px, 100%);
+  display: grid;
+  gap: 12px;
+}
+
+#login-form h1 {
+  margin: 0 0 4px;
+  font-size: 20px;
+}
+
+#login-form label {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+#login-form input {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #334155;
+  background: #111827;
+  color: #e2e8f0;
+}
+
+#login-form button {
+  min-height: 46px;
+  background: #0e7490;
+  border-color: #22d3ee;
+}
+
+#login-error {
+  min-height: 1.2em;
+  margin: 0;
+  color: #fca5a5;
+  font-size: 14px;
+}
+
+/* Terminal */
+#app {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  background: #0f172a;
+  border-bottom: 1px solid #1e293b;
+}
+
+header .title {
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 0.85;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tools {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.tools button {
+  min-height: 36px;
+}
+
+#terminal {
+  flex: 1;
+  min-height: 0;
+  padding: 6px;
+  background: #0b1020;
+}
+
+#keys {
+  display: flex;
+  gap: 6px;
+  padding: 6px;
+  padding-bottom: max(6px, env(safe-area-inset-bottom));
+  background: #0f172a;
+  border-top: 1px solid #1e293b;
+  overflow-x: auto;
+}
+
+#keys button {
+  flex: 0 0 auto;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 15px;
+}
