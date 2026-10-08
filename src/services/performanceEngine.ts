@@ -56,6 +56,11 @@ class PerformanceEngine {
     if (this.latencies.length > 50) this.latencies.shift();
   }
 
+  public clearCache(): void {
+    this.cache.clear();
+    this.cacheHits = 0;
+  }
+
   public getTelemetry() {
     const avgLatency = this.latencies.length > 0
       ? Math.round(this.latencies.reduce((a, b) => a + b, 0) / this.latencies.length)

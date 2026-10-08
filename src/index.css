@@ -6,6 +6,29 @@
   body {
     @apply bg-[#08090d] text-slate-100 antialiased font-sans selection:bg-indigo-500/30 selection:text-white overflow-x-hidden;
   }
+
+  /* Force pointer cursor (curseur main) on all interactive elements across the platform */
+  button,
+  a,
+  [role="button"],
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  input[type="checkbox"],
+  input[type="radio"],
+  select,
+  summary,
+  .cursor-pointer,
+  [data-clickable="true"] {
+    cursor: pointer !important;
+  }
+
+  button:disabled,
+  button[disabled],
+  .cursor-not-allowed,
+  [aria-disabled="true"] {
+    cursor: not-allowed !important;
+  }
 }
 
 /* Custom sleek scrollbar */
@@ -41,4 +64,18 @@
   background: rgba(24, 27, 38, 0.95);
   border-color: rgba(99, 102, 241, 0.3);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* Pulse glow for Turbo Mode */
+@keyframes turbo-glow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.65);
+  }
+}
+
+.turbo-active-glow {
+  animation: turbo-glow 2s infinite ease-in-out;
 }
