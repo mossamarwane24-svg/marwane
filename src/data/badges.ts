@@ -57,6 +57,8 @@ export const BADGES: BadgeDef[] = [
   { id: 'testeur', name: 'Testeur Officiel', emoji: '🧪', desc: 'Joue à 3 jeux créés par d’autres', tier: 'argent', reward: 150, check: (s) => s.gamesPlayedFromOthers >= 3 },
   { id: 'ami', name: 'Nakama', emoji: '🫂', desc: 'Ajoute un ami', tier: 'bronze', reward: 40, check: (s) => s.friendsAdded >= 1 },
   { id: 'assidu', name: 'Assidu', emoji: '📚', desc: 'Joue 10 jours différents', tier: 'argent', reward: 200, check: (s) => s.daysPlayed >= 10 },
+  { id: 'feuille-1', name: 'Paper Ninja', emoji: '🖨️', desc: 'Imprime ta première feuille de révision', tier: 'bronze', reward: 40, check: (s) => s.sheetsPrinted >= 1 },
+  { id: 'feuille-10', name: 'Maître des Feuilles', emoji: '📄', desc: '10 feuilles de révision imprimées', tier: 'argent', reward: 200, check: (s) => s.sheetsPrinted >= 10 },
   { id: 'precision', name: 'Franc-Tireur', emoji: '🏹', desc: '80 % de réussite sur 200 questions', tier: 'or', reward: 250, check: (s) => s.questionsAnswered >= 200 && pct(s) >= 80 },
   { id: 'hokage-badge', name: 'Hokage', emoji: '🗻', desc: 'Atteindre le grade Hokage (21 000 Ryos)', tier: 'legende', reward: 1500, check: (_s, save) => save.profile.ryos >= 21000 }
 ];

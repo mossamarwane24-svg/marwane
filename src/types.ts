@@ -92,6 +92,8 @@ export interface Stats {
   batailleWins: number;
   /** Victoires au Memory des Ninjas. */
   memoryWins: number;
+  /** Feuilles de revision generees pour impression. */
+  sheetsPrinted: number;
   /** Defis eclair (10 questions en 10 s) reussis avec 10/10. */
   eclairPerfect: number;
   /** Nombre de quiz termines par matiere (ex : { maths: 4 }). */

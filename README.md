@@ -28,10 +28,15 @@ sous** et crée ses propres jeux avec le **mode Créateur** (5 000 Ryos).
   - ⌨️ **Réponses écrites** : l’élève tape sa réponse (comparaison tolérante : accents, majuscules, virgule/point, articles…).
 
 ### Modules de révision
+- **🖨️ Feuille de révision à imprimer** (espace parent / enseignant) : on choisit la matière, la classe (MS → 3ème), la
+  difficulté, **10, 20 ou 30 questions** et le format (QCM ou réponses à écrire). La feuille s'imprime avec une page
+  d'exercices et **le corrigé en page 2**.
 - **Mathématiques** : banque de questions générée à l’infini pour les 11 niveaux (numération, calcul, fractions, proportionnalité,
   Pythagore, équations, Thalès…).
 - **Français** : orthographe, conjugaison (générateur de conjugaison), homophones, grammaire, vocabulaire, figures de style.
-- **Histoire-Géo, Sciences, Anglais** : banques de questions par cycle.
+- **Histoire-Géo, Sciences, Anglais** : banques de questions par cycle (~40 questions par matière).
+- Un enfant de **MS/GS dispose désormais de 32 questions de français** (au lieu de 10) et chaque matière « culture »
+  permet des séries de 30 questions uniques.
 - **Examen Hokage** : 20 questions mélangées, note sur 20, verdict et correction complète — il suit aussi le mode de réponse
   choisi (QCM, mixte ou écrit).
 
@@ -114,7 +119,8 @@ src/pages/                     Onboarding, Accueil, Quiz, Examen, Jeux à 4, Due
 ```bash
 npm run check:questions   # vérifie 6 500+ questions sur les 3 modes de réponse (QCM, vrai/faux, saisie) + tolérance de saisie
 npm run test:engine       # simule une partie complète des 9 jeux à plusieurs (bots) : tous doivent se terminer
-npm run check:badges      # vérifie que les 45 badges sont tous atteignables et aucun acquis au démarrage
+npm run check:badges      # vérifie que les 47 badges sont tous atteignables et aucun acquis au démarrage
+npm run check:sheets      # vérifie les feuilles imprimables (11 niveaux × 3 difficultés × 6 matières × 10/20/30 questions)
 npm run typecheck         # TypeScript strict
 ```
 

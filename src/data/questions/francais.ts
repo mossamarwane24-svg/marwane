@@ -19,7 +19,29 @@ const MS: RawQ[] = [
   q('Quelle est la première lettre du mot « Lune » ?', 'L', ['U', 'N', 'E'], 'Lune commence par L.', 1),
   q('Quel mot est le plus long ?', 'éléphant', ['chat', 'oie', 'rat'], 'Éléphant a 8 lettres, c’est le plus long.', 2),
   q('Quelle lettre est une voyelle ?', 'a', ['b', 't', 'm'], 'Les voyelles sont a, e, i, o, u, y.', 2),
-  q('Combien de mots dans la phrase « Le chat dort. » ?', '3', ['2', '4', '5'], 'Le / chat / dort = 3 mots.', 2)
+  q('Combien de mots dans la phrase « Le chat dort. » ?', '3', ['2', '4', '5'], 'Le / chat / dort = 3 mots.', 2),
+  q('Quel mot commence comme « bébé » ?', 'bateau', ['maison', 'lune', 'table'], 'Bébé et bateau commencent par le son [b].', 1),
+  q('Combien de syllabes dans « gâteau » ?', '2', ['1', '3', '4'], 'Gâ-teau : on entend 2 syllabes.', 2),
+  q('Quelle est la dernière lettre de « chat » ?', 't', ['a', 'c', 'h'], 'C-h-a-t : la dernière lettre est t.', 1),
+  q('Quel animal fait « miaou » ?', 'le chat', ['le chien', 'la vache', 'le mouton'], 'Le chat miaule.', 1),
+  q('Quel mot rime avec « main » ?', 'pain', ['chat', 'lune', 'table'], 'Main et pain se terminent par le même son.', 2),
+  q('Combien de lettres dans « lune » ?', '4', ['3', '5', '2'], 'L-u-n-e : 4 lettres.', 1),
+  q('Quel est le contraire de « grand » ?', 'petit', ['gros', 'long', 'haut'], 'Grand ↔ petit.', 1),
+  q('Quel est le contraire de « chaud » ?', 'froid', ['bleu', 'dur', 'vite'], 'Chaud ↔ froid.', 1),
+  q('Quelle couleur obtient-on en mélangeant du bleu et du jaune ?', 'du vert', ['du rouge', 'du noir', 'du blanc'], 'Bleu + jaune donne du vert.', 2),
+  q('Combien de pattes a un chat ?', '4', ['2', '6', '3'], 'Le chat a 4 pattes.', 1),
+  q('Comment appelle-t-on le bébé du chat ?', 'un chaton', ['un chiot', 'un veau', 'un poussin'], 'Le bébé du chat est un chaton.', 2),
+  q('Lequel est un fruit ?', 'la pomme', ['la carotte', 'le chapeau', 'la chaise'], 'La pomme est un fruit.', 1),
+  q('Lequel est un vêtement ?', 'le manteau', ['la banane', 'la chaise', 'le crayon'], 'Le manteau est un vêtement.', 1),
+  q('Où vit le poisson ?', 'dans l’eau', ['dans un arbre', 'dans le ciel', 'dans une maison'], 'Le poisson vit dans l’eau.', 1),
+  q('Quel cri fait la vache ?', 'meuh', ['miaou', 'ouaf', 'cot cot'], 'La vache fait « meuh ».', 1),
+  q('Combien de mots dans « Papa joue. » ?', '2', ['1', '3', '4'], 'Papa / joue = 2 mots.', 2),
+  q('Quelle lettre vient juste après M ?', 'N', ['L', 'O', 'P'], 'Dans l’alphabet, après M vient N.', 2),
+  q('Lequel commence par la lettre « m » ?', 'la maison', ['la table', 'le soleil', 'la lune'], 'Maison commence par la lettre m.', 1),
+  q('Lequel est le mot le plus court ?', 'le rat', ['l’éléphant', 'la girafe', 'le papillon'], 'Rat ne fait que 3 lettres.', 2),
+  q('Que fait-on avec un crayon ?', 'on écrit', ['on mange', 'on dort', 'on court'], 'Un crayon sert à écrire.', 1),
+  q('Quel mot rime avec « gâteau » ?', 'le bateau', ['le chat', 'la lune', 'la main'], 'Gâteau et bateau riment.', 2),
+  q('Combien de syllabes dans « banane » ?', '3', ['2', '4', '1'], 'Ba-na-ne : 3 syllabes.', 2)
 ];
 
 const GS: RawQ[] = [
@@ -32,7 +54,29 @@ const GS: RawQ[] = [
   q('Quelle syllabe manque ? ma – ? – son', 'i', ['o', 'a', 'u'], 'Maison = ma-i-son.', 2),
   q('Quelle est la dernière lettre de « bateau » ?', 'u', ['b', 'e', 'a'], 'B-a-t-e-a-u : la dernière lettre est u.', 2),
   q('Combien de mots dans la phrase « La lune brille. » ?', '3', ['2', '4', '1'], 'La / lune / brille = 3 mots.', 2),
-  q('Quelle lettre est une consonne ?', 't', ['a', 'i', 'o'], 'a, i, o sont des voyelles ; t est une consonne.', 3)
+  q('Quelle lettre est une consonne ?', 't', ['a', 'i', 'o'], 'a, i, o sont des voyelles ; t est une consonne.', 3),
+  q('Combien de lettres dans « école » ?', '5', ['4', '6', '7'], 'É-c-o-l-e : 5 lettres.', 2),
+  q('Quel mot rime avec « jardin » ?', 'le lapin', ['la maison', 'la table', 'le chat'], 'Jardin et lapin riment.', 2),
+  q('Quelle syllabe manque ? cho – co – …', 'lat', ['lot', 'lit', 'let'], 'Cho-co-lat : la dernière syllabe est « lat ».', 2),
+  q('Mets au pluriel : une fleur → …', 'des fleurs', ['des fleur', 'une fleurs', 'des fleures'], 'On ajoute un s : des fleurs.', 2),
+  q('Quel est le contraire de « jour » ?', 'la nuit', ['le matin', 'le midi', 'le soir'], 'Le jour s’oppose à la nuit.', 1),
+  q('Quel mot est bien écrit ?', 'école', ['ecole', 'écolle', 'écolee'], 'La bonne orthographe est « école ».', 2),
+  q('Combien de syllabes dans « chocolat » ?', '3', ['2', '4', '5'], 'Cho-co-lat : 3 syllabes.', 2),
+  q('Lequel commence par « br » ?', 'le bras', ['le crabe', 'le train', 'le drap'], 'Bras commence par br.', 3),
+  q('Quel est le féminin de « un chat » ?', 'une chatte', ['une chat', 'un chatte', 'une chate'], 'Le féminin de chat est chatte.', 3),
+  q('Lequel est un légume ?', 'la carotte', ['la pomme', 'la banane', 'la fraise'], 'La carotte est un légume.', 1),
+  q('Quelle est la première lettre de « zèbre » ?', 'z', ['b', 'e', 's'], 'Zèbre commence par z.', 1),
+  q('Combien de mots dans « Le chien court vite. » ?', '4', ['3', '5', '2'], 'Le / chien / court / vite = 4 mots.', 2),
+  q('Quel mot rime avec « maison » ?', 'le poisson', ['le chat', 'la table', 'la lune'], 'Maison et poisson riment.', 2),
+  q('Complète : « Je … à l’école. »', 'vais', ['va', 'vas', 'vont'], 'Avec « je », on écrit : je vais.', 3),
+  q('Lequel est une couleur ?', 'le rouge', ['le rond', 'la roue', 'la rue'], 'Le rouge est une couleur.', 1),
+  q('Quel est le contraire de « vite » ?', 'lentement', ['rapidement', 'bientôt', 'vite'], 'Vite ↔ lentement.', 2),
+  q('Combien de lettres dans « poisson » ?', '7', ['6', '8', '5'], 'P-o-i-s-s-o-n : 7 lettres.', 3),
+  q('Lequel commence comme « grenouille » ?', 'le gâteau', ['le chat', 'la lune', 'la main'], 'Grenouille et gâteau commencent par le son [g].', 2),
+  q('Quelle est la première syllabe de « parasol » ?', 'pa', ['ra', 'sol', 'sau'], 'Pa-ra-sol : la première syllabe est « pa ».', 2),
+  q('Quel animal a de grandes oreilles et saute ?', 'le lapin', ['le poisson', 'la poule', 'le chat'], 'Le lapin a de grandes oreilles et il saute.', 1),
+  q('Avec quoi entend-on ?', 'les oreilles', ['les yeux', 'le nez', 'les mains'], 'On entend avec les oreilles.', 1),
+  q('Lequel désigne plusieurs objets ?', 'des jouets', ['le jouet', 'un jouet', 'la jouet'], '« Des jouets » désigne plusieurs objets.', 2)
 ];
 
 const CP: RawQ[] = [

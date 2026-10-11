@@ -125,35 +125,58 @@ export const buildQuiz = ({ grade, difficulty, count, subjects, answerMode = 'qc
   const band = gradeBand(grade);
   const subs = subjects.length ? subjects : (['maths'] as SubjectId[]);
   const perSubject = Math.max(1, Math.ceil(count / subs.length));
-  let raws: { raw: RawQ; subject: SubjectId }[] = [];
 
-  for (const subject of subs) {
-    let batch: RawQ[] = [];
-    if (subject === 'maths') {
-      batch = genMathsBatch(grade, levelsFor(difficulty), perSubject + 2);
-    } else if (subject === 'francais') {
-      batch = genFrancaisBatch(grade, levelsFor(difficulty), perSubject + 2);
-    } else if (subject === 'histoire' || subject === 'sciences' || subject === 'anglais') {
-      batch = sampleCulture(subject, grade, difficulty, perSubject + 2);
-    } else {
-      batch = genMathsBatch(grade, levelsFor(difficulty), perSubject + 2);
+  /** Tire un lot de questions brutes pour toutes les matieres demandees. */
+  const collect = (need: number): { raw: RawQ; subject: SubjectId }[] => {
+    const out: { raw: RawQ; subject: SubjectId }[] = [];
+    for (const subject of subs) {
+      let batch: RawQ[] = [];
+      if (subject === 'maths') {
+        batch = genMathsBatch(grade, levelsFor(difficulty), need);
+      } else if (subject === 'francais') {
+        batch = genFrancaisBatch(grade, levelsFor(difficulty), need);
+      } else if (subject === 'histoire' || subject === 'sciences' || subject === 'anglais') {
+        batch = sampleCulture(subject, grade, difficulty, need);
+      } else {
+        batch = genMathsBatch(grade, levelsFor(difficulty), need);
+      }
+      batch.forEach((raw) => out.push({ raw, subject }));
     }
-    batch.forEach((raw) => raws.push({ raw, subject }));
-  }
+    return shuffle(out);
+  };
 
-  raws = shuffle(raws);
-  const kept = uniqueBatch(raws.map((r) => r.raw), count);
-  // Si le dedoublonnage a retire trop de questions, on complete avec les
-  // questions restantes (programmes riches mais banques finies).
-  const extra: RawQ[] = [];
-  if (kept.length < count) {
-    for (const r of raws) {
-      if (kept.includes(r.raw) || extra.includes(r.raw)) continue;
-      extra.push(r.raw);
-      if (kept.length + extra.length >= count) break;
-    }
+  /** Supprime les questions en double (par objet et par enonce). */
+  const dedupe = (list: { raw: RawQ; subject: SubjectId }[]) => {
+    const byObject: { raw: RawQ; subject: SubjectId }[] = [];
+    const seenObj = new Set<RawQ>();
+    list.forEach((r) => {
+      if (seenObj.has(r.raw)) return;
+      seenObj.add(r.raw);
+      byObject.push(r);
+    });
+    const seenPrompt = new Set<string>();
+    return byObject.filter((r) => {
+      const key = r.raw.prompt.slice(0, 48);
+      if (seenPrompt.has(key)) return false;
+      seenPrompt.add(key);
+      return true;
+    });
+  };
+
+  // Le tirage est aleatoire : si le nombre de questions uniques est insuffisant
+  // (banques de culture, petite section...), on retire un lot plus grand.
+  let need = perSubject + 2;
+  let raws = dedupe(collect(need));
+  let kept = uniqueBatch(raws.map((r) => r.raw), count);
+  let guard = 0;
+  while (kept.length < count && guard < 8) {
+    guard += 1;
+    need = Math.ceil(need * 1.8) + 6;
+    const more = dedupe(collect(need));
+    raws = shuffle(dedupe([...raws, ...more]));
+    kept = uniqueBatch(raws.map((r) => r.raw), count);
   }
-  const questions = [...kept, ...extra].map((raw) => {
+  const questions = kept.map((raw) => {
     const found = raws.find((r) => r.raw === raw);
     return applyFormat(finalize(raw, found ? found.subject : subs[0], band), answerMode);
   });

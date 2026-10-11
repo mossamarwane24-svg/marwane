@@ -14,6 +14,7 @@
     "serve": "npm run build && node server/index.js",
     "check:questions": "esbuild scripts/check-questions.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/check-questions.mjs --log-level=error && node node_modules/.cache/check-questions.mjs",
     "check:badges": "esbuild scripts/check-badges.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/check-badges.mjs --log-level=error && node node_modules/.cache/check-badges.mjs",
+    "check:sheets": "esbuild scripts/check-sheets.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/check-sheets.mjs --log-level=error && node node_modules/.cache/check-sheets.mjs",
     "test:engine": "node scripts/test-engine.mjs"
   },
   "dependencies": {
