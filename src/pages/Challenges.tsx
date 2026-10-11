@@ -9,7 +9,7 @@ import { cx, formatDay, formatRyos, todayKey } from '../lib/format';
 import type { Question } from '../types';
 
 export const ChallengesPage: React.FC = () => {
-  const { save, profile, dailyDefs, claimDaily, recordGame, toast } = useGame();
+  const { save, profile, dailyDefs, claimDaily, recordGame, toast, recordErrors } = useGame();
   const [dailyQuiz, setDailyQuiz] = useState<Question[] | null>(null);
   const [mode, setMode] = useState<'jour' | 'eclair'>('jour');
   const recorded = useRef(false);
@@ -47,6 +47,11 @@ export const ChallengesPage: React.FC = () => {
         baseRyos: s.ryos,
         perfect: s.perfect
       });
+      const wrongs = session.answers
+        .filter((a) => !a.correct)
+        .map((a) => (dailyQuiz || []).find((q) => q.id === a.id))
+        .filter(Boolean) as Question[];
+      if (wrongs.length) recordErrors(wrongs);
       toast(`${mode === 'eclair' ? 'Défi éclair' : 'Défi du jour'} terminé : ${s.correct}/${s.total} !`, 'reward', mode === 'eclair' ? '⚡' : '🎯');
     }
   });

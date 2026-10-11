@@ -21,7 +21,7 @@ const VERDICT = (score: number, total: number) => {
 };
 
 export const ExamPage: React.FC = () => {
-  const { save, profile, recordGame, toast } = useGame();
+  const { save, profile, recordGame, toast, recordErrors } = useGame();
   const [phase, setPhase] = useState<'intro' | 'play' | 'result'>('intro');
   const [questions, setQuestions] = useState<Question[]>([]);
   const [summary, setSummary] = useState<QuizSummary | null>(null);
@@ -56,6 +56,11 @@ export const ExamPage: React.FC = () => {
         baseRyos: s.ryos,
         perfect: s.perfect
       });
+      const wrongs = session.answers
+        .filter((a) => !a.correct)
+        .map((a) => questions.find((q) => q.id === a.id))
+        .filter(Boolean) as Question[];
+      if (wrongs.length) recordErrors(wrongs);
     }
   });
 

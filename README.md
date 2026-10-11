@@ -31,6 +31,9 @@ sous** et crée ses propres jeux avec le **mode Créateur** (5 000 Ryos).
 - **🖨️ Feuille de révision à imprimer** (espace parent / enseignant) : on choisit la matière, la classe (MS → 3ème), la
   difficulté, **10, 20 ou 30 questions** et le format (QCM ou réponses à écrire). La feuille s'imprime avec une page
   d'exercices et **le corrigé en page 2**.
+- **📕 Cahier d'erreurs** : chaque question ratée (quiz, examen, défi) est automatiquement rangée dans le cahier. On la
+  rejoue (série de 10, 15 Ryos par bonne réponse) : **deux révisions réussies** et la notion sort du cahier ; une
+  nouvelle erreur la remet en révision. Répartition par matière et correction d'un clic.
 - **Mathématiques** : banque de questions générée à l’infini pour les 11 niveaux (numération, calcul, fractions, proportionnalité,
   Pythagore, équations, Thalès…).
 - **Français** : orthographe, conjugaison (générateur de conjugaison), homophones, grammaire, vocabulaire, figures de style.
@@ -119,8 +122,9 @@ src/pages/                     Onboarding, Accueil, Quiz, Examen, Jeux à 4, Due
 ```bash
 npm run check:questions   # vérifie 6 500+ questions sur les 3 modes de réponse (QCM, vrai/faux, saisie) + tolérance de saisie
 npm run test:engine       # simule une partie complète des 9 jeux à plusieurs (bots) : tous doivent se terminer
-npm run check:badges      # vérifie que les 47 badges sont tous atteignables et aucun acquis au démarrage
+npm run check:badges      # vérifie que les 50 badges sont tous atteignables et aucun acquis au démarrage
 npm run check:sheets      # vérifie les feuilles imprimables (11 niveaux × 3 difficultés × 6 matières × 10/20/30 questions)
+npm run check:errors      # vérifie la logique du cahier d'erreurs (ajout, rechute, maîtrise, limites)
 npm run typecheck         # TypeScript strict
 ```
 

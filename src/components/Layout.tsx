@@ -26,6 +26,7 @@ export const NAV: NavItem[] = [
   { to: '/grades', label: 'Grades', icon: '🍥', group: 'progresser' },
   { to: '/classement', label: 'Classement', icon: '🏆', group: 'social' },
   { to: '/amis', label: 'Amis & joueurs', icon: '🫂', group: 'social' },
+  { to: '/erreurs', label: 'Cahier d’erreurs', icon: '📕', group: 'progresser' },
   { to: '/revision', label: 'À imprimer', icon: '🖨️', group: 'progresser' },
   { to: '/creer', label: 'Mode créateur', icon: '🛠️', group: 'progresser' },
   { to: '/profil', label: 'Profil', icon: '⚙️', group: 'progresser' }

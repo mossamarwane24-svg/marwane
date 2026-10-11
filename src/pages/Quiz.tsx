@@ -10,7 +10,7 @@ import { cx, formatRyos } from '../lib/format';
 import type { AnswerMode, Difficulty, GradeId, Question, SubjectId } from '../types';
 
 export const QuizPage: React.FC = () => {
-  const { save, recordGame, toast, updateSettings } = useGame();
+  const { save, recordGame, toast, updateSettings, recordErrors } = useGame();
   const [subject, setSubject] = useState<SubjectId>('maths');
   const [grade, setGrade] = useState<GradeId>(save.profile.grade);
   const [difficulty, setDifficulty] = useState<Difficulty>(save.profile.difficulty);
@@ -67,6 +67,12 @@ export const QuizPage: React.FC = () => {
         perfect: s.perfect,
         played: true
       });
+      // Les questions ratees partent au cahier d'erreurs pour etre rejouees.
+      const wrongs = session.answers.filter((a) => !a.correct).map((a) => questions.find((q) => q.id === a.id)).filter(Boolean) as Question[];
+      if (wrongs.length) {
+        recordErrors(wrongs);
+        toast(`${wrongs.length} question(s) à revoir dans ton cahier d'erreurs`, 'info', '📕');
+      }
     }
   });
 

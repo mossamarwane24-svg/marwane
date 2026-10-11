@@ -59,6 +59,9 @@ export const BADGES: BadgeDef[] = [
   { id: 'assidu', name: 'Assidu', emoji: '📚', desc: 'Joue 10 jours différents', tier: 'argent', reward: 200, check: (s) => s.daysPlayed >= 10 },
   { id: 'feuille-1', name: 'Paper Ninja', emoji: '🖨️', desc: 'Imprime ta première feuille de révision', tier: 'bronze', reward: 40, check: (s) => s.sheetsPrinted >= 1 },
   { id: 'feuille-10', name: 'Maître des Feuilles', emoji: '📄', desc: '10 feuilles de révision imprimées', tier: 'argent', reward: 200, check: (s) => s.sheetsPrinted >= 10 },
+  { id: 'erreurs-1', name: 'On apprend de ses erreurs', emoji: '📕', desc: 'Corrige ta première erreur du cahier', tier: 'bronze', reward: 50, check: (s) => s.errorsFixed >= 1 },
+  { id: 'erreurs-25', name: 'Sans Rancune', emoji: '🔁', desc: '25 erreurs corrigées', tier: 'argent', reward: 200, check: (s) => s.errorsFixed >= 25 },
+  { id: 'erreurs-100', name: 'Maître de la Révision', emoji: '🎓', desc: '100 erreurs corrigées', tier: 'or', reward: 500, check: (s) => s.errorsFixed >= 100 },
   { id: 'precision', name: 'Franc-Tireur', emoji: '🏹', desc: '80 % de réussite sur 200 questions', tier: 'or', reward: 250, check: (s) => s.questionsAnswered >= 200 && pct(s) >= 80 },
   { id: 'hokage-badge', name: 'Hokage', emoji: '🗻', desc: 'Atteindre le grade Hokage (21 000 Ryos)', tier: 'legende', reward: 1500, check: (_s, save) => save.profile.ryos >= 21000 }
 ];

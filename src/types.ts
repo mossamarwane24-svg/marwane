@@ -56,7 +56,7 @@ export interface RankInfo {
 }
 
 export type GameType =
-  | 'quiz' | 'examen' | 'duel' | 'party' | 'kahoot' | 'arcade' | 'creator' | 'defi';
+  | 'quiz' | 'examen' | 'duel' | 'party' | 'kahoot' | 'arcade' | 'creator' | 'defi' | 'revision';
 
 export interface HistoryEntry {
   id: string;
@@ -94,6 +94,8 @@ export interface Stats {
   memoryWins: number;
   /** Feuilles de revision generees pour impression. */
   sheetsPrinted: number;
+  /** Erreurs corrigees dans le cahier d'erreurs. */
+  errorsFixed: number;
   /** Defis eclair (10 questions en 10 s) reussis avec 10/10. */
   eclairPerfect: number;
   /** Nombre de quiz termines par matiere (ex : { maths: 4 }). */
@@ -191,12 +193,16 @@ export interface SaveState {
   streak: StreakInfo;
   shop: { avatars: string[]; themes: string[]; theme: string };
   customGames: CustomGame[];
+  /** Cahier d'erreurs : questions ratees a rejouer. */
+  errors: ErrorEntry[];
   friends: FriendsState;
   settings: Settings;
   seenRanks: string[];
 }
 
 // --- Multijoueur -----------------------------------------------------------
+
+import type { ErrorEntry } from './lib/errors';
 
 export interface NetPlayer {
   id: string;

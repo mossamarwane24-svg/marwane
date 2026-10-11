@@ -1,6 +1,7 @@
 import type { SaveState, Stats } from '../types';
 import { AVATARS } from '../data/grades';
 import { todayKey } from './format';
+import type { ErrorEntry } from './errors';
 
 export const SAVE_KEY = 'academie-ninja:save:v1';
 export const IDENTITY_KEY = 'academie-ninja:identity:v1';
@@ -24,6 +25,7 @@ export const defaultStats = (): Stats => ({
   batailleWins: 0,
   memoryWins: 0,
   sheetsPrinted: 0,
+  errorsFixed: 0,
   eclairPerfect: 0,
   subjectQuizzes: {},
   slotSpins: 0,
@@ -60,6 +62,7 @@ export const defaultSave = (name = 'Ninja', avatar = AVATARS[0]): SaveState => (
   streak: { days: 1, best: 1, last: todayKey() },
   shop: { avatars: [], themes: ['konoha'], theme: 'konoha' },
   customGames: [],
+  errors: [],
   friends: { ids: [], incoming: [], outgoing: [] },
   settings: { sound: true, timer: true, showExplanations: true, answerMode: 'qcm' },
   seenRanks: []
@@ -82,6 +85,7 @@ export const migrate = (raw: unknown, fallbackName = 'Ninja'): SaveState => {
     customGames: Array.isArray(r.customGames) ? r.customGames : [],
     friends: { ...base.friends, ...(r.friends || {}) },
     settings: { ...base.settings, ...(r.settings || {}) },
+    errors: Array.isArray(r.errors) ? r.errors : [],
     seenRanks: Array.isArray(r.seenRanks) ? r.seenRanks : []
   };
 };
@@ -188,6 +192,22 @@ export const mergeSaves = (a: SaveState, b: SaveState): SaveState => {
     (g, i, arr) => arr.findIndex((x) => x.id === g.id) === i
   );
 
+  // Cahier d'erreurs : on garde l'entree la plus avancee de chaque question.
+  const errors: ErrorEntry[] = [];
+  [...(a.errors || []), ...(b.errors || [])].forEach((e) => {
+    const found = errors.find((x) => x.id === e.id);
+    if (!found) {
+      errors.push({ ...e });
+      return;
+    }
+    found.wrongCount = Math.max(found.wrongCount, e.wrongCount);
+    found.seenCount = Math.max(found.seenCount, e.seenCount);
+    found.fixedCount = Math.max(found.fixedCount, e.fixedCount);
+    found.mastered = found.mastered || e.mastered;
+    found.at = Math.min(found.at, e.at);
+    found.lastAt = Math.max(found.lastAt, e.lastAt);
+  });
+
   return {
     version: SAVE_VERSION,
     profile: {
@@ -210,6 +230,7 @@ export const mergeSaves = (a: SaveState, b: SaveState): SaveState => {
       theme: newer.shop.theme
     },
     customGames: games,
+    errors: errors.slice(0, 300),
     friends: {
       ids: Array.from(new Set([...a.friends.ids, ...b.friends.ids])),
       incoming: [...a.friends.incoming, ...b.friends.incoming].filter(

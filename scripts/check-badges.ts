@@ -15,7 +15,7 @@ BADGES.forEach((b) => {
     quizzesPlayed: 999, perfectQuizzes: 999, bestRun: 999, questionsAnswered: 99999,
     correctAnswers: 99999, examsTaken: 999, bestExam: 20, duelsPlayed: 999, duelsWon: 999,
     partyPlayed: 999, partyWon: 999, kahootPlayed: 999, kahootWon: 999, boardWins: 999,
-    teamWins: 999, batailleWins: 999, memoryWins: 999, sheetsPrinted: 999, eclairPerfect: 999, slotSpins: 999, jackpots: 999,
+    teamWins: 999, batailleWins: 999, memoryWins: 999, sheetsPrinted: 999, errorsFixed: 999, eclairPerfect: 999, slotSpins: 999, jackpots: 999,
     subjectsPlayed: ['maths', 'francais', 'histoire', 'sciences', 'anglais'],
     subjectQuizzes: { maths: 99, francais: 99, histoire: 99, sciences: 99, anglais: 99 },
     friendsAdded: 99, gamesPublished: 99, gamesPlayedFromOthers: 99, ryosEarnedTotal: 999999,

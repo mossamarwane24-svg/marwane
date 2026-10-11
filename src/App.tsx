@@ -18,6 +18,7 @@ import { FriendsPage } from './pages/Friends';
 import { CreatorPage } from './pages/Creator';
 import { ProfilePage } from './pages/Profile';
 import { RevisionPage } from './pages/Revision';
+import { ErrorsPage } from './pages/Errors';
 
 /** Un profil est "configure" des que l'enfant a saisi son prenom. */
 const isConfigured = (save: ReturnType<typeof useGame>['save']) =>
@@ -43,6 +44,7 @@ const Shell: React.FC = () => {
         <Route path="/amis" element={<FriendsPage />} />
         <Route path="/creer" element={<CreatorPage />} />
         <Route path="/revision" element={<RevisionPage />} />
+        <Route path="/erreurs" element={<ErrorsPage />} />
         <Route path="/profil" element={<ProfilePage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

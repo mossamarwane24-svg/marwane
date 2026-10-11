@@ -8,11 +8,12 @@ import React, {
   useState,
   useSyncExternalStore
 } from 'react';
-import type { CustomGame, GameType, GradeId, Profile, SaveState, Settings, SubjectId } from '../types';
+import type { CustomGame, GameType, GradeId, Profile, Question, SaveState, Settings, SubjectId } from '../types';
 import { BADGES } from '../data/badges';
 import { challengeById, dailySelection } from '../data/challenges';
 import { rankFromRyos, rankBonus } from '../data/ranks';
 import { api } from '../lib/api';
+import { addErrors as addErrorsToList, reviewError as reviewInList } from '../lib/errors';
 import { daysBetween, todayKey } from '../lib/format';
 import { sfx, setSoundEnabled } from '../lib/sound';
 import {
@@ -92,6 +93,10 @@ interface Ctx {
   registerCustomGameLocally: (game: CustomGame) => void;
   resetAll: () => void;
   bumpStat: (key: keyof SaveState['stats'], amount?: number) => void;
+  /** Ajoute les questions ratees au cahier d'erreurs. */
+  recordErrors: (questions: Question[]) => void;
+  /** Enregistre le resultat d'une revision d'erreur. */
+  reviewError: (id: string, correct: boolean) => void;
 }
 
 const GameCtx = createContext<Ctx | null>(null);
@@ -304,6 +309,20 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const ryosGained = Math.max(0, record.baseRyos ?? 0);
     add('ryos', ryosGained);
     return { ...prev, daily };
+  };
+
+  const recordErrors: Ctx['recordErrors'] = (questions) => {
+    if (!questions.length) return;
+    setSave((prev) => {
+      const errors = addErrorsToList(prev.errors || [], questions);
+      if (errors.length === (prev.errors || []).length) return prev;
+      return { ...prev, errors: errors.slice(0, 300) };
+    });
+  };
+
+  const reviewError: Ctx['reviewError'] = (id, correct) => {
+    setSave((prev) => ({ ...prev, errors: reviewInList(prev.errors || [], id, correct) }));
+    if (correct) bumpStat('errorsFixed', 1);
   };
 
   const recordGame: Ctx['recordGame'] = (record) => {
@@ -585,7 +604,9 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       acceptFriend,
       registerCustomGameLocally,
       resetAll,
-      bumpStat
+      bumpStat,
+      recordErrors,
+      reviewError
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [save, toasts, netState, communityGames, newBadges, rankUp]
