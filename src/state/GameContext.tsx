@@ -51,6 +51,8 @@ export interface GameRecord {
   partyWin?: boolean;
   /** Victoire en Bataille d'equipes 2 vs 2. */
   teamWin?: boolean;
+  /** Victoire en Bataille navale 1 contre 1. */
+  batailleWin?: boolean;
   /** Defi eclair reussi de bout en bout. */
   eclair?: boolean;
   fromCommunity?: boolean;
@@ -335,6 +337,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
           partyPlayed: prev.stats.partyPlayed + (record.party ? 1 : 0),
           partyWon: prev.stats.partyWon + (record.partyWin ? 1 : 0),
           teamWins: prev.stats.teamWins + (record.teamWin ? 1 : 0),
+          batailleWins: prev.stats.batailleWins + (record.batailleWin ? 1 : 0),
           eclairPerfect: prev.stats.eclairPerfect + (record.eclair && record.correct === total ? 1 : 0),
           subjectQuizzes: record.subject && record.type === 'quiz'
             ? { ...prev.stats.subjectQuizzes, [record.subject]: (prev.stats.subjectQuizzes[record.subject] || 0) + 1 }

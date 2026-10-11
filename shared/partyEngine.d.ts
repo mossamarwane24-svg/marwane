@@ -34,6 +34,17 @@ export interface EnginePlayer {
   lastPoints: number;
   /** Equipe (0 ou 1) pour le mode Bataille d'equipes. */
   team?: number;
+  /** Navires du joueur (bataille navale). Les cases adverses sont masquees cote client. */
+  ships: { size: number; cells: number[]; hits: number[]; sunk?: boolean }[];
+  /** Cases deja visees par l'adversaire : { [cell]: 'hit' | 'miss' } */
+  incoming: Record<number, 'hit' | 'miss'>;
+}
+
+export interface EngineShip {
+  size: number;
+  cells: number[];
+  hits: number[];
+  sunk?: boolean;
 }
 
 export interface EngineState {

@@ -405,7 +405,11 @@ const clearTimers = (room) => {
 
 const applyAction = (room, action) => {
   if (!room.state || room.state.over) return;
+  // Une action hors tour ou invalide ne modifie rien : on ne rediffuse pas,
+  // sinon un client trop bavard ferait boucler le salon en boucle.
+  const before = JSON.stringify(room.state);
   room.state = reduce(room.state, action);
+  if (JSON.stringify(room.state) === before) return;
   if (room.state.over) {
     clearTimers(room);
     room.rewards = {};
@@ -477,6 +481,24 @@ function armRoundTimeout(room) {
   clearTimeout(room.roundTimer);
   room.roundTimer = null;
   if (!room.state || room.state.over) return;
+
+  // Bataille navale : un joueur absent pendant la phase de tir bloquerait
+  // toute la partie, le serveur tire donc a sa place au bout de 20 s.
+  if (room.state.phase === 'pick') {
+    const pending = room.state.pending && room.state.pending.pick;
+    const shooter = pending && room.state.players.find((p) => p.id === pending.playerId);
+    const target = pending && room.state.players.find((p) => p.id === pending.targetId);
+    if (!shooter || shooter.bot || !target) return;
+    room.roundTimer = setTimeout(() => {
+      if (!room.state || room.state.over || room.state.phase !== 'pick') return;
+      const free = [];
+      for (let i = 0; i < 16; i++) if (!target.incoming || !target.incoming[i]) free.push(i);
+      if (!free.length) return;
+      applyAction(room, { type: 'pick', playerId: shooter.id, payload: free[Math.floor(Math.random() * free.length)] });
+    }, 20000);
+    return;
+  }
+
   if (room.state.phase !== 'question') return;
   const others = room.state.players.filter((p) => !p.bot);
   if (!others.length) return;

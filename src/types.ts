@@ -88,6 +88,8 @@ export interface Stats {
   boardWins: number;
   /** Victoires en Bataille d'equipes (2 vs 2). */
   teamWins: number;
+  /** Victoires en Bataille navale (1 contre 1). */
+  batailleWins: number;
   /** Defis eclair (10 questions en 10 s) reussis avec 10/10. */
   eclairPerfect: number;
   /** Nombre de quiz termines par matiere (ex : { maths: 4 }). */
@@ -215,7 +217,7 @@ export interface RoomState {
   payload: any;
 }
 
-export type PartyGameId = 'plateau' | 'kunai' | 'boss' | 'morpion' | 'loto' | 'course' | 'equipe';
+export type PartyGameId = 'plateau' | 'kunai' | 'boss' | 'morpion' | 'loto' | 'course' | 'equipe' | 'bataille';
 
 export interface PartyGameInfo {
   id: PartyGameId;

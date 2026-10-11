@@ -5,7 +5,7 @@
 // dependance : uniquement de la logique pure.
 // ---------------------------------------------------------------------------
 
-export const GAME_IDS = ['plateau', 'kunai', 'boss', 'morpion', 'loto', 'course', 'equipe'];
+export const GAME_IDS = ['plateau', 'kunai', 'boss', 'morpion', 'loto', 'course', 'equipe', 'bataille'];
 
 export const SQUARE_TYPES = ['quiz', 'quiz', 'quiz', 'ryos', 'trap', 'bonus', 'boss', 'swap', 'ryos', 'quiz'];
 
@@ -45,6 +45,9 @@ export function createGameState(gameId, players, options = {}) {
     avatar: p.avatar || '🦊',
     bot: !!p.bot,
     team: gameId === 'equipe' ? i % 2 : 0,
+    ships: gameId === 'bataille' ? placeFleet() : [],
+    /** Celles deja visees par l'adversaire : { [cell]: 'hit' | 'miss' } */
+    incoming: {},
     pos: 0,
     score: 0,
     hp: 30,
@@ -67,7 +70,7 @@ export function createGameState(gameId, players, options = {}) {
     players: list,
     turn: 0,
     round: 1,
-    maxRounds: options.maxRounds || (gameId === 'course' ? 10 : gameId === 'kunai' ? 5 : gameId === 'boss' ? 8 : gameId === 'equipe' ? 8 : 14),
+    maxRounds: options.maxRounds || (gameId === 'course' ? 10 : gameId === 'kunai' ? 5 : gameId === 'boss' ? 8 : gameId === 'equipe' ? 8 : gameId === 'bataille' ? 24 : 14),
     suddenDeath: 0,
     hardCap: 0,
     phase: 'lancer',
@@ -85,6 +88,7 @@ export function createGameState(gameId, players, options = {}) {
     updatedAt: Date.now()
   };
   state.hardCap = state.maxRounds + 9;
+  if (gameId === 'bataille') pushLog(state, '🌊 Chaque bonne réponse donne droit à un tir : coule les 3 navires ennemis !');
   if (gameId === 'equipe') pushLog(state, 'Équipes : ' + list.filter((p) => p.team === 0).map((p) => p.name).join(' & ') + '  VS  ' + list.filter((p) => p.team === 1).map((p) => p.name).join(' & '));
   pushLog(state, `La partie commence avec ${list.length} ninjas !`);
   if (gameId !== 'plateau') {
@@ -193,6 +197,14 @@ function checkOver(state) {
       const best = Math.max(...state.players.map((p) => p.score));
       endGame(state, state.players.filter((p) => p.score === best).map((p) => p.id));
     }
+  } else if (state.gameId === 'bataille') {
+    // Fin normale : des qu'une flotte est entierement coulee (gere dans reduceBataille).
+    if (state.round > state.maxRounds) {
+      const hits = (p) => p.ships.reduce((n, sh) => n + ((sh.hits && sh.hits.length) || 0), 0);
+      const best = Math.max(...state.players.map(hits));
+      if (best === 0) endGame(state, []);
+      else endGame(state, state.players.filter((p) => hits(p) === best).map((p) => p.id));
+    }
   } else if (state.gameId === 'equipe') {
     if (state.round > state.maxRounds) {
       const a = teamScore(state, 0);
@@ -254,6 +266,9 @@ export function reduce(prev, action) {
       break;
     case 'equipe':
       reduceEquipe(state, action);
+      break;
+    case 'bataille':
+      reduceBataille(state, action);
       break;
     case 'boss':
       reduceBoss(state, action);
@@ -379,6 +394,122 @@ function reduceCourse(state, action) {
       startQuestion(state, null);
     }
     return;
+  }
+}
+
+// ------------------------- BATAILLE NAVALE (1v1) ---------------------------
+export const GRID_SIZE = 4;
+export const SHIP_SIZES = [3, 2, 2];
+
+/** Place 3 navires (tailles 3, 2 et 2) sans chevauchement sur une grille 5x5. */
+export function placeFleet() {
+  const used = new Set();
+  const fleet = [];
+  SHIP_SIZES.forEach((size) => {
+    // Toutes les positions possibles (horizontales et verticales) restant libres.
+    const options = [];
+    for (let row = 0; row < GRID_SIZE; row++) {
+      for (let col = 0; col < GRID_SIZE; col++) {
+        ['h', 'v'].forEach((dir) => {
+          const cells = [];
+          for (let k = 0; k < size; k++) {
+            const r = dir === 'h' ? row : row + k;
+            const c = dir === 'h' ? col + k : col;
+            if (r >= GRID_SIZE || c >= GRID_SIZE) return;
+            cells.push(r * GRID_SIZE + c);
+          }
+          if (cells.length === size && !cells.some((x) => used.has(x))) options.push(cells);
+        });
+      }
+    }
+    let chosen = options.length ? options[rnd(options.length)] : null;
+    if (!chosen) {
+      // Repli theorique : un alignement de cases libres dans une meme ligne.
+      for (let row = 0; !chosen && row < GRID_SIZE; row++) {
+        for (let col = 0; col + size <= GRID_SIZE; col++) {
+          const cells = [];
+          for (let k = 0; k < size; k++) cells.push(row * GRID_SIZE + col + k);
+          if (!cells.some((x) => used.has(x))) { chosen = cells; break; }
+        }
+      }
+    }
+    if (!chosen) {
+      chosen = [];
+      for (let c = 0; chosen.length < size && c < GRID_SIZE * GRID_SIZE; c++) if (!used.has(c)) chosen.push(c);
+    }
+    chosen.forEach((c) => used.add(c));
+    fleet.push({ size, cells: [...chosen], hits: [] });
+  });
+  return fleet;
+}
+
+/** Adversaire vise : le joueur suivant dans l'ordre du tour. */
+function nextEnemy(state, playerId) {
+  const idx = state.players.findIndex((p) => p.id === playerId);
+  const target = state.players[(idx + 1) % state.players.length];
+  return target ? target.id : playerId;
+}
+
+function reduceBataille(state, action) {
+  if (action.type === 'answer' && state.phase === 'question') {
+    const c = current(state);
+    if (!c || action.playerId !== c.id) return;
+    const good = action.choice === state.question.answer;
+    if (good) {
+      c.correct += 1;
+      c.streak += 1;
+      c.best = Math.max(c.best, c.streak);
+      state.phase = 'pick';
+      state.pending.pick = { playerId: c.id, targetId: nextEnemy(state, c.id) };
+      pushLog(state, `${c.avatar} ${c.name} répond juste : à lui de tirer !`);
+    } else {
+      c.wrong += 1;
+      c.streak = 0;
+      pushLog(state, `${c.avatar} ${c.name} se trompe : aucun tir.`);
+      state.question = null;
+      nextTurn(state);
+      state.phase = 'question';
+      startQuestion(state, null);
+    }
+    return;
+  }
+  if (action.type === 'pick' && state.phase === 'pick') {
+    const pending = state.pending.pick || {};
+    if (action.playerId !== pending.playerId) return;
+    const cell = action.payload;
+    const shooter = player(state, action.playerId);
+    const target = player(state, pending.targetId);
+    if (!shooter || !target) return;
+    if (typeof cell !== 'number' || cell < 0 || cell >= GRID_SIZE * GRID_SIZE) return;
+    if (target.incoming[cell]) return; // case deja visee
+
+    const ship = target.ships.find((sh) => sh.cells.includes(cell));
+    if (ship) {
+      ship.hits = ship.hits || [];
+      ship.hits.push(cell);
+      target.incoming[cell] = 'hit';
+      shooter.score += 20;
+      if (ship.hits.length >= ship.cells.length) {
+        shooter.score += 30;
+        pushLog(state, `💥 ${shooter.avatar} ${shooter.name} coule un navire de ${target.name} ! +50`);
+      } else {
+        pushLog(state, `🎯 ${shooter.avatar} ${shooter.name} touche la flotte de ${target.name} ! +20`);
+      }
+      state.pending.pick = null;
+      state.question = null;
+      if (target.ships.every((sh) => (sh.hits || []).length >= sh.cells.length)) {
+        endGame(state, [shooter.id]);
+        return;
+      }
+    } else {
+      target.incoming[cell] = 'miss';
+      pushLog(state, `💧 ${shooter.avatar} ${shooter.name} tire… plouf, rien du tout.`);
+    }
+    state.pending.pick = null;
+    state.question = null;
+    nextTurn(state);
+    state.phase = 'question';
+    startQuestion(state, null);
   }
 }
 
@@ -602,6 +733,21 @@ export function publicState(state, forPlayerId) {
         answer: reveal ? state.question.answer : undefined
       }
     : null;
+  if (state.gameId === 'bataille') {
+    // La flotte adverse ne doit pas etre visible : on n'envoie que les degats.
+    copy.players = copy.players.map((p) => {
+      if (p.id === forPlayerId) return p;
+      return {
+        ...p,
+        ships: (p.ships || []).map((sh) => ({
+          size: sh.size,
+          cells: [],
+          hits: [...(sh.hits || [])],
+          sunk: (sh.hits || []).length >= sh.cells.length
+        }))
+      };
+    });
+  }
   copy.forPlayerId = forPlayerId || null;
   return copy;
 }
@@ -653,6 +799,24 @@ export function botAction(state, skill = 0.62) {
     };
   }
   if (state.phase === 'pick') {
+    if (state.gameId === 'bataille') {
+      const pending = state.pending.pick || {};
+      const target = state.players.find((p) => p.id === pending.targetId);
+      const tried = (cell) => !!target.incoming[cell];
+      const free = [];
+      for (let i = 0; i < GRID_SIZE * GRID_SIZE; i++) if (!tried(i)) free.push(i);
+      if (!free.length) return { type: 'pick', playerId: c.id, payload: 0 };
+      // Un bot un peu malin : il vise autour d'un tir deja reussi.
+      const clue = target.ships.reduce((acc, sh) => acc.concat((sh.hits || []).length ? sh.hits : []), []);
+      const around = [];
+      clue.forEach((h) => {
+        [h - 1, h + 1, h - GRID_SIZE, h + GRID_SIZE].forEach((n) => {
+          if (n >= 0 && n < GRID_SIZE * GRID_SIZE && !tried(n)) around.push(n);
+        });
+      });
+      const pool = around.length ? around : free;
+      return { type: 'pick', playerId: c.id, payload: pool[rnd(pool.length)] };
+    }
     const free = state.grid.map((v, i) => (v ? -1 : i)).filter((i) => i >= 0);
     return { type: 'pick', playerId: c.id, payload: free.includes(4) ? 4 : free[rnd(free.length)] };
   }
@@ -680,12 +844,16 @@ export function computeRewards(state, playerId) {
   ryos = Math.max(10, Math.round(ryos));
   const tied = state.winners.length > 1;
   const elo =
-    state.gameId === 'plateau' || state.gameId === 'course' || state.gameId === 'equipe'
-      ? state.gameId === 'equipe'
+    state.gameId === 'plateau' || state.gameId === 'course' || state.gameId === 'equipe' || state.gameId === 'bataille'
+      ? state.gameId === 'bataille'
         ? won
-          ? 9
-          : -4
-        : won
+          ? 10
+          : -8
+        : state.gameId === 'equipe'
+          ? won
+            ? 9
+            : -4
+          : won
           ? tied
             ? 5
             : 12

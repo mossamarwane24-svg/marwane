@@ -82,6 +82,22 @@ export const PARTY_GAMES: PartyGameInfo[] = [
     ]
   },
   {
+    id: 'bataille',
+    name: 'Bataille du Pays des Vagues',
+    emoji: '🌊',
+    tag: 'En VS : 1 contre 1',
+    desc: 'Chaque bonne réponse te donne droit à un tir de kunai : coule les 3 navires de ton adversaire avant lui.',
+    minPlayers: 2,
+    maxPlayers: 4,
+    rules: [
+      'Réponds correctement à la question pour gagner le droit de tirer.',
+      'Clique ensuite sur une case de la flotte adverse pour lancer ton attaque.',
+      '💥 Touché = +20 points · 🚢 Navire coulé = +50 points.',
+      'Une erreur = aucun tir et c’est à l’adversaire de jouer.',
+      'Le premier qui coule les 3 navires adverses gagne la bataille et +10 ELO.'
+    ]
+  },
+  {
     id: 'equipe',
     name: 'Bataille d’Équipes (2 vs 2)',
     emoji: '🛡️',

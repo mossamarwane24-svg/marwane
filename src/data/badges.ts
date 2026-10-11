@@ -37,6 +37,8 @@ export const BADGES: BadgeDef[] = [
   { id: 'board-5', name: 'Maître des Dés', emoji: '🎲', desc: '5 victoires au Plateau Ninja', tier: 'or', reward: 250, check: (s) => s.boardWins >= 5 },
   { id: 'equipe-win', name: 'Nakama Suprême', emoji: '🛡️', desc: 'Gagne une Bataille d’Équipes (2 vs 2)', tier: 'argent', reward: 120, check: (s) => s.teamWins >= 1 },
   { id: 'equipe-10', name: 'Capitaine d’Équipe', emoji: '⚔️', desc: '10 Batailles d’Équipes gagnées', tier: 'or', reward: 350, check: (s) => s.teamWins >= 10 },
+  { id: 'bataille-win', name: 'Amiral des Vagues', emoji: '🌊', desc: 'Gagne une Bataille navale (1 contre 1)', tier: 'argent', reward: 130, check: (s) => s.batailleWins >= 1 },
+  { id: 'bataille-5', name: 'Corsaire de Konoha', emoji: '🚢', desc: '5 Batailles navales gagnées', tier: 'or', reward: 400, check: (s) => s.batailleWins >= 5 },
   { id: 'eclair-parfait', name: 'Éclair Parfait', emoji: '⚡', desc: '10/10 au Défi éclair (10 secondes par question)', tier: 'or', reward: 300, check: (s) => s.eclairPerfect >= 1 },
   { id: 'kahoot-joueur', name: 'Kahooteur', emoji: '📺', desc: 'Participe à une partie Kahoot', tier: 'bronze', reward: 30, check: (s) => s.kahootPlayed >= 1 },
   { id: 'kahoot-win', name: 'Roi du Kahoot', emoji: '🥇', desc: 'Gagne une partie Kahoot', tier: 'argent', reward: 120, check: (s) => s.kahootWon >= 1 },

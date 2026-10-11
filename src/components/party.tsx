@@ -214,6 +214,69 @@ export const KunaiPicker: React.FC<{ value: string | null; onChange: (v: string)
   );
 };
 
+// ---------------------------- BATAILLE NAVALE -----------------------------
+/** Grille 4x4 d'un joueur : ma flotte (et les tirs subis) ou la flotte adverse (brouillard). */
+export const FleetGrid: React.FC<{
+  player: EnginePlayer;
+  mode: 'mine' | 'enemy';
+  interactive?: boolean;
+  onPick?: (cell: number) => void;
+  title?: string;
+}> = ({ player, mode, interactive, onPick, title }) => {
+  const shipCells = new Set((player.ships || []).flatMap((s) => s.cells || []));
+  const hitCells = new Set((player.ships || []).flatMap((s) => s.hits || []));
+  const inc = player.incoming || {};
+  const cellStyle = 'aspect-square rounded-lg border text-base font-black flex items-center justify-center transition';
+
+  return (
+    <div>
+      {title && <div className="mb-1 text-center text-[11px] font-black uppercase tracking-widest text-ninja-muted">{title}</div>}
+      <div className="grid grid-cols-4 gap-1.5">
+        {Array.from({ length: 16 }, (_, i) => {
+          const res = inc[i];
+          const isHit = res === 'hit' || hitCells.has(i);
+          const isMiss = res === 'miss';
+          let bg = 'border-ninja-line bg-ninja-bg/60';
+          let icon = '';
+          if (isHit) { bg = 'border-red-400/70 bg-red-500/30'; icon = '💥'; }
+          else if (isMiss) { bg = 'border-sky-400/40 bg-sky-500/10'; icon = '💧'; }
+          else if (mode === 'mine' && shipCells.has(i)) { bg = 'border-emerald-400/50 bg-emerald-500/15'; icon = '⛵'; }
+          else if (mode === 'enemy') icon = '🌫️';
+          const clickable = mode === 'enemy' && interactive && !res;
+          return (
+            <button
+              key={i}
+              type="button"
+              disabled={!clickable}
+              onClick={() => clickable && onPick?.(i)}
+              className={cx(
+                cellStyle,
+                bg,
+                clickable && 'cursor-pointer hover:scale-105 hover:border-amber-400 hover:bg-amber-500/20',
+                !clickable && 'cursor-default'
+              )}
+              title={mode === 'enemy' ? `Case ${i + 1}` : undefined}
+            >
+              {icon}
+            </button>
+          );
+        })}
+      </div>
+      <div className="mt-1 flex flex-wrap justify-center gap-1">
+        {(player.ships || []).map((s, i) => {
+          const h = (s.hits || []).length;
+          const sunk = s.sunk !== undefined ? s.sunk : h >= (s.cells?.length || s.size);
+          return (
+            <span key={i} className={cx('chip !text-[10px]', sunk && '!border-red-400/60 !text-red-200')}>
+              {sunk ? '💀' : '🚢'} {mode === 'mine' ? `${h}/${s.size}` : `${h}/${s.size}`}
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 // -------------------------------- EQUIPES ---------------------------------
 export const TeamScore: React.FC<{ state: EngineState; youId?: string }> = ({ state, youId }) => {
   const scores = [0, 1].map((t) => state.players.filter((p) => p.team === t).reduce((sum, p) => sum + p.score, 0));

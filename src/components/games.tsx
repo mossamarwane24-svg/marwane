@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import type { usePartyRoom } from '../hooks/usePartyRoom';
-import { Board, BossBar, Dice, KunaiPicker, LotoCard, MorpionGrid, Scoreboard, TeamScore } from './party';
+import { Board, BossBar, Dice, FleetGrid, KunaiPicker, LotoCard, MorpionGrid, Scoreboard, TeamScore } from './party';
 import { QuestionCard } from './QuestionCard';
 import { ProgressBar } from './ui';
 import { cx, formatRyos } from '../lib/format';
@@ -460,6 +460,88 @@ export const EquipeView: React.FC<{ room: Room; hostControls?: boolean }> = ({ r
   );
 };
 
+// --------------------------- BATAILLE NAVALE -------------------------------
+export const BatailleView: React.FC<{ room: Room }> = ({ room }) => {
+  const state = room.state!;
+  const me = state.players.find((p) => p.id === room.youId);
+  const pending = state.pending?.pick;
+  const myTurn = !!pending && pending.playerId === room.youId && state.phase === 'pick';
+  const targetId = pending?.targetId;
+  const target = state.players.find((p) => p.id === targetId);
+  const enemy = target || state.players.find((p) => p.id !== room.youId);
+  const q = toQuestion(state.question);
+  // Au tour par tour : seul le joueur courant voit et peut répondre à la question.
+  const currentPlayer = state.players[state.turn % state.players.length];
+  const isMyTurn = !!currentPlayer && currentPlayer.id === room.youId;
+  const toAnswer = state.phase === 'question' && isMyTurn;
+  const left = useRoundTimer(state.question?.prompt, 30, toAnswer, () => {
+    if (state.phase === 'question') room.actions.answer(-1);
+  });
+
+  return (
+    <div className="grid gap-3 lg:grid-cols-[1fr_320px]">
+      <div className="grid content-start gap-3">
+        <div className="card">
+          <div className="grid grid-cols-2 gap-4">
+            <FleetGrid player={me!} mode="mine" title={`⛵ Ma flotte (${me?.name})`} />
+            <FleetGrid
+              player={enemy!}
+              mode="enemy"
+              title={`🌫️ Flotte de ${enemy?.name}`}
+              interactive={myTurn}
+              onPick={(cell) => room.actions.pick(cell)}
+            />
+          </div>
+        </div>
+
+        {myTurn ? (
+          <div className="card animate-pop text-center">
+            <div className="text-3xl">🎯</div>
+            <p className="mt-1 font-bold">À toi de tirer !</p>
+            <p className="text-sm text-ninja-muted">Clique sur une case de la flotte de {enemy?.name}.</p>
+          </div>
+        ) : q && toAnswer ? (
+          <QuestionCard
+            question={q}
+            index={state.round - 1}
+            total={state.maxRounds}
+            selected={null}
+            revealed={false}
+            secondsLeft={left}
+            secondsTotal={30}
+            onAnswer={(c) => room.actions.answer(c)}
+          />
+        ) : (
+          <div className="card text-center text-sm text-ninja-muted">
+            {state.phase === 'question'
+              ? `⏳ Au tour de ${currentPlayer?.name} de répondre…`
+              : `🎯 ${currentPlayer?.name} choisit une case à viser…`}
+          </div>
+        )}
+      </div>
+
+      <div className="grid content-start gap-3">
+        <div className="card">
+          <div className="mb-2 text-center text-xs font-bold text-ninja-muted">
+            Manche {Math.min(state.round, state.maxRounds)}/{state.maxRounds} · une bonne réponse = un tir
+          </div>
+          <Scoreboard state={state} youId={room.youId} />
+          <p className="mt-2 text-center text-[11px] text-ninja-muted">
+            💥 touché = +20 · 🚢 navire coulé = +50 · coule les 3 navires pour gagner
+          </p>
+        </div>
+        <div className="card max-h-52 overflow-y-auto">
+          {state.log.map((l, i) => (
+            <div key={`${l.at}-${i}`} className="text-xs text-ninja-muted">
+              • {l.text}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // ------------------------------- SELECTEUR --------------------------------
 export const GameStage: React.FC<{ room: Room; gameId: string; hostControls?: boolean }> = ({ room, gameId, hostControls }) => {
   const view = useMemo(() => {
@@ -476,6 +558,8 @@ export const GameStage: React.FC<{ room: Room; gameId: string; hostControls?: bo
         return <LotoView room={room} />;
       case 'equipe':
         return <EquipeView room={room} hostControls={hostControls} />;
+      case 'bataille':
+        return <BatailleView room={room} />;
       case 'course':
       case 'duel':
       case 'kahoot':
