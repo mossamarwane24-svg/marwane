@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import type { usePartyRoom } from '../hooks/usePartyRoom';
-import { Board, BossBar, Dice, FleetGrid, KunaiPicker, LotoCard, MorpionGrid, Scoreboard, TeamScore } from './party';
+import { Board, BossBar, Dice, FleetGrid, KunaiPicker, LotoCard, MemoryBoard, MorpionGrid, Scoreboard, TeamScore } from './party';
 import { QuestionCard } from './QuestionCard';
 import { ProgressBar } from './ui';
 import { cx, formatRyos } from '../lib/format';
@@ -542,6 +542,80 @@ export const BatailleView: React.FC<{ room: Room }> = ({ room }) => {
   );
 };
 
+// -------------------------------- MEMORY ----------------------------------
+export const MemoryView: React.FC<{ room: Room }> = ({ room }) => {
+  const state = room.state!;
+  const currentPlayer = state.players[state.turn % state.players.length];
+  const isMyTurn = !!currentPlayer && currentPlayer.id === room.youId;
+  const q = toQuestion(state.question);
+  const toAnswer = state.phase === 'question' && isMyTurn;
+  const left = useRoundTimer(state.question?.prompt, 30, toAnswer, () => {
+    if (state.phase === 'question') room.actions.answer(-1);
+  });
+  const pairsFound = (state.owners || []).filter((o) => o >= 0).length / 2;
+
+  return (
+    <div className="grid gap-3 lg:grid-cols-[1fr_320px]">
+      <div className="grid content-start gap-3">
+        <div className="card">
+          <div className="mb-2 flex items-center justify-between text-xs font-bold text-ninja-muted">
+            <span>
+              🧠 Paires trouvées : {pairsFound}/6
+            </span>
+            <span>
+              Tour {Math.min(state.round, state.maxRounds)}/{state.maxRounds}
+            </span>
+          </div>
+          <MemoryBoard
+            state={state}
+            youId={room.youId}
+            interactive={state.phase === 'pick' && isMyTurn}
+            onPick={(cell) => room.actions.pick(cell)}
+          />
+        </div>
+
+        {toAnswer && q ? (
+          <QuestionCard
+            question={q}
+            index={pairsFound}
+            total={6}
+            selected={null}
+            revealed={false}
+            secondsLeft={left}
+            secondsTotal={30}
+            onAnswer={(c) => room.actions.answer(c)}
+          />
+        ) : (
+          <div className="card text-center text-sm text-ninja-muted">
+            {state.phase === 'question'
+              ? `⏳ ${currentPlayer?.name} répond pour garder sa paire…`
+              : isMyTurn
+                ? '🌀 À toi : retourne deux cartes (énoncé + bonne réponse).'
+                : `🌀 ${currentPlayer?.name} retourne les cartes…`}
+          </div>
+        )}
+      </div>
+
+      <div className="grid content-start gap-3">
+        <div className="card">
+          <Scoreboard state={state} youId={room.youId} />
+          <p className="mt-2 text-center text-[11px] text-ninja-muted">
+            Retrouve une question et sa réponse, puis réponds bien pour garder la paire (+30). Une erreur et les cartes se
+            retournent !
+          </p>
+        </div>
+        <div className="card max-h-52 overflow-y-auto">
+          {state.log.map((l, i) => (
+            <div key={`${l.at}-${i}`} className="text-xs text-ninja-muted">
+              • {l.text}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // ------------------------------- SELECTEUR --------------------------------
 export const GameStage: React.FC<{ room: Room; gameId: string; hostControls?: boolean }> = ({ room, gameId, hostControls }) => {
   const view = useMemo(() => {
@@ -560,6 +634,8 @@ export const GameStage: React.FC<{ room: Room; gameId: string; hostControls?: bo
         return <EquipeView room={room} hostControls={hostControls} />;
       case 'bataille':
         return <BatailleView room={room} />;
+      case 'memory':
+        return <MemoryView room={room} />;
       case 'course':
       case 'duel':
       case 'kahoot':

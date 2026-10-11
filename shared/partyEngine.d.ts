@@ -55,9 +55,18 @@ export interface EngineState {
   maxRounds: number;
   phase: 'lancer' | 'question' | 'pick' | 'fin';
   question: EngineQuestion | null;
+  /** Toujours vide cote client : les questions a venir ne sont jamais diffusees. */
   questions: EngineQuestion[];
   qIndex: number;
   board: { index: number; type: string }[];
+  /** Memory : 12 cartes (6 paires question / reponse). Le texte est masque tant que la carte est face cachee. */
+  cards: { qi: number; kind: 'p' | 'a' | null; text: string }[];
+  /** Memory : index du joueur proprietaire de chaque carte (-1 = libre). */
+  owners: number[];
+  /** Memory : cartes retournees pendant le tour en cours. */
+  flipped: number[];
+  /** Memory : cartes deja vues au moins une fois (tout le monde les a vues). */
+  seen: number[];
   grid: (number | null)[];
   drawn: number[];
   pending: { dice: number | null; pick: any; bossHp: number; answers: Record<string, number> };

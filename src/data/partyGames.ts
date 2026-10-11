@@ -82,6 +82,22 @@ export const PARTY_GAMES: PartyGameInfo[] = [
     ]
   },
   {
+    id: 'memory',
+    name: 'Memory des Ninjas',
+    emoji: '🧠',
+    tag: 'Jusqu’à 4 joueurs',
+    desc: 'Retourne les cartes pour associer chaque question à sa bonne réponse, puis réponds bien pour garder la paire.',
+    minPlayers: 2,
+    maxPlayers: 4,
+    rules: [
+      'À ton tour, retourne deux cartes du plateau (12 cartes = 6 paires).',
+      'Si tu trouves une question et sa bonne réponse, une question t’est posée.',
+      '✅ Bonne réponse : tu gardes la paire, +30 points et tu rejoues !',
+      '❌ Mauvaise réponse ou cartes qui ne vont pas ensemble : elles se retournent, à l’autre joueur.',
+      'Le plus grand nombre de points à la fin de la partie gagne.'
+    ]
+  },
+  {
     id: 'bataille',
     name: 'Bataille du Pays des Vagues',
     emoji: '🌊',

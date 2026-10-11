@@ -39,6 +39,8 @@ export const BADGES: BadgeDef[] = [
   { id: 'equipe-10', name: 'Capitaine d’Équipe', emoji: '⚔️', desc: '10 Batailles d’Équipes gagnées', tier: 'or', reward: 350, check: (s) => s.teamWins >= 10 },
   { id: 'bataille-win', name: 'Amiral des Vagues', emoji: '🌊', desc: 'Gagne une Bataille navale (1 contre 1)', tier: 'argent', reward: 130, check: (s) => s.batailleWins >= 1 },
   { id: 'bataille-5', name: 'Corsaire de Konoha', emoji: '🚢', desc: '5 Batailles navales gagnées', tier: 'or', reward: 400, check: (s) => s.batailleWins >= 5 },
+  { id: 'memory-win', name: 'Mémoire de Ninja', emoji: '🧠', desc: 'Gagne une partie de Memory des Ninjas', tier: 'bronze', reward: 70, check: (s) => s.memoryWins >= 1 },
+  { id: 'memory-5', name: 'Photographique', emoji: '🌀', desc: '5 Memory gagnés', tier: 'argent', reward: 200, check: (s) => s.memoryWins >= 5 },
   { id: 'eclair-parfait', name: 'Éclair Parfait', emoji: '⚡', desc: '10/10 au Défi éclair (10 secondes par question)', tier: 'or', reward: 300, check: (s) => s.eclairPerfect >= 1 },
   { id: 'kahoot-joueur', name: 'Kahooteur', emoji: '📺', desc: 'Participe à une partie Kahoot', tier: 'bronze', reward: 30, check: (s) => s.kahootPlayed >= 1 },
   { id: 'kahoot-win', name: 'Roi du Kahoot', emoji: '🥇', desc: 'Gagne une partie Kahoot', tier: 'argent', reward: 120, check: (s) => s.kahootWon >= 1 },

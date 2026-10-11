@@ -22,6 +22,7 @@ export const defaultStats = (): Stats => ({
   boardWins: 0,
   teamWins: 0,
   batailleWins: 0,
+  memoryWins: 0,
   eclairPerfect: 0,
   subjectQuizzes: {},
   slotSpins: 0,

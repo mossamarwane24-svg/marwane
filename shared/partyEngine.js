@@ -5,7 +5,7 @@
 // dependance : uniquement de la logique pure.
 // ---------------------------------------------------------------------------
 
-export const GAME_IDS = ['plateau', 'kunai', 'boss', 'morpion', 'loto', 'course', 'equipe', 'bataille'];
+export const GAME_IDS = ['plateau', 'kunai', 'boss', 'morpion', 'loto', 'course', 'equipe', 'bataille', 'memory'];
 
 export const SQUARE_TYPES = ['quiz', 'quiz', 'quiz', 'ryos', 'trap', 'bonus', 'boss', 'swap', 'ryos', 'quiz'];
 
@@ -70,7 +70,7 @@ export function createGameState(gameId, players, options = {}) {
     players: list,
     turn: 0,
     round: 1,
-    maxRounds: options.maxRounds || (gameId === 'course' ? 10 : gameId === 'kunai' ? 5 : gameId === 'boss' ? 8 : gameId === 'equipe' ? 8 : gameId === 'bataille' ? 24 : 14),
+    maxRounds: options.maxRounds || (gameId === 'course' ? 10 : gameId === 'kunai' ? 5 : gameId === 'boss' ? 8 : gameId === 'equipe' ? 8 : gameId === 'bataille' ? 24 : gameId === 'memory' ? 30 : 14),
     suddenDeath: 0,
     hardCap: 0,
     phase: 'lancer',
@@ -78,6 +78,11 @@ export function createGameState(gameId, players, options = {}) {
     questions: options.questions || [],
     qIndex: 0,
     board: gameId === 'plateau' ? makeBoard(options.boardSize || BOARD_SIZE) : [],
+    /** Memory : 12 cartes (6 paires question/reponse) + proprietaire de chaque carte. */
+    cards: gameId === 'memory' ? makeMemoryGrid(options.questions || []) : [],
+    owners: gameId === 'memory' ? Array(12).fill(-1) : [],
+    flipped: [],
+    seen: [],
     grid: gameId === 'morpion' ? Array(9).fill(null) : [],
     drawn: [],
     pending: { dice: null, pick: null, bossHp: 100 + (list.length - 1) * 25, answers: {} },
@@ -91,7 +96,11 @@ export function createGameState(gameId, players, options = {}) {
   if (gameId === 'bataille') pushLog(state, '🌊 Chaque bonne réponse donne droit à un tir : coule les 3 navires ennemis !');
   if (gameId === 'equipe') pushLog(state, 'Équipes : ' + list.filter((p) => p.team === 0).map((p) => p.name).join(' & ') + '  VS  ' + list.filter((p) => p.team === 1).map((p) => p.name).join(' & '));
   pushLog(state, `La partie commence avec ${list.length} ninjas !`);
-  if (gameId !== 'plateau') {
+  if (gameId === 'memory') {
+    state.phase = 'pick';
+    state.pending.pick = { playerId: list[0].id };
+    pushLog(state, 'Retourne deux cartes : si la question et sa reponse correspondent, reponds bien pour gagner la paire !');
+  } else if (gameId !== 'plateau') {
     state.phase = 'question';
     startQuestion(state, null);
   }
@@ -205,6 +214,13 @@ function checkOver(state) {
       if (best === 0) endGame(state, []);
       else endGame(state, state.players.filter((p) => hits(p) === best).map((p) => p.id));
     }
+  } else if (state.gameId === 'memory') {
+    const pairs = (p) => state.owners.reduce((n, owner, i) => n + (owner >= 0 && owner === state.players.indexOf(p) ? 1 : 0), 0);
+    if (state.owners.every((m) => m >= 0) || state.round > state.maxRounds) {
+      const best = Math.max(...state.players.map((p) => p.score));
+      if (best === 0) endGame(state, []);
+      else endGame(state, state.players.filter((p) => p.score === best).map((p) => p.id));
+    }
   } else if (state.gameId === 'equipe') {
     if (state.round > state.maxRounds) {
       const a = teamScore(state, 0);
@@ -269,6 +285,9 @@ export function reduce(prev, action) {
       break;
     case 'bataille':
       reduceBataille(state, action);
+      break;
+    case 'memory':
+      reduceMemory(state, action);
       break;
     case 'boss':
       reduceBoss(state, action);
@@ -641,6 +660,111 @@ function resolveKunai(state) {
   startQuestion(state, null);
 }
 
+// --------------------------------- MEMORY ----------------------------------
+/** 12 cartes : pour chaque question, une carte énoncé et une carte réponse. */
+export function makeMemoryGrid(questions) {
+  const list = questions && questions.length ? questions : [];
+  const count = 6;
+  const cards = [];
+  for (let i = 0; i < count; i++) {
+    const q = list[i % Math.max(1, list.length)];
+    cards.push({ qi: i, kind: 'p', text: q ? q.prompt : `Question ${i + 1}` });
+    cards.push({ qi: i, kind: 'a', text: q ? q.choices[q.answer] : '?' });
+  }
+  for (let i = cards.length - 1; i > 0; i--) {
+    const j = rnd(i + 1);
+    const t = cards[i];
+    cards[i] = cards[j];
+    cards[j] = t;
+  }
+  return cards.slice(0, 12).map((c) => ({
+    qi: c.qi % Math.max(1, list.length || 1),
+    kind: c.kind,
+    text: c.text
+  }));
+}
+
+/** Deux cartes forment-elles une paire question / bonne reponse ? */
+function isPair(a, b) {
+  return a.qi === b.qi && a.kind !== b.kind;
+}
+
+/** Fin du tour : les cartes se retournent et c'est au suivant. */
+function endTurnMemory(state) {
+  state.flipped = [];
+  state.turn = (state.turn + 1) % state.players.length;
+  state.round += 1;
+  state.phase = 'pick';
+  state.pending.pick = { playerId: state.players[state.turn].id };
+}
+
+function reduceMemory(state, action) {
+  if (action.type === 'pick' && state.phase === 'pick') {
+    const c = current(state);
+    if (!c || action.playerId !== c.id) return;
+    if (state.flipped.length >= 2) return;
+    const cell = action.payload;
+    if (typeof cell !== 'number' || cell < 0 || cell >= state.cards.length) return;
+    if (state.owners[cell] >= 0 || state.flipped.includes(cell)) return;
+
+    state.flipped.push(cell);
+    if (!state.seen.includes(cell)) state.seen.push(cell);
+    state.pending.pick = { playerId: c.id };
+
+    if (state.flipped.length < 2) return;
+
+    const [a, b] = state.flipped;
+    if (isPair(state.cards[a], state.cards[b])) {
+      // Paire trouvee : il faut maintenant repondre correctement pour la garder.
+      const q = state.questions[state.cards[a].qi % Math.max(1, state.questions.length)];
+      state.pending.pick = { playerId: c.id, pair: [a, b] };
+      startQuestion(state, q);
+      pushLog(state, `${c.avatar} ${c.name} retourne une paire : attention, question !`);
+    } else {
+      pushLog(state, `${c.avatar} ${c.name} retourne ${state.cards[a].qi + 1} et ${state.cards[b].qi + 1} : ça ne va pas ensemble.`);
+      endTurnMemory(state);
+    }
+    return;
+  }
+
+  if (action.type === 'answer' && state.phase === 'question') {
+    const c = current(state);
+    if (!c || action.playerId !== c.id) return;
+    const pair = (state.pending.pick || {}).pair || state.flipped;
+    const good = action.choice !== null && action.choice === state.question.answer;
+    const idx = state.players.findIndex((p) => p.id === c.id);
+    if (good) {
+      c.correct += 1;
+      c.streak += 1;
+      c.best = Math.max(c.best, c.streak);
+      c.score += 30;
+      pair.forEach((cell) => {
+        state.owners[cell] = idx;
+      });
+      pushLog(state, `✅ ${c.avatar} ${c.name} répond juste et empoche la paire ! +30`);
+    } else {
+      c.wrong += 1;
+      c.streak = 0;
+      pushLog(state, `❌ ${c.avatar} ${c.name} se trompe : les cartes se retournent.`);
+    }
+    state.question = null;
+    state.flipped = [];
+    state.round += 1;
+    if (state.owners.every((m) => m >= 0)) {
+      const best = Math.max(...state.players.map((p) => p.score));
+      endGame(state, best > 0 ? state.players.filter((p) => p.score === best).map((p) => p.id) : []);
+      return;
+    }
+    // Une bonne reponse permet de rejouer, sinon c'est au suivant.
+    if (good) {
+      state.phase = 'pick';
+      state.pending.pick = { playerId: c.id };
+    } else {
+      endTurnMemory(state);
+    }
+  }
+}
+
 // ------------------------------- MORPION -----------------------------------
 function reduceMorpion(state, action) {
   if (action.type === 'answer' && state.phase === 'question') {
@@ -733,6 +857,16 @@ export function publicState(state, forPlayerId) {
         answer: reveal ? state.question.answer : undefined
       }
     : null;
+  // Ne jamais envoyer le reste des questions : sinon un joueur curieux peut
+  // lire les reponses a l'avance dans la console de son navigateur.
+  copy.questions = [];
+  copy.qIndex = 0;
+  if (state.gameId === 'memory') {
+    // Seules les cartes retournees ou deja gagnees sont envoyees aux joueurs.
+    copy.cards = (state.cards || []).map((card, i) =>
+      state.owners[i] >= 0 || state.flipped.includes(i) ? card : { qi: -1, kind: null, text: '' }
+    );
+  }
   if (state.gameId === 'bataille') {
     // La flotte adverse ne doit pas etre visible : on n'envoie que les degats.
     copy.players = copy.players.map((p) => {
@@ -799,6 +933,27 @@ export function botAction(state, skill = 0.62) {
     };
   }
   if (state.phase === 'pick') {
+    if (state.gameId === 'memory') {
+      const free = [];
+      for (let i = 0; i < state.cards.length; i++) {
+        if (state.owners[i] < 0 && !state.flipped.includes(i)) free.push(i);
+      }
+      if (!free.length) return null;
+      // Le bot se souvient des cartes deja retournees (comme un vrai joueur).
+      // Memoire imparfaite : le bot ne se souvient pas a tous les coups.
+      if (state.flipped.length === 1 && Math.random() < skill * 0.62) {
+        const [first] = state.flipped;
+        const match = state.seen.find(
+          (i) => state.owners[i] < 0 && i !== first && isPair(state.cards[first], state.cards[i])
+        );
+        if (match !== undefined && free.includes(match)) {
+          return { type: 'pick', playerId: c.id, payload: match };
+        }
+      }
+      const unseen = free.filter((i) => !state.seen.includes(i));
+      const pool = unseen.length && Math.random() < 0.75 ? unseen : free;
+      return { type: 'pick', playerId: c.id, payload: pool[rnd(pool.length)] };
+    }
     if (state.gameId === 'bataille') {
       const pending = state.pending.pick || {};
       const target = state.players.find((p) => p.id === pending.targetId);

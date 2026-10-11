@@ -214,6 +214,65 @@ export const KunaiPicker: React.FC<{ value: string | null; onChange: (v: string)
   );
 };
 
+// -------------------------------- MEMORY ----------------------------------
+export const MemoryBoard: React.FC<{
+  state: EngineState;
+  youId?: string;
+  interactive?: boolean;
+  onPick?: (cell: number) => void;
+}> = ({ state, youId, interactive, onPick }) => {
+  const cards = state.cards || [];
+  const owners = state.owners || [];
+  const flipped = state.flipped || [];
+  const ownerColor = (i: number) => {
+    const palette = [
+      'border-amber-400/70 bg-amber-500/25',
+      'border-sky-400/70 bg-sky-500/25',
+      'border-emerald-400/70 bg-emerald-500/25',
+      'border-fuchsia-400/70 bg-fuchsia-500/25'
+    ];
+    return palette[i % palette.length];
+  };
+
+  return (
+    <div className="grid grid-cols-4 gap-2">
+      {cards.map((card, i) => {
+        const owner = owners[i];
+        const isFlipped = flipped.includes(i);
+        const visible = owner >= 0 || isFlipped;
+        const mine = owner >= 0 && state.players[owner]?.id === youId;
+        const clickable = interactive && !visible && flipped.length < 2;
+        return (
+          <button
+            key={i}
+            type="button"
+            disabled={!clickable}
+            onClick={() => clickable && onPick?.(i)}
+            className={cx(
+              'flex min-h-[64px] items-center justify-center rounded-xl border-2 p-2 text-center text-xs font-bold transition',
+              !visible && 'border-ninja-line bg-ninja-panel2/70',
+              visible && owner >= 0 && ownerColor(owner),
+              visible && owner < 0 && 'border-amber-400/70 bg-amber-500/15',
+              clickable && 'cursor-pointer hover:scale-[1.03] hover:border-amber-400',
+              !clickable && visible && 'cursor-default'
+            )}
+          >
+            {visible ? (
+              <span className={cx(card.kind === 'a' && 'text-base')}>
+                {card.kind === 'a' && '💡 '}
+                {card.text}
+                {mine && <span className="ml-1">✅</span>}
+              </span>
+            ) : (
+              <span className="text-2xl">🌀</span>
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+};
+
 // ---------------------------- BATAILLE NAVALE -----------------------------
 /** Grille 4x4 d'un joueur : ma flotte (et les tirs subis) ou la flotte adverse (brouillard). */
 export const FleetGrid: React.FC<{

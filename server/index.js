@@ -554,9 +554,10 @@ function startRoomGame(socket, room, payload = {}) {
   armRoundTimeout(room);
 }
 
-/** Le moteur demarre en phase "lancer" pour le plateau : on lance directement. */
+/** Le moteur demarre en phase "lancer" ou "pick" pour certains jeux : on ne force rien. */
 function forceFirstQuestion(state) {
-  if (state.gameId === 'plateau') return state; // le plateau commence par un lancer de de
+  // Le plateau commence par un lancer de de, le Memory par retourner deux cartes.
+  if (state.gameId === 'plateau' || state.gameId === 'memory') return state;
   if (state.phase !== 'question' || !state.question) {
     const s = JSON.parse(JSON.stringify(state));
     s.phase = 'question';

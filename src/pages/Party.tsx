@@ -91,6 +91,7 @@ export const PartyPage: React.FC = () => {
       partyWin: won,
       teamWin: gameId === 'equipe' && won,
       batailleWin: gameId === 'bataille' && won,
+      memoryWin: gameId === 'memory' && won,
       boardWin: gameId === 'plateau' && won,
       opponent: room.state.players.filter((p) => p.id !== room.youId).map((p) => p.name).join(', ')
     });
@@ -105,13 +106,14 @@ export const PartyPage: React.FC = () => {
         <div className="card">
           <h1 className="h1">🎲 Jeux à 4 joueurs</h1>
           <p className="mt-1 text-sm text-ninja-muted">
-            8 jeux de plateau, de questions, d’équipes et de bataille navale, jouables jusqu’à 4 ninjas (ou plus en spectateur). En ligne avec tes amis via un
+            9 jeux de plateau, de questions, d’équipes, de mémoire et de bataille navale, jouables jusqu’à 4 ninjas (ou plus en spectateur). En ligne avec tes amis via un
             code, ou tout de suite contre des bots. Toutes les parties rapportent des Ryos et font monter ton ELO.
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             <span className="chip">🎲 Dé et plateau</span>
             <span className="chip">🛡️ Bataille d’équipes 2 vs 2</span>
             <span className="chip">🌊 Bataille navale 1 vs 1</span>
+            <span className="chip">🧠 Memory des Ninjas</span>
             <span className="chip">🧠 Questions de ton niveau</span>
             <span className="chip">🪙 Ryos en jeu</span>
             <span className="chip">📡 {netStatus === 'online' ? 'Serveur en ligne' : 'Mode bots hors ligne'}</span>

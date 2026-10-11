@@ -37,9 +37,10 @@ sous** et crée ses propres jeux avec le **mode Créateur** (5 000 Ryos).
 
 ### Multijoueur en ligne (serveur Socket.IO inclus)
 - **Duels classés** : 1v1 sur 8 questions, ELO (≈ ±10-16 points), 5 ligues.
-- **8 jeux multijoueurs** : 🎲 Plateau Ninja (dé + 30 cases), 🥋 Duel de Kunai (pierre-feuille-ciseaux + quiz), 👹 Combat de
+- **9 jeux multijoueurs** : 🎲 Plateau Ninja (dé + 30 cases), 🥋 Duel de Kunai (pierre-feuille-ciseaux + quiz), 👹 Combat de
   Boss (coopératif), ❌ Morpion Ninja, 🎱 Loto des Ryos, 💨 Course des Ninjas, 🛡️ **Bataille d’Équipes 2 vs 2** (avec mort
-  subite) et 🌊 **Bataille du Pays des Vagues** (bataille navale 1 contre 1 : une bonne réponse = un tir, +10 ELO).
+  subite), 🌊 **Bataille du Pays des Vagues** (bataille navale 1 contre 1 : une bonne réponse = un tir, +10 ELO) et 🧠
+  **Memory des Ninjas** (12 cartes : associe chaque question à sa réponse).
 - **Kahoot** : l’hôte génère un **PIN à 6 caractères**, chacun répond sur son appareil avec les grandes tuiles colorées et le
   classement en direct.
 - **Amis** : barre de recherche de joueurs, demandes d’ami, messagerie privée, liste des **joueurs en ligne en temps réel**.
@@ -86,7 +87,7 @@ npm run server     # sert dist/ + l’API + le multijoueur
 ## 🗂️ Structure
 
 ```
-shared/partyEngine.{js,d.ts}   Moteur des 7 jeux à plusieurs (utilisé par le serveur ET le navigateur, bot inclus)
+shared/partyEngine.{js,d.ts}   Moteur des 9 jeux à plusieurs (utilisé par le serveur ET le navigateur, bot inclus)
 shared/seedData.{js,d.ts}      Joueurs/jeux de référence (classement et repli hors ligne)
 server/index.js                Express + Socket.IO : présence, amis, duels, salons, Kahoot, classement, jeux communautaires
 src/data/questions/            Banques de questions (maths générées, français, histoire-géo, sciences, anglais)
@@ -112,8 +113,8 @@ src/pages/                     Onboarding, Accueil, Quiz, Examen, Jeux à 4, Due
 
 ```bash
 npm run check:questions   # vérifie 6 500+ questions sur les 3 modes de réponse (QCM, vrai/faux, saisie) + tolérance de saisie
-npm run test:engine       # simule une partie complète des 8 jeux à plusieurs (bots) : tous doivent se terminer
-npm run check:badges      # vérifie que les 43 badges sont tous atteignables et aucun acquis au démarrage
+npm run test:engine       # simule une partie complète des 9 jeux à plusieurs (bots) : tous doivent se terminer
+npm run check:badges      # vérifie que les 45 badges sont tous atteignables et aucun acquis au démarrage
 npm run typecheck         # TypeScript strict
 ```
 

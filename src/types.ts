@@ -90,6 +90,8 @@ export interface Stats {
   teamWins: number;
   /** Victoires en Bataille navale (1 contre 1). */
   batailleWins: number;
+  /** Victoires au Memory des Ninjas. */
+  memoryWins: number;
   /** Defis eclair (10 questions en 10 s) reussis avec 10/10. */
   eclairPerfect: number;
   /** Nombre de quiz termines par matiere (ex : { maths: 4 }). */
@@ -217,7 +219,7 @@ export interface RoomState {
   payload: any;
 }
 
-export type PartyGameId = 'plateau' | 'kunai' | 'boss' | 'morpion' | 'loto' | 'course' | 'equipe' | 'bataille';
+export type PartyGameId = 'plateau' | 'kunai' | 'boss' | 'morpion' | 'loto' | 'course' | 'equipe' | 'bataille' | 'memory';
 
 export interface PartyGameInfo {
   id: PartyGameId;

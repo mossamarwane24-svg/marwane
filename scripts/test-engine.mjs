@@ -1,6 +1,6 @@
 import { createGameState, reduce, botAction, currentIsBot, ranking } from '../shared/partyEngine.js';
 
-const GAMES = ['plateau', 'kunai', 'boss', 'morpion', 'loto', 'course', 'equipe', 'bataille'];
+const GAMES = ['plateau', 'kunai', 'boss', 'morpion', 'loto', 'course', 'equipe', 'bataille', 'memory'];
 const questions = Array.from({ length: 30 }, (_, i) => ({
   prompt: `Question ${i + 1} : combien font ${i} + ${i + 1} ?`,
   choices: [String(2 * i + 1), '1', '2', '3'],
@@ -21,7 +21,17 @@ for (const g of GAMES) {
       // personne ne peut jouer : on force une reponse pour debloquer
       const stuck = state.players.find((p) => !p.answered && p.alive);
       if (!stuck) {
-        console.log(`  ⚠️  ${g} : blocage detecte (phase ${state.phase}, over=${state.over})`);
+        if (state.gameId === 'memory') {
+    // Le score doit toujours correspondre au nombre de paires gagnees.
+    state.players.forEach((p, idx) => {
+      const cells = state.owners.filter((o) => o === idx).length;
+      if (p.score !== (cells / 2) * 30) {
+        console.log(`❌ ${p.name} : ${p.score} points pour ${cells / 2} paire(s)`);
+        process.exit(1);
+      }
+    });
+  }
+  console.log(`  ⚠️  ${g} : blocage detecte (phase ${state.phase}, over=${state.over})`);
         failures++;
         break;
       }
@@ -37,6 +47,16 @@ for (const g of GAMES) {
   const teams = state.gameId === 'equipe'
     ? ` | equipe1=${state.players.filter((p) => p.team === 0).reduce((s, p) => s + p.score, 0)} equipe2=${state.players.filter((p) => p.team === 1).reduce((s, p) => s + p.score, 0)} morts subites=${state.suddenDeath}`
     : '';
+  if (state.gameId === 'memory') {
+    // Le score doit toujours correspondre au nombre de paires gagnees.
+    state.players.forEach((p, idx) => {
+      const cells = state.owners.filter((o) => o === idx).length;
+      if (p.score !== (cells / 2) * 30) {
+        console.log(`❌ ${p.name} : ${p.score} points pour ${cells / 2} paire(s)`);
+        process.exit(1);
+      }
+    });
+  }
   console.log(
     `${state.over ? '✅' : '❌'} ${g.padEnd(8)} manches=${String(state.round).padStart(2)} actions=${String(iter).padStart(4)} ` +
       `gagnant(s)=${state.winners.map((w) => r.find((x) => x.id === w)?.name).join(',') || 'aucun'} `
