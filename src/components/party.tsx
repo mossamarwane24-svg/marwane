@@ -214,6 +214,48 @@ export const KunaiPicker: React.FC<{ value: string | null; onChange: (v: string)
   );
 };
 
+// -------------------------------- EQUIPES ---------------------------------
+export const TeamScore: React.FC<{ state: EngineState; youId?: string }> = ({ state, youId }) => {
+  const scores = [0, 1].map((t) => state.players.filter((p) => p.team === t).reduce((sum, p) => sum + p.score, 0));
+  const total = Math.max(1, scores[0] + scores[1]);
+  const myTeam = state.players.find((p) => p.id === youId)?.team ?? 0;
+  return (
+    <div className="card">
+      <div className="grid grid-cols-2 gap-3">
+        {[0, 1].map((t) => (
+          <div
+            key={t}
+            className={cx(
+              'rounded-xl border p-3 text-center',
+              t === myTeam ? 'border-amber-400/60 bg-amber-500/10' : 'border-ninja-line bg-ninja-panel2/40'
+            )}
+          >
+            <div className="text-[11px] font-black uppercase tracking-widest text-ninja-muted">
+              {t === 0 ? 'Équipe 1' : 'Équipe 2'}
+              {t === myTeam && <span className="ml-1 text-amber-300">(toi)</span>}
+            </div>
+            <div className="mt-1 text-3xl font-black">{scores[t]}</div>
+            <div className="mt-1 flex flex-wrap justify-center gap-1">
+              {state.players
+                .filter((p) => p.team === t)
+                .map((p) => (
+                  <span key={p.id} className="chip !text-[10px]">
+                    {p.avatar} {p.name} · ✅{p.correct}
+                  </span>
+                ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="mt-3 flex h-2.5 overflow-hidden rounded-full border border-ninja-line">
+        <div className="h-full bg-gradient-to-r from-sky-500 to-cyan-400" style={{ width: `${(scores[0] / total) * 100}%` }} />
+        <div className="h-full bg-gradient-to-r from-rose-500 to-orange-400" style={{ width: `${(scores[1] / total) * 100}%` }} />
+      </div>
+      {state.suddenDeath > 0 && <p className="mt-2 text-center text-xs font-bold text-amber-300">⚡ MORT SUBITE en cours !</p>}
+    </div>
+  );
+};
+
 // ----------------------------------- Boss ---------------------------------
 export const BossBar: React.FC<{ hp: number; maxHp: number }> = ({ hp, maxHp }) => (
   <div className="card-soft">

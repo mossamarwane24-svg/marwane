@@ -32,6 +32,8 @@ export interface EnginePlayer {
   ready: boolean;
   answered: boolean;
   lastPoints: number;
+  /** Equipe (0 ou 1) pour le mode Bataille d'equipes. */
+  team?: number;
 }
 
 export interface EngineState {
@@ -51,6 +53,9 @@ export interface EngineState {
   log: { at: number; text: string }[];
   winners: string[];
   over: boolean;
+  /** Mort subite (bataille d'equipes) : nombre de prolongations. */
+  suddenDeath: number;
+  hardCap: number;
   createdAt: number;
   updatedAt: number;
 }

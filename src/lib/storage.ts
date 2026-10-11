@@ -20,6 +20,9 @@ export const defaultStats = (): Stats => ({
   kahootPlayed: 0,
   kahootWon: 0,
   boardWins: 0,
+  teamWins: 0,
+  eclairPerfect: 0,
+  subjectQuizzes: {},
   slotSpins: 0,
   jackpots: 0,
   bestRun: 0,
@@ -163,6 +166,13 @@ export const mergeSaves = (a: SaveState, b: SaveState): SaveState => {
       (stats[k] as number) = maxNum(va as number, vb as number);
     } else if (Array.isArray(va) || Array.isArray(vb)) {
       (stats[k] as unknown) = Array.from(new Set([...(va as string[]) || [], ...(vb as string[]) || []]));
+    } else if (va && vb && typeof va === 'object' && typeof vb === 'object') {
+      // Compteurs par matiere (ex : { maths: 4 }) : on garde le max de chaque cle.
+      const merged: Record<string, number> = { ...(va as Record<string, number>) };
+      Object.entries(vb as Record<string, number>).forEach(([key, val]) => {
+        merged[key] = Math.max(merged[key] || 0, val || 0);
+      });
+      (stats[k] as unknown) = merged;
     }
   });
 

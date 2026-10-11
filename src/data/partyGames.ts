@@ -82,6 +82,22 @@ export const PARTY_GAMES: PartyGameInfo[] = [
     ]
   },
   {
+    id: 'equipe',
+    name: 'Bataille d’Équipes (2 vs 2)',
+    emoji: '🛡️',
+    tag: 'En VS : équipe 1 contre équipe 2',
+    desc: 'Les joueurs sont répartis en deux équipes : additionnez les bonnes réponses pour écraser l’équipe adverse.',
+    minPlayers: 2,
+    maxPlayers: 4,
+    rules: [
+      'Les joueurs sont répartis automatiquement en équipe 1 et équipe 2.',
+      'La même question est posée à tout le monde en même temps.',
+      'Le premier à répondre juste rapporte 3 points à son équipe, les autres bonnes réponses 2 points.',
+      'Une erreur ne rapporte rien : discutez de la stratégie entre coéquipiers !',
+      'Après 8 manches, l’équipe qui a le plus de points gagne — et en cas d’égalité, MORT SUBITE !'
+    ]
+  },
+  {
     id: 'course',
     name: 'Course des Ninjas',
     emoji: '💨',

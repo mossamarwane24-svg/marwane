@@ -47,6 +47,12 @@ export interface GameRecord {
   kahoot?: boolean;
   duelWon?: boolean;
   boardWin?: boolean;
+  /** Victoire dans un jeu a plusieurs (badge Champion du Plateau). */
+  partyWin?: boolean;
+  /** Victoire en Bataille d'equipes 2 vs 2. */
+  teamWin?: boolean;
+  /** Defi eclair reussi de bout en bout. */
+  eclair?: boolean;
   fromCommunity?: boolean;
   played?: boolean;
 }
@@ -327,6 +333,12 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
           duelsPlayed: prev.stats.duelsPlayed + (record.type === 'duel' ? 1 : 0),
           duelsWon: prev.stats.duelsWon + (record.duelWon ? 1 : 0),
           partyPlayed: prev.stats.partyPlayed + (record.party ? 1 : 0),
+          partyWon: prev.stats.partyWon + (record.partyWin ? 1 : 0),
+          teamWins: prev.stats.teamWins + (record.teamWin ? 1 : 0),
+          eclairPerfect: prev.stats.eclairPerfect + (record.eclair && record.correct === total ? 1 : 0),
+          subjectQuizzes: record.subject && record.type === 'quiz'
+            ? { ...prev.stats.subjectQuizzes, [record.subject]: (prev.stats.subjectQuizzes[record.subject] || 0) + 1 }
+            : prev.stats.subjectQuizzes,
           kahootPlayed: prev.stats.kahootPlayed + (record.kahoot ? 1 : 0),
           boardWins: prev.stats.boardWins + (record.boardWin ? 1 : 0),
           bestRun: Math.max(prev.stats.bestRun, record.correct),

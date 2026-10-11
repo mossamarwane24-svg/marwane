@@ -40,6 +40,7 @@ export const ChallengesPage: React.FC = () => {
       recordGame({
         type: 'defi',
         label: mode === 'eclair' ? 'Défi éclair — 10 questions en 10 secondes' : 'Défi du jour (Ryos doublés)',
+        eclair: mode === 'eclair',
         subject: 'maths',
         correct: s.correct,
         total: s.total,

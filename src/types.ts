@@ -86,6 +86,12 @@ export interface Stats {
   kahootPlayed: number;
   kahootWon: number;
   boardWins: number;
+  /** Victoires en Bataille d'equipes (2 vs 2). */
+  teamWins: number;
+  /** Defis eclair (10 questions en 10 s) reussis avec 10/10. */
+  eclairPerfect: number;
+  /** Nombre de quiz termines par matiere (ex : { maths: 4 }). */
+  subjectQuizzes: Partial<Record<SubjectId, number>>;
   slotSpins: number;
   jackpots: number;
   bestRun: number;
@@ -209,7 +215,7 @@ export interface RoomState {
   payload: any;
 }
 
-export type PartyGameId = 'plateau' | 'kunai' | 'boss' | 'morpion' | 'loto' | 'course';
+export type PartyGameId = 'plateau' | 'kunai' | 'boss' | 'morpion' | 'loto' | 'course' | 'equipe';
 
 export interface PartyGameInfo {
   id: PartyGameId;

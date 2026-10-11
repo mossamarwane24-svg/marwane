@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import type { usePartyRoom } from '../hooks/usePartyRoom';
-import { Board, BossBar, Dice, KunaiPicker, LotoCard, MorpionGrid, Scoreboard } from './party';
+import { Board, BossBar, Dice, KunaiPicker, LotoCard, MorpionGrid, Scoreboard, TeamScore } from './party';
 import { QuestionCard } from './QuestionCard';
 import { ProgressBar } from './ui';
 import { cx, formatRyos } from '../lib/format';
@@ -397,6 +397,69 @@ export const LotoView: React.FC<{ room: Room }> = ({ room }) => {
   );
 };
 
+// ------------------------------- EQUIPES ----------------------------------
+export const EquipeView: React.FC<{ room: Room; hostControls?: boolean }> = ({ room, hostControls }) => {
+  const state = room.state!;
+  const me = state.players.find((p) => p.id === room.youId);
+  const q = toQuestion(state.question);
+  const answered = !!me?.answered;
+  const left = useRoundTimer(state.question?.prompt, 30, state.phase === 'question' && !answered, () => {
+    if (!answered) room.actions.answer(-1);
+  });
+
+  return (
+    <div className="grid gap-3 lg:grid-cols-[1fr_320px]">
+      <div className="grid content-start gap-3">
+        <TeamScore state={state} youId={room.youId} />
+        <div className="card">
+          <div className="mb-1 flex items-center justify-between text-xs font-bold text-ninja-muted">
+            <span>
+              Manche {Math.min(state.round, state.maxRounds)}/{state.maxRounds}
+            </span>
+            <span>
+              {state.players.filter((p) => p.answered).length}/{state.players.length} ont répondu
+            </span>
+          </div>
+          <ProgressBar value={state.players.filter((p) => p.answered).length} max={state.players.length} height="h-1.5" />
+        </div>
+        {q && !answered ? (
+          <QuestionCard
+            question={q}
+            index={state.round - 1}
+            total={state.maxRounds}
+            selected={null}
+            revealed={false}
+            secondsLeft={left}
+            secondsTotal={30}
+            onAnswer={(c) => room.actions.answer(c)}
+          />
+        ) : (
+          <div className="card text-center text-sm text-ninja-muted">
+            {answered ? '🛡️ Point enregistré pour ton équipe ! En attente des autres ninjas…' : 'Préparation de la manche…'}
+          </div>
+        )}
+        {hostControls && room.isHost && (
+          <button className="btn-ghost" onClick={room.actions.forceNext}>
+            ⏭️ Question suivante (hôte)
+          </button>
+        )}
+      </div>
+      <div className="grid content-start gap-3">
+        <div className="card">
+          <Scoreboard state={state} youId={room.youId} />
+        </div>
+        <div className="card max-h-48 overflow-y-auto">
+          {state.log.map((l, i) => (
+            <div key={`${l.at}-${i}`} className="text-xs text-ninja-muted">
+              • {l.text}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // ------------------------------- SELECTEUR --------------------------------
 export const GameStage: React.FC<{ room: Room; gameId: string; hostControls?: boolean }> = ({ room, gameId, hostControls }) => {
   const view = useMemo(() => {
@@ -411,6 +474,8 @@ export const GameStage: React.FC<{ room: Room; gameId: string; hostControls?: bo
         return <MorpionView room={room} />;
       case 'loto':
         return <LotoView room={room} />;
+      case 'equipe':
+        return <EquipeView room={room} hostControls={hostControls} />;
       case 'course':
       case 'duel':
       case 'kahoot':

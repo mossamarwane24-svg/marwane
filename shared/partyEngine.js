@@ -5,7 +5,7 @@
 // dependance : uniquement de la logique pure.
 // ---------------------------------------------------------------------------
 
-export const GAME_IDS = ['plateau', 'kunai', 'boss', 'morpion', 'loto', 'course'];
+export const GAME_IDS = ['plateau', 'kunai', 'boss', 'morpion', 'loto', 'course', 'equipe'];
 
 export const SQUARE_TYPES = ['quiz', 'quiz', 'quiz', 'ryos', 'trap', 'bonus', 'boss', 'swap', 'ryos', 'quiz'];
 
@@ -39,11 +39,12 @@ function makeCard() {
 }
 
 export function createGameState(gameId, players, options = {}) {
-  const list = players.map((p) => ({
+  const list = players.map((p, i) => ({
     id: p.id,
     name: p.name,
     avatar: p.avatar || '🦊',
     bot: !!p.bot,
+    team: gameId === 'equipe' ? i % 2 : 0,
     pos: 0,
     score: 0,
     hp: 30,
@@ -66,7 +67,9 @@ export function createGameState(gameId, players, options = {}) {
     players: list,
     turn: 0,
     round: 1,
-    maxRounds: options.maxRounds || (gameId === 'course' ? 10 : gameId === 'kunai' ? 5 : gameId === 'boss' ? 8 : 14),
+    maxRounds: options.maxRounds || (gameId === 'course' ? 10 : gameId === 'kunai' ? 5 : gameId === 'boss' ? 8 : gameId === 'equipe' ? 8 : 14),
+    suddenDeath: 0,
+    hardCap: 0,
     phase: 'lancer',
     question: null,
     questions: options.questions || [],
@@ -81,6 +84,8 @@ export function createGameState(gameId, players, options = {}) {
     createdAt: Date.now(),
     updatedAt: Date.now()
   };
+  state.hardCap = state.maxRounds + 9;
+  if (gameId === 'equipe') pushLog(state, 'Équipes : ' + list.filter((p) => p.team === 0).map((p) => p.name).join(' & ') + '  VS  ' + list.filter((p) => p.team === 1).map((p) => p.name).join(' & '));
   pushLog(state, `La partie commence avec ${list.length} ninjas !`);
   if (gameId !== 'plateau') {
     state.phase = 'question';
@@ -188,6 +193,22 @@ function checkOver(state) {
       const best = Math.max(...state.players.map((p) => p.score));
       endGame(state, state.players.filter((p) => p.score === best).map((p) => p.id));
     }
+  } else if (state.gameId === 'equipe') {
+    if (state.round > state.maxRounds) {
+      const a = teamScore(state, 0);
+      const b = teamScore(state, 1);
+      if (a === b && state.maxRounds < state.hardCap && state.suddenDeath < 3) {
+        // Égalité : on prolonge la partie (mort subite).
+        state.maxRounds += 3;
+        state.suddenDeath += 1;
+        pushLog(state, `Égalité ${a} - ${b} : MORT SUBITE, ${3} manches supplémentaires !`);
+      } else if (a === b) {
+        endGame(state, []);
+      } else {
+        const winTeam = a > b ? 0 : 1;
+        endGame(state, state.players.filter((p) => p.team === winTeam).map((p) => p.id));
+      }
+    }
   }
   return state;
 }
@@ -230,6 +251,9 @@ export function reduce(prev, action) {
       break;
     case 'course':
       reduceCourse(state, action);
+      break;
+    case 'equipe':
+      reduceEquipe(state, action);
       break;
     case 'boss':
       reduceBoss(state, action);
@@ -349,6 +373,46 @@ function reduceCourse(state, action) {
     if (state.players.every((x) => x.answered)) {
       const order = Object.entries(state.pending.answers).map(([id, pts]) => `${player(state, id).name} ${pts > 0 ? `+${pts}` : pts}`);
       pushLog(state, `Manche ${state.round} : ${order.join(', ')}.`);
+      state.question = null;
+      advanceRound(state);
+      state.phase = 'question';
+      startQuestion(state, null);
+    }
+    return;
+  }
+}
+
+// ------------------------------- EQUIPES -----------------------------------
+/** Somme des points d'une equipe. */
+function teamScore(state, team) {
+  return state.players.filter((p) => p.team === team).reduce((sum, p) => sum + p.score, 0);
+}
+
+function reduceEquipe(state, action) {
+  if (action.type === 'answer' && state.phase === 'question') {
+    const p = player(state, action.playerId);
+    if (!p || p.answered) return;
+    const good = action.choice !== null && action.choice === state.question.answer;
+    const first = Object.keys(state.pending.answers).length === 0;
+    p.answered = true;
+    let pts = 0;
+    if (good) {
+      pts = first ? 3 : 2; // bonus de rapidite pour le premier
+      p.correct += 1;
+      p.streak += 1;
+      p.best = Math.max(p.best, p.streak);
+      p.score += pts;
+      p.lastPoints = pts;
+      pushLog(state, `${p.avatar} ${p.name} (équipe ${p.team + 1}) marque ${pts} point${pts > 1 ? 's' : ''}${first ? ' en étant le plus rapide' : ''} !`);
+    } else {
+      p.wrong += 1;
+      p.streak = 0;
+      p.lastPoints = 0;
+      pushLog(state, `${p.avatar} ${p.name} (équipe ${p.team + 1}) se trompe : 0 point.`);
+    }
+    state.pending.answers[action.playerId] = pts;
+    if (state.players.every((x) => x.answered)) {
+      pushLog(state, `Manche ${state.round} : équipe 1 = ${teamScore(state, 0)} · équipe 2 = ${teamScore(state, 1)}`);
       state.question = null;
       advanceRound(state);
       state.phase = 'question';
@@ -545,7 +609,7 @@ export function publicState(state, forPlayerId) {
 /** Le joueur courant est-il un bot ? */
 export function currentIsBot(state) {
   if (state.over) return false;
-  if (state.gameId === 'course' || state.gameId === 'boss') {
+  if (state.gameId === 'course' || state.gameId === 'boss' || state.gameId === 'equipe') {
     return state.players.some((p) => p.bot && p.alive && !p.answered);
   }
   const c = current(state);
@@ -555,8 +619,9 @@ export function currentIsBot(state) {
 /** Action jouee par un bot (avec un taux de reussite realiste). */
 export function botAction(state, skill = 0.62) {
   if (state.over) return null;
-  if (state.gameId === 'course' || state.gameId === 'boss') {
-    const bot = state.players.find((p) => p.bot && p.alive && !p.answered);
+  if (state.gameId === 'course' || state.gameId === 'boss' || state.gameId === 'equipe') {
+    const pending = state.players.filter((p) => p.bot && p.alive && !p.answered);
+    const bot = pending[rnd(pending.length)];
     if (!bot) return null;
     const good = Math.random() < skill;
     const choice = good
@@ -565,7 +630,8 @@ export function botAction(state, skill = 0.62) {
     return { type: 'answer', playerId: bot.id, choice };
   }
   if (state.gameId === 'kunai') {
-    const bot = state.players.find((p) => p.bot && !p.answered);
+    const waiting = state.players.filter((p) => p.bot && !p.answered);
+    const bot = waiting[rnd(waiting.length)];
     if (!bot) return null;
     const good = Math.random() < skill;
     return {
@@ -609,19 +675,23 @@ export function computeRewards(state, playerId) {
   const rank = sorted.findIndex((x) => x.id === playerId) + 1;
   const won = state.winners.includes(playerId);
   let ryos = 30 + p.correct * 12 - p.wrong * 4 + Math.max(0, 60 - rank * 10);
-  if (won) ryos += 120;
+  if (won) ryos += state.gameId === 'equipe' ? 150 : 120;
   if (state.gameId === 'boss' && state.pending.bossHp <= 0) ryos += 80;
   ryos = Math.max(10, Math.round(ryos));
   const tied = state.winners.length > 1;
   const elo =
-    state.gameId === 'plateau' || state.gameId === 'course'
-      ? won
-        ? tied
-          ? 5
-          : 12
-        : rank === 2
-          ? 4
-          : -6
+    state.gameId === 'plateau' || state.gameId === 'course' || state.gameId === 'equipe'
+      ? state.gameId === 'equipe'
+        ? won
+          ? 9
+          : -4
+        : won
+          ? tied
+            ? 5
+            : 12
+          : rank === 2
+            ? 4
+            : -6
       : 0;
   return { ryos, elo, won, rank };
 }
