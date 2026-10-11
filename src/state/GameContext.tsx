@@ -56,6 +56,8 @@ export interface GameRecord {
   batailleWin?: boolean;
   /** Victoire au Memory des Ninjas. */
   memoryWin?: boolean;
+  /** Victoire au Puissance 4 des Ninjas. */
+  p4Win?: boolean;
   /** Defi eclair reussi de bout en bout. */
   eclair?: boolean;
   fromCommunity?: boolean;
@@ -360,6 +362,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
           teamWins: prev.stats.teamWins + (record.teamWin ? 1 : 0),
           batailleWins: prev.stats.batailleWins + (record.batailleWin ? 1 : 0),
           memoryWins: prev.stats.memoryWins + (record.memoryWin ? 1 : 0),
+          p4Wins: prev.stats.p4Wins + (record.p4Win ? 1 : 0),
           eclairPerfect: prev.stats.eclairPerfect + (record.eclair && record.correct === total ? 1 : 0),
           subjectQuizzes: record.subject && record.type === 'quiz'
             ? { ...prev.stats.subjectQuizzes, [record.subject]: (prev.stats.subjectQuizzes[record.subject] || 0) + 1 }

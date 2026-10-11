@@ -98,6 +98,23 @@ export const PARTY_GAMES: PartyGameInfo[] = [
     ]
   },
   {
+    id: 'puissance4',
+    name: 'Puissance 4 des Ninjas',
+    emoji: '🔴',
+    tag: 'Jusqu’à 4 joueurs',
+    desc: 'Aligne 4 jetons dans la grille : chaque bonne réponse te laisse choisir ta colonne, chaque erreur fait tomber ton jeton au hasard.',
+    minPlayers: 2,
+    maxPlayers: 4,
+    rules: [
+      'À ton tour, réponds à la question posée.',
+      '✅ Bonne réponse : tu choisis la colonne où ton jeton tombe (+25 points).',
+      '❌ Mauvaise réponse : ton jeton tombe dans une colonne au hasard.',
+      'Chaque alignement de 3 jetons rapporte +15 points (il départage la fin de partie).',
+      'Le premier qui aligne 4 jetons (ligne, colonne ou diagonale) gagne !',
+      'Si la grille est pleine : pas de match nul, le meilleur total de points l’emporte.'
+    ]
+  },
+  {
     id: 'bataille',
     name: 'Bataille du Pays des Vagues',
     emoji: '🌊',

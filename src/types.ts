@@ -92,6 +92,8 @@ export interface Stats {
   batailleWins: number;
   /** Victoires au Memory des Ninjas. */
   memoryWins: number;
+  /** Victoires au Puissance 4 des Ninjas. */
+  p4Wins: number;
   /** Feuilles de revision generees pour impression. */
   sheetsPrinted: number;
   /** Erreurs corrigees dans le cahier d'erreurs. */
@@ -227,7 +229,7 @@ export interface RoomState {
   payload: any;
 }
 
-export type PartyGameId = 'plateau' | 'kunai' | 'boss' | 'morpion' | 'loto' | 'course' | 'equipe' | 'bataille' | 'memory';
+export type PartyGameId = 'plateau' | 'kunai' | 'boss' | 'morpion' | 'loto' | 'course' | 'equipe' | 'bataille' | 'memory' | 'puissance4';
 
 export interface PartyGameInfo {
   id: PartyGameId;

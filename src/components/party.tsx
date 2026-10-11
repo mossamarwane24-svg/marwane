@@ -1,5 +1,6 @@
 import React from 'react';
 import type { EnginePlayer, EngineState } from '../../shared/partyEngine';
+import { P4_COLS, P4_ROWS } from '../../shared/partyEngine';
 import { cx, formatRyos } from '../lib/format';
 
 export const SQUARE_ICONS: Record<string, string> = {
@@ -182,6 +183,77 @@ export const MorpionGrid: React.FC<{
     })}
   </div>
 );
+
+// ------------------------------ Puissance 4 --------------------------------
+/** Une couleur par joueur, pour distinguer les jetons meme avec le meme avatar. */
+export const P4_COLORS = [
+  'from-rose-500 to-rose-700 border-rose-300',
+  'from-amber-400 to-amber-600 border-amber-200',
+  'from-sky-500 to-sky-700 border-sky-300',
+  'from-emerald-500 to-emerald-700 border-emerald-300'
+];
+
+export const Puissance4Grid: React.FC<{
+  grid: (number | null)[];
+  players: EnginePlayer[];
+  onPick?: (col: number) => void;
+  canPick?: boolean;
+  youSymbol?: number;
+  winLine?: number[];
+}> = ({ grid, players, onPick, canPick, youSymbol, winLine = [] }) => {
+  const free = (col: number) => {
+    for (let r = P4_ROWS - 1; r >= 0; r -= 1) if (!grid[r * P4_COLS + col]) return true;
+    return false;
+  };
+  return (
+    <div className="mx-auto w-full max-w-md">
+      <div className="mb-2 grid grid-cols-6 gap-1.5">
+        {Array.from({ length: P4_COLS }, (_, col) => (
+          <button
+            key={col}
+            type="button"
+            disabled={!canPick || !free(col)}
+            onClick={() => onPick?.(col)}
+            title={`Colonne ${col + 1}`}
+            className={cx(
+              'rounded-lg border py-1 text-xs font-black transition',
+              canPick && free(col)
+                ? 'border-amber-400/70 bg-amber-500/20 text-amber-100 hover:bg-amber-500/40'
+                : 'border-ninja-line bg-ninja-panel2/40 text-ninja-muted'
+            )}
+          >
+            ↓ {col + 1}
+          </button>
+        ))}
+      </div>
+      <div className="rounded-2xl border border-ninja-line bg-gradient-to-b from-sky-950/60 to-ninja-panel2/70 p-2">
+        <div className="grid grid-cols-6 gap-1.5">
+          {Array.from({ length: P4_ROWS * P4_COLS }, (_, i) => {
+            const cell = grid[i] || 0;
+            const owner = cell ? players[cell - 1] : null;
+            const mine = cell === youSymbol;
+            const won = winLine.includes(i);
+            return (
+              <div
+                key={i}
+                className={cx(
+                  'flex aspect-square items-center justify-center rounded-full border-2 text-lg transition',
+                  owner
+                    ? cx('bg-gradient-to-b shadow-inner', P4_COLORS[(cell - 1) % P4_COLORS.length])
+                    : 'border-ninja-line/60 bg-ninja-bg/70',
+                  mine && 'ring-2 ring-amber-300/70',
+                  won && 'animate-pulse ring-4 ring-amber-300'
+                )}
+              >
+                {owner ? <span className="drop-shadow">{owner.avatar}</span> : ''}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // ---------------------------------- Kunai ---------------------------------
 export const KunaiPicker: React.FC<{ value: string | null; onChange: (v: string) => void; disabled?: boolean }> = ({

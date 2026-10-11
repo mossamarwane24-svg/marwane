@@ -11,16 +11,16 @@ let alwaysTrue = 0;
 BADGES.forEach((b) => {
   // Sauvegarde "max" : tous les compteurs au maximum -> le badge doit se débloquer
   const maxSave = JSON.parse(JSON.stringify(base));
-  maxSave.stats = {
-    quizzesPlayed: 999, perfectQuizzes: 999, bestRun: 999, questionsAnswered: 99999,
-    correctAnswers: 99999, examsTaken: 999, bestExam: 20, duelsPlayed: 999, duelsWon: 999,
-    partyPlayed: 999, partyWon: 999, kahootPlayed: 999, kahootWon: 999, boardWins: 999,
-    teamWins: 999, batailleWins: 999, memoryWins: 999, sheetsPrinted: 999, errorsFixed: 999, eclairPerfect: 999, slotSpins: 999, jackpots: 999,
+  // On met TOUS les compteurs numeriques au maximum : comme ca, un nouveau
+  // badge ajoute plus tard est verifie automatiquement (pas d'oubli).
+  maxSave.stats = Object.fromEntries(
+    Object.entries(maxSave.stats as Record<string, unknown>).map(([k, v]) => [k, typeof v === 'number' ? 999999 : v])
+  ) as typeof maxSave.stats;
+  Object.assign(maxSave.stats, {
+    bestExam: 20,
     subjectsPlayed: ['maths', 'francais', 'histoire', 'sciences', 'anglais'],
-    subjectQuizzes: { maths: 99, francais: 99, histoire: 99, sciences: 99, anglais: 99 },
-    friendsAdded: 99, gamesPublished: 99, gamesPlayedFromOthers: 99, ryosEarnedTotal: 999999,
-    daysPlayed: 999
-  };
+    subjectQuizzes: { maths: 99, francais: 99, histoire: 99, sciences: 99, anglais: 99 }
+  });
   maxSave.profile.ryos = 999999;
   maxSave.profile.elo = 2000;
   maxSave.streak.best = 99;

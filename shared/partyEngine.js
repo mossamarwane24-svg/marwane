@@ -5,11 +5,15 @@
 // dependance : uniquement de la logique pure.
 // ---------------------------------------------------------------------------
 
-export const GAME_IDS = ['plateau', 'kunai', 'boss', 'morpion', 'loto', 'course', 'equipe', 'bataille', 'memory'];
+export const GAME_IDS = ['plateau', 'kunai', 'boss', 'morpion', 'loto', 'course', 'equipe', 'bataille', 'memory', 'puissance4'];
 
 export const SQUARE_TYPES = ['quiz', 'quiz', 'quiz', 'ryos', 'trap', 'bonus', 'boss', 'swap', 'ryos', 'quiz'];
 
 export const BOARD_SIZE = 30;
+
+/** Grille du Puissance 4 : 7 colonnes x 6 lignes. */
+export const P4_COLS = 6;
+export const P4_ROWS = 5;
 
 const rnd = (max) => Math.floor(Math.random() * max);
 const rndRange = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
@@ -62,7 +66,9 @@ export function createGameState(gameId, players, options = {}) {
     pick: null,
     ready: false,
     answered: false,
-    lastPoints: 0
+    lastPoints: 0,
+    /** Puissance 4 : alignements de 3+ deja comptes (departage en fin de grille). */
+    lines3: 0
   }));
 
   const state = {
@@ -70,7 +76,7 @@ export function createGameState(gameId, players, options = {}) {
     players: list,
     turn: 0,
     round: 1,
-    maxRounds: options.maxRounds || (gameId === 'course' ? 10 : gameId === 'kunai' ? 5 : gameId === 'boss' ? 8 : gameId === 'equipe' ? 8 : gameId === 'bataille' ? 24 : gameId === 'memory' ? 30 : 14),
+    maxRounds: options.maxRounds || (gameId === 'course' ? 10 : gameId === 'kunai' ? 5 : gameId === 'boss' ? 8 : gameId === 'equipe' ? 8 : gameId === 'bataille' ? 24 : gameId === 'memory' ? 30 : gameId === 'puissance4' ? P4_COLS * P4_ROWS : 14),
     suddenDeath: 0,
     hardCap: 0,
     phase: 'lancer',
@@ -83,7 +89,9 @@ export function createGameState(gameId, players, options = {}) {
     owners: gameId === 'memory' ? Array(12).fill(-1) : [],
     flipped: [],
     seen: [],
-    grid: gameId === 'morpion' ? Array(9).fill(null) : [],
+    /** Puissance 4 : les 4 cases gagnantes (mise en avant a la fin). */
+    winLine: [],
+    grid: gameId === 'morpion' ? Array(9).fill(null) : gameId === 'puissance4' ? Array(P4_COLS * P4_ROWS).fill(null) : [],
     drawn: [],
     pending: { dice: null, pick: null, bossHp: 100 + (list.length - 1) * 25, answers: {} },
     log: [],
@@ -94,6 +102,7 @@ export function createGameState(gameId, players, options = {}) {
   };
   state.hardCap = state.maxRounds + 9;
   if (gameId === 'bataille') pushLog(state, '🌊 Chaque bonne réponse donne droit à un tir : coule les 3 navires ennemis !');
+  if (gameId === 'puissance4') pushLog(state, '\u{1F534} Alignez 4 jetons : une bonne r\u00e9ponse = tu choisis ta colonne, une erreur = le jeton tombe au hasard !');
   if (gameId === 'equipe') pushLog(state, 'Équipes : ' + list.filter((p) => p.team === 0).map((p) => p.name).join(' & ') + '  VS  ' + list.filter((p) => p.team === 1).map((p) => p.name).join(' & '));
   pushLog(state, `La partie commence avec ${list.length} ninjas !`);
   if (gameId === 'memory') {
@@ -300,6 +309,9 @@ export function reduce(prev, action) {
       break;
     case 'loto':
       reduceLoto(state, action);
+      break;
+    case 'puissance4':
+      reducePuissance4(state, action);
       break;
     default:
       break;
@@ -841,6 +853,149 @@ function reduceLoto(state, action) {
   }
 }
 
+// ------------------------------ PUISSANCE 4 --------------------------------
+
+/** Ligne ou le jeton s'arrete dans une colonne (-1 si la colonne est pleine). */
+export function p4DropRow(grid, col) {
+  for (let r = P4_ROWS - 1; r >= 0; r--) if (!grid[r * P4_COLS + col]) return r;
+  return -1;
+}
+
+/** Les 4 cases alignees par `symbol`, ou null s'il n'y en a pas. */
+export function p4WinLine(grid, symbol) {
+  const at = (c, r) => (c < 0 || c >= P4_COLS || r < 0 || r >= P4_ROWS ? 0 : grid[r * P4_COLS + c] || 0);
+  const dirs = [[1, 0], [0, 1], [1, 1], [1, -1]];
+  for (let r = 0; r < P4_ROWS; r++) {
+    for (let c = 0; c < P4_COLS; c++) {
+      if (at(c, r) !== symbol) continue;
+      for (const [dc, dr] of dirs) {
+        const line = [r * P4_COLS + c];
+        for (let n = 1; n < 4; n += 1) {
+          if (at(c + dc * n, r + dr * n) !== symbol) break;
+          line.push((r + dr * n) * P4_COLS + (c + dc * n));
+        }
+        if (line.length === 4) return line;
+      }
+    }
+  }
+  return null;
+}
+
+export const p4Win = (grid, symbol) => !!p4WinLine(grid, symbol);
+
+/**
+ * Nombre d'alignements d'au moins `len` jetons pour un symbole.
+ * Sert a departager les joueurs quand la grille est pleine : chaque
+ * "triplette" rapporte des points, le meilleur total gagne la partie.
+ */
+export function p4CountLines(grid, symbol, len = 3) {
+  const at = (c, r) => (c < 0 || c >= P4_COLS || r < 0 || r >= P4_ROWS ? 0 : grid[r * P4_COLS + c] || 0);
+  const dirs = [[1, 0], [0, 1], [1, 1], [1, -1]];
+  let total = 0;
+  for (let r = 0; r < P4_ROWS; r++) {
+    for (let c = 0; c < P4_COLS; c++) {
+      if (at(c, r) !== symbol) continue;
+      for (const [dc, dr] of dirs) {
+        // On ne compte une ligne qu'une seule fois (depuis son extremite).
+        if (at(c - dc, r - dr) === symbol) continue;
+        let n = 1;
+        while (n < 10 && at(c + dc * n, r + dr * n) === symbol) n += 1;
+        if (n >= len) total += 1;
+      }
+    }
+  }
+  return total;
+}
+
+/** Colonnes qui peuvent encore recevoir un jeton. */
+export function p4FreeCols(grid) {
+  const cols = [];
+  for (let c = 0; c < P4_COLS; c++) if (p4DropRow(grid, c) >= 0) cols.push(c);
+  return cols;
+}
+
+/** Fait tomber un jeton : renvoie la ligne atteinte (-1 si colonne pleine). */
+function p4Drop(state, col, symbol) {
+  const row = p4DropRow(state.grid, col);
+  if (row < 0) return -1;
+  state.grid[row * P4_COLS + col] = symbol;
+  return row;
+}
+
+/** +15 points par nouvel alignement de 3 jetons (departage de fin de partie). */
+function p4TripletBonus(state, p, symbol) {
+  const lines = p4CountLines(state.grid, symbol, 3);
+  const gain = Math.max(0, lines - (p.lines3 || 0)) * 15;
+  p.lines3 = lines;
+  return gain;
+}
+
+/** Fin de tour : victoire, grille pleine, sinon on passe au joueur suivant. */
+function p4EndTurn(state, p, symbol) {
+  const line = p4WinLine(state.grid, symbol);
+  if (line) {
+    state.winLine = line;
+    p.score += 100;
+    pushLog(state, `\u{1F3C6} ${p.avatar} ${p.name} aligne 4 jetons et gagne la partie !`);
+    endGame(state, [p.id]);
+    return;
+  }
+  if (!p4FreeCols(state.grid).length) {
+    // Grille pleine : pas de match nul, c'est le meilleur aligneur qui gagne.
+    const best = Math.max(...state.players.map((x) => x.score));
+    const winners = state.players.filter((x) => x.score === best).map((x) => x.id);
+    pushLog(state, 'Grille pleine : on compte les triplettes !');
+    endGame(state, winners);
+    return;
+  }
+  state.question = null;
+  nextTurn(state);
+  state.phase = 'question';
+  startQuestion(state, null);
+}
+
+function reducePuissance4(state, action) {
+  if (action.type === 'answer' && state.phase === 'question') {
+    const p = player(state, action.playerId);
+    if (!p || p.id !== current(state).id) return;
+    const symbol = state.players.findIndex((x) => x.id === p.id) + 1;
+    if (action.choice === state.question.answer) {
+      p.correct += 1;
+      p.streak += 1;
+      pushLog(state, `\u2705 ${p.name} r\u00e9pond juste : \u00e0 lui de choisir sa colonne !`);
+      state.phase = 'pick';
+      state.pending.pick = { playerId: p.id, symbol };
+      return;
+    }
+    p.wrong += 1;
+    p.streak = 0;
+    // Une erreur ne bloque jamais la partie : le jeton tombe au hasard.
+    const cols = p4FreeCols(state.grid);
+    if (!cols.length) {
+      endGame(state, []);
+      return;
+    }
+    const col = cols[rnd(cols.length)];
+    if (p4Drop(state, col, symbol) >= 0) p.score += 25 + p4TripletBonus(state, p, symbol);
+    pushLog(state, `\u274C ${p.name} se trompe : son jeton tombe dans la colonne ${col + 1}.`);
+    p4EndTurn(state, p, symbol);
+    return;
+  }
+  if (action.type === 'pick' && state.phase === 'pick') {
+    const pending = state.pending.pick || {};
+    if (action.playerId !== pending.playerId) return;
+    const p = player(state, action.playerId);
+    if (!p) return;
+    const col = action.payload;
+    if (typeof col !== 'number' || col < 0 || col >= P4_COLS) return;
+    if (p4Drop(state, col, pending.symbol) < 0) return; // colonne pleine
+    p.score += 25 + p4TripletBonus(state, p, pending.symbol);
+    pushLog(state, `${p.avatar} ${p.name} place un jeton dans la colonne ${col + 1}.`);
+    state.pending.pick = null;
+    p4EndTurn(state, p, pending.symbol);
+  }
+}
+
 // ---------------------- ETAT PUBLIC / BOTS / AIDES -------------------------
 
 /** Version de l'etat sans les reponses (pour l'affichage spectateur). */
@@ -933,6 +1088,37 @@ export function botAction(state, skill = 0.62) {
     };
   }
   if (state.phase === 'pick') {
+    if (state.gameId === 'puissance4') {
+      const symbol = (state.pending.pick || {}).symbol || state.players.findIndex((x) => x.id === c.id) + 1;
+      const free = p4FreeCols(state.grid);
+      if (!free.length) return null;
+      // 1) gagner tout de suite
+      const winning = free.filter((col) => {
+        const g = [...state.grid];
+        g[p4DropRow(state.grid, col) * P4_COLS + col] = symbol;
+        return p4Win(g, symbol);
+      });
+      if (winning.length) return { type: 'pick', playerId: c.id, payload: winning[rnd(winning.length)] };
+      // 2) bloquer un adversaire sur le point d'aligner 4 jetons
+      // Les bots ne bloquent pas a tous les coups : sinon plus personne n'aligne 4 jetons.
+      if (Math.random() < skill * 0.55) {
+        const blocks = [];
+        state.players.forEach((other, idx) => {
+          if (other.id === c.id) return;
+          const s = idx + 1;
+          free.forEach((col) => {
+            const g = [...state.grid];
+            g[p4DropRow(state.grid, col) * P4_COLS + col] = s;
+            if (p4Win(g, s)) blocks.push(col);
+          });
+        });
+        if (blocks.length) return { type: 'pick', playerId: c.id, payload: blocks[rnd(blocks.length)] };
+      }
+      const pool = free;
+      const middle = Math.floor(P4_COLS / 2);
+      const col = pool.includes(middle) && Math.random() < 0.35 ? middle : pool[rnd(pool.length)];
+      return { type: 'pick', playerId: c.id, payload: col };
+    }
     if (state.gameId === 'memory') {
       const free = [];
       for (let i = 0; i < state.cards.length; i++) {

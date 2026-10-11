@@ -1,6 +1,6 @@
 import { createGameState, reduce, botAction, currentIsBot, ranking } from '../shared/partyEngine.js';
 
-const GAMES = ['plateau', 'kunai', 'boss', 'morpion', 'loto', 'course', 'equipe', 'bataille', 'memory'];
+const GAMES = ['plateau', 'kunai', 'boss', 'morpion', 'loto', 'course', 'equipe', 'bataille', 'memory', 'puissance4'];
 const questions = Array.from({ length: 30 }, (_, i) => ({
   prompt: `Question ${i + 1} : combien font ${i} + ${i + 1} ?`,
   choices: [String(2 * i + 1), '1', '2', '3'],

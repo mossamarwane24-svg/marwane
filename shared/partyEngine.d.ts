@@ -3,6 +3,10 @@ import type { PartyGameId, SubjectId } from '../src/types';
 export declare const GAME_IDS: PartyGameId[];
 export declare const SQUARE_TYPES: string[];
 export declare const BOARD_SIZE: number;
+/** Puissance 4 : nombre de colonnes de la grille. */
+export declare const P4_COLS: number;
+/** Puissance 4 : nombre de lignes de la grille. */
+export declare const P4_ROWS: number;
 
 export interface EngineQuestion {
   prompt: string;
@@ -32,6 +36,8 @@ export interface EnginePlayer {
   ready: boolean;
   answered: boolean;
   lastPoints: number;
+  /** Puissance 4 : nombre d'alignements de 3+ jetons deja comptes (departage). */
+  lines3?: number;
   /** Equipe (0 ou 1) pour le mode Bataille d'equipes. */
   team?: number;
   /** Navires du joueur (bataille navale). Les cases adverses sont masquees cote client. */
@@ -67,6 +73,8 @@ export interface EngineState {
   flipped: number[];
   /** Memory : cartes deja vues au moins une fois (tout le monde les a vues). */
   seen: number[];
+  /** Puissance 4 : les 4 cases de l'alignement gagnant. */
+  winLine: number[];
   grid: (number | null)[];
   drawn: number[];
   pending: { dice: number | null; pick: any; bossHp: number; answers: Record<string, number> };
@@ -106,3 +114,12 @@ export declare function ranking(
 ): { id: string; name: string; avatar: string; bot: boolean; score: number; correct: number; wrong: number; best: number }[];
 export declare function eloDelta(eloA: number, eloB: number, scoreA: number): number;
 export declare function hasLine(p: EnginePlayer): boolean;
+/** Puissance 4 : ligne d'arrivee d'un jeton dans une colonne (-1 = colonne pleine). */
+export declare function p4DropRow(grid: (number | null)[], col: number): number;
+/** Puissance 4 : les 4 cases alignees, ou null. */
+export declare function p4WinLine(grid: (number | null)[], symbol: number): number[] | null;
+export declare function p4Win(grid: (number | null)[], symbol: number): boolean;
+/** Puissance 4 : colonnes encore libres. */
+export declare function p4FreeCols(grid: (number | null)[]): number[];
+/** Puissance 4 : nombre d'alignements d'au moins `len` jetons. */
+export declare function p4CountLines(grid: (number | null)[], symbol: number, len?: number): number;

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import type { usePartyRoom } from '../hooks/usePartyRoom';
-import { Board, BossBar, Dice, FleetGrid, KunaiPicker, LotoCard, MemoryBoard, MorpionGrid, Scoreboard, TeamScore } from './party';
+import { Board, BossBar, Dice, FleetGrid, KunaiPicker, LotoCard, MemoryBoard, MorpionGrid, P4_COLORS, Puissance4Grid, Scoreboard, TeamScore } from './party';
+import { P4_COLS, P4_ROWS } from '../../shared/partyEngine';
 import { QuestionCard } from './QuestionCard';
 import { ProgressBar } from './ui';
 import { cx, formatRyos } from '../lib/format';
@@ -616,6 +617,67 @@ export const MemoryView: React.FC<{ room: Room }> = ({ room }) => {
   );
 };
 
+// ------------------------------ PUISSANCE 4 --------------------------------
+export const Puissance4View: React.FC<{ room: Room }> = ({ room }) => {
+  const state = room.state!;
+  const current = state.players[state.turn % state.players.length];
+  const isMyTurn = current?.id === room.youId && !state.over;
+  const canPick = state.phase === 'pick' && state.pending.pick?.playerId === room.youId;
+  const q = toQuestion(state.question);
+  const me = state.players.find((p) => p.id === room.youId);
+  const answered = !!me?.answered;
+  const tokens = state.grid.filter(Boolean).length;
+  const cells = P4_COLS * P4_ROWS;
+  const left = useRoundTimer(state.question?.prompt, 30, state.phase === 'question' && isMyTurn && !answered, () => {
+    if (isMyTurn && !answered) room.actions.answer(-1);
+  });
+
+  return (
+    <div className="grid gap-3 lg:grid-cols-[420px_1fr]">
+      <div className="card">
+        <div className="label">Grille — aligne 4 jetons !</div>
+        <Puissance4Grid
+          grid={state.grid}
+          players={state.players}
+          onPick={room.actions.pick}
+          canPick={canPick}
+          youSymbol={state.players.findIndex((p) => p.id === room.youId) + 1}
+          winLine={state.winLine || []}
+        />
+        <div className="mt-3 flex flex-wrap gap-1">
+          {state.players.map((p, i) => (
+            <span key={p.id} className="chip">
+              <span className={cx('mr-1 inline-block h-3 w-3 rounded-full border', P4_COLORS[i % P4_COLORS.length])} />
+              {p.avatar} {p.name}
+            </span>
+          ))}
+        </div>
+      </div>
+      <div className="grid content-start gap-3">
+        <TurnBanner room={room} />
+        <div className="card flex flex-wrap items-center justify-between gap-2 text-sm">
+          <span className="font-bold">Tour {Math.min(tokens + 1, cells)}</span>
+          <span className="text-ninja-muted">{cells - tokens} cases libres</span>
+        </div>
+        {q && state.phase === 'question' ? (
+          isMyTurn && !answered ? (
+            <QuestionCard question={q} index={tokens} total={cells} selected={null} revealed={false} secondsLeft={left} secondsTotal={30} onAnswer={(c) => room.actions.answer(c)} />
+          ) : (
+            <div className="card text-center text-sm text-ninja-muted">
+              {answered ? '✔️ Bonne réponse ! Choisis ta colonne.' : `${current?.name} doit répondre pour placer son jeton…`}
+            </div>
+          )
+        ) : canPick ? (
+          <div className="card text-center font-bold text-amber-200 animate-pulse">👉 Clique sur une colonne pour faire tomber ton jeton !</div>
+        ) : null}
+        <div className="card">
+          <Scoreboard state={state} youId={room.youId} />
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // ------------------------------- SELECTEUR --------------------------------
 export const GameStage: React.FC<{ room: Room; gameId: string; hostControls?: boolean }> = ({ room, gameId, hostControls }) => {
   const view = useMemo(() => {
@@ -636,6 +698,8 @@ export const GameStage: React.FC<{ room: Room; gameId: string; hostControls?: bo
         return <BatailleView room={room} />;
       case 'memory':
         return <MemoryView room={room} />;
+      case 'puissance4':
+        return <Puissance4View room={room} />;
       case 'course':
       case 'duel':
       case 'kahoot':

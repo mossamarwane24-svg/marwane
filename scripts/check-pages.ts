@@ -105,8 +105,11 @@ const render = async (path: string): Promise<string> => {
 /** Clique sur un bouton dont le texte contient `needle` et attend le rendu. */
 const clickText = async (container: HTMLElement, needle: string): Promise<boolean> => {
   const buttons = [...container.querySelectorAll('button')] as HTMLButtonElement[];
-  const target = buttons.find((b) => (b.textContent || '').toLowerCase().includes(needle.toLowerCase()));
-  if (!target || target.disabled) return false;
+  // On ignore les boutons désactivés (ex. « Jouer en ligne » sans serveur).
+  const target = buttons.find(
+    (b) => (b.textContent || '').toLowerCase().includes(needle.toLowerCase()) && !b.disabled
+  );
+  if (!target) return false;
   await act(async () => {
     target.dispatchEvent(new MouseEvent('click', { bubbles: true }));
   });
@@ -322,7 +325,7 @@ const interactionArcade = async () => {
 const interactionParty = async () => {
   const { container, unmount } = await mount('/party');
   // Les boutons « Choisir » des jeux : on prend le premier jeu disponible.
-  const started = (await clickText(container, 'Jouer contre les bots')) || (await clickText(container, 'Jouer'));
+  const started = (await clickText(container, 'Jouer tout de suite (bots)')) || (await clickText(container, '(bots)'));
   if (!started) {
     report('Jeux à 4 : lancer contre les bots', false, 'bouton de lancement introuvable');
     await unmount();
@@ -332,7 +335,7 @@ const interactionParty = async () => {
     await new Promise((resolve) => setTimeout(resolve, 1200));
   });
   // Démarre la manche si un bouton « Démarrer » est présent dans le salon.
-  await clickText(container, 'Démarrer');
+  await clickText(container, 'Lancer la partie');
   await act(async () => {
     await new Promise((resolve) => setTimeout(resolve, 2500));
   });
@@ -342,7 +345,50 @@ const interactionParty = async () => {
   await unmount();
 };
 
-/** 6. Le mode créateur : validation, puis publication d'un jeu complet. */
+/** Compte les jetons poses sur la grille de Puissance 4. */
+const countTokens = (container: HTMLElement) =>
+  [...container.querySelectorAll('div.rounded-full')].filter((d) => (d.textContent || '').trim().length > 0).length;
+
+/** 6. Puissance 4 : la partie se lance, on répond, le jeton tombe dans la colonne choisie. */
+const interactionPuissance4 = async () => {
+  const { container, unmount } = await mount('/party');
+  const chosen = await clickText(container, 'Puissance 4 des Ninjas');
+  const launched = await clickText(container, 'Jouer tout de suite (bots)');
+  if (!chosen || !launched) {
+    report('Puissance 4 : lancer la partie', false, `jeu choisi=${chosen} lancement=${launched}`);
+    await unmount();
+    return;
+  }
+  await act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 600));
+  });
+  const started = await clickText(container, 'Lancer la partie');
+  await act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+  });
+  const gridShown = /Aligne 4 jetons|colonne/i.test(container.textContent || '');
+  report('Puissance 4 : grille affichée', started && gridShown, started && gridShown ? 'grille et colonnes prêtes' : `démarrage=${started} grille=${gridShown}`);
+
+  // On répond à la question posée, puis on choisit une colonne.
+  const choices = [...container.querySelectorAll('button')].filter((b) => /^[A-D]$|^[0-9]/.test((b.textContent || '').trim().slice(0, 1)));
+  const answered = choices.length ? await clickText(container, (choices[0].textContent || '').trim().slice(0, 12)) : false;
+  await act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 900));
+  });
+  const colClicked = (await clickText(container, '↓ 3')) || (await clickText(container, '↓'));
+  await act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 900));
+  });
+  const tokens = countTokens(container);
+  report(
+    'Puissance 4 : un jeton tombe dans la grille',
+    tokens > 0,
+    tokens > 0 ? `${tokens} jeton(s) posé(s) (réponse=${answered}, colonne cliquée=${colClicked})` : 'aucun jeton posé'
+  );
+  await unmount();
+};
+
+/** 7. Le mode créateur : validation, puis publication d'un jeu complet. */
 const interactionCreator = async () => {
   const { container, unmount } = await mount('/creer');
 
@@ -424,6 +470,7 @@ const main = async () => {
   await interactionErrors();
   await interactionArcade();
   await interactionParty();
+  await interactionPuissance4();
   await interactionCreator();
 
   // Les erreurs React sont bloquantes, les simples avertissements sont signalés.
