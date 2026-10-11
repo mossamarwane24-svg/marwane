@@ -6,7 +6,7 @@ import { ConfirmButton, ProgressBar, SectionTitle, StatBox, Tabs } from '../comp
 import { RANKS, rankFromRyos } from '../data/ranks';
 import { BADGES } from '../data/badges';
 import { cx, formatDate, formatRyos } from '../lib/format';
-import type { Difficulty, GradeId } from '../types';
+import type { AnswerMode, Difficulty, GradeId } from '../types';
 
 const AVATAR_PRICE = 250;
 const THEME_PRICE = 400;
@@ -206,6 +206,31 @@ export const ProfilePage: React.FC = () => {
                 </button>
               </div>
             ))}
+            <div className="rounded-xl border border-ninja-line bg-ninja-panel2/40 p-3">
+              <div className="font-bold">Mode de réponse</div>
+              <div className="text-[11px] text-ninja-muted">
+                « QCM ou autre » : choisis entre choix multiples, mode mixte (QCM + Vrai/Faux + réponses écrites) ou réponses écrites.
+              </div>
+              <div className="mt-2 grid gap-2 sm:grid-cols-3">
+                {([
+                  { id: 'qcm', label: '🔘 QCM', desc: '4 choix' },
+                  { id: 'mixte', label: '🎲 Mixte', desc: 'QCM + VF + écrit' },
+                  { id: 'saisie', label: '⌨️ Écrit', desc: 'taper la réponse' }
+                ] as { id: AnswerMode; label: string; desc: string }[]).map((m) => (
+                  <button
+                    key={m.id}
+                    onClick={() => updateSettings({ answerMode: m.id })}
+                    className={cx(
+                      'rounded-xl border p-2 text-sm font-bold',
+                      save.settings.answerMode === m.id ? 'border-amber-400/70 bg-amber-500/20 text-amber-200' : 'border-ninja-line bg-ninja-bg/50'
+                    )}
+                  >
+                    {m.label}
+                    <span className="block text-[10px] font-normal text-ninja-muted">{m.desc}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
           <div className="card">

@@ -17,6 +17,8 @@ interface Props {
   streak: number;
   answerCount: number;
   onAnswer: (choice: number) => void;
+  onTextAnswer?: (text: string) => void;
+  typedAnswer?: string | null;
   onNext: () => void;
   onSkip?: () => void;
   showExplanations?: boolean;
@@ -37,6 +39,8 @@ export const QuizRunner: React.FC<Props> = ({
   streak,
   answerCount,
   onAnswer,
+  onTextAnswer,
+  typedAnswer,
   onNext,
   onSkip,
   showExplanations = true,
@@ -64,6 +68,8 @@ export const QuizRunner: React.FC<Props> = ({
         secondsLeft={secondsLeft}
         secondsTotal={secondsTotal}
         onAnswer={onAnswer}
+        onTextAnswer={onTextAnswer}
+        typedAnswer={typedAnswer}
         showExplanation={showExplanations}
       />
     )}

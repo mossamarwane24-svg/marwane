@@ -7,21 +7,32 @@ import { useQuizSession, type QuizSummary } from '../hooks/useQuizSession';
 import { QuizRunner } from '../components/QuizRunner';
 import { Confetti, ProgressBar, SectionTitle } from '../components/ui';
 import { cx, formatRyos } from '../lib/format';
-import type { Difficulty, GradeId, Question, SubjectId } from '../types';
+import type { AnswerMode, Difficulty, GradeId, Question, SubjectId } from '../types';
 
 export const QuizPage: React.FC = () => {
-  const { save, recordGame, toast } = useGame();
+  const { save, recordGame, toast, updateSettings } = useGame();
   const [subject, setSubject] = useState<SubjectId>('maths');
   const [grade, setGrade] = useState<GradeId>(save.profile.grade);
   const [difficulty, setDifficulty] = useState<Difficulty>(save.profile.difficulty);
   const [count, setCount] = useState(8);
+  const [eclair, setEclair] = useState(false);
   const [phase, setPhase] = useState<'setup' | 'play' | 'result'>('setup');
   const [questions, setQuestions] = useState<Question[]>([]);
   const [summary, setSummary] = useState<QuizSummary | null>(null);
   const recorded = useRef(false);
 
-  const start = (newQuestions?: Question[]) => {
-    const list = newQuestions || buildQuiz({ grade, difficulty, count, subjects: [subject] });
+  const start = (newQuestions?: Question[], fast = false) => {
+    const list =
+      newQuestions ||
+      buildQuiz({
+        grade,
+        difficulty,
+        count: fast ? 10 : count,
+        subjects: [subject],
+        answerMode: save.settings.answerMode
+      });
+    if (!newQuestions) setEclair(fast);
+    else setEclair(false);
     if (!list.length) {
       toast('Aucune question disponible pour ce réglage.', 'error', '🤔');
       return;
@@ -30,6 +41,8 @@ export const QuizPage: React.FC = () => {
     setQuestions(list);
     setSummary(null);
     setPhase('play');
+    // Redemarre la session : sans cela, un rejeu resterait bloque sur la fin.
+    setTimeout(() => session.restart(), 0);
   };
 
   const session = useQuizSession({
@@ -37,6 +50,8 @@ export const QuizPage: React.FC = () => {
     difficulty,
     ryosPerCorrect: 10,
     useTimer: save.settings.timer,
+    secondsOverride: eclair ? 10 : undefined,
+    ryosMultiplierOverride: eclair ? 2 : undefined,
     onFinish: (s) => {
       if (recorded.current) return;
       recorded.current = true;
@@ -44,7 +59,7 @@ export const QuizPage: React.FC = () => {
       setPhase('result');
       recordGame({
         type: 'quiz',
-        label: `${subjectById(subject).name} — ${gradeLabel(grade)}`,
+        label: `${eclair ? 'Défi éclair · ' : ''}${subjectById(subject).name} — ${gradeLabel(grade)}`,
         subject,
         correct: s.correct,
         total: s.total,
@@ -128,6 +143,35 @@ export const QuizPage: React.FC = () => {
             </div>
           </div>
           <div className="card">
+            <SectionTitle icon="🔤" title="Mode de réponse" subtitle="« QCM ou autre » : choisis la façon de répondre" />
+            <div className="grid gap-2">
+              {([
+                { id: 'qcm', label: 'QCM', emoji: '🔘', desc: 'Toujours 4 choix à cliquer' },
+                { id: 'mixte', label: 'Mixte', emoji: '🎲', desc: 'QCM + Vrai/Faux + réponses à écrire' },
+                { id: 'saisie', label: 'Réponses écrites', emoji: '⌨️', desc: 'L’élève tape sa réponse (ou Vrai/Faux)' }
+              ] as { id: AnswerMode; label: string; emoji: string; desc: string }[]).map((m) => (
+                <button
+                  key={m.id}
+                  onClick={() => {
+                    updateSettings({ answerMode: m.id });
+                    toast(`Mode de réponse : ${m.label}`, 'info', m.emoji);
+                  }}
+                  className={cx(
+                    'flex items-start gap-2 rounded-xl border p-2 text-left text-sm',
+                    save.settings.answerMode === m.id ? 'border-amber-400/70 bg-amber-500/15' : 'border-ninja-line bg-ninja-panel2/50'
+                  )}
+                >
+                  <span className="text-lg">{m.emoji}</span>
+                  <span>
+                    <span className="font-bold">{m.label}</span>
+                    <span className="block text-[11px] text-ninja-muted">{m.desc}</span>
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="card">
             <SectionTitle icon="🔢" title="Nombre de questions" />
             <div className="flex gap-2">
               {[5, 8, 12, 16].map((n) => (
@@ -145,6 +189,9 @@ export const QuizPage: React.FC = () => {
             </div>
             <button className="btn-primary mt-4 w-full" onClick={() => start()}>
               🚀 Lancer le quiz
+            </button>
+            <button className="btn-ghost mt-2 w-full" onClick={() => start(undefined, true)}>
+              ⚡ Défi éclair (10 questions · 10 s chacune)
             </button>
             <p className="mt-2 text-center text-[11px] text-ninja-muted">
               {save.settings.timer ? 'Chronomètre activé' : 'Chronomètre désactivé (mode zen)'} · {count} questions
@@ -204,7 +251,21 @@ export const QuizPage: React.FC = () => {
             </div>
           </div>
           <div className="mt-5 flex flex-wrap justify-center gap-2">
-            <button className="btn-primary" onClick={() => start(buildQuiz({ grade, difficulty, count, subjects: [subject] }))}>
+            <button
+              className="btn-primary"
+              onClick={() =>
+                start(
+                  buildQuiz({
+                    grade,
+                    difficulty,
+                    count: eclair ? 10 : count,
+                    subjects: [subject],
+                    answerMode: save.settings.answerMode
+                  }),
+                  eclair
+                )
+              }
+            >
               🔁 Rejouer
             </button>
             <button className="btn-ghost" onClick={() => setPhase('setup')}>
@@ -231,8 +292,10 @@ export const QuizPage: React.FC = () => {
                     {ok ? '✅' : '❌'} {q.prompt.split('\n')[0]}
                   </div>
                   <div className="mt-1 text-xs text-ninja-muted">
-                    Bonne réponse : <b className="text-emerald-200">{q.choices[q.answer]}</b>
-                    {ans?.choice !== null && ans?.choice !== undefined && !ok && ` · ton choix : ${q.choices[ans.choice]}`}
+                    {q.format === 'vf' && `Réponse proposée : ${q.proposal} → `}
+                    Bonne réponse : <b className="text-emerald-200">{q.format === 'vf' ? q.choices[q.answer] : q.choices[q.answer]}</b>
+                    {ans?.typed && ` · ta réponse écrite : « ${ans.typed} »`}
+                    {!ans?.typed && ans?.choice !== null && ans?.choice !== undefined && !ok && q.format !== 'vf' && ` · ton choix : ${q.choices[ans.choice]}`}
                     {q.explanation && ` — ${q.explanation}`}
                   </div>
                 </div>
@@ -269,6 +332,8 @@ export const QuizPage: React.FC = () => {
           streak={session.streak}
           answerCount={session.answers.length}
           onAnswer={session.choose}
+          onTextAnswer={session.submitText}
+          typedAnswer={session.typedAnswer}
           onNext={session.next}
           onSkip={session.skip}
           showExplanations={save.settings.showExplanations}

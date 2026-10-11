@@ -13,6 +13,12 @@ export type SubjectId = 'maths' | 'francais' | 'histoire' | 'sciences' | 'anglai
 
 export type Difficulty = 'facile' | 'moyen' | 'difficile';
 
+/** Maniere dont l'eleve repond : choix multiples, saisie clavier, vrai/faux. */
+export type QuestionFormat = 'qcm' | 'input' | 'vf';
+
+/** Mode de reponse choisi par l'enfant ou le parent. */
+export type AnswerMode = 'qcm' | 'mixte' | 'saisie';
+
 export interface Question {
   id: string;
   subject: SubjectId;
@@ -25,6 +31,10 @@ export interface Question {
   choices: string[];
   answer: number;
   explanation?: string;
+  /** qcm (defaut) : 4 choix · input : reponse a taper · vf : vrai/faux */
+  format?: QuestionFormat;
+  /** En mode vrai/faux : la reponse proposee a valider ou refuser. */
+  proposal?: string;
 }
 
 export interface GradeInfo {
@@ -121,6 +131,8 @@ export interface Settings {
   sound: boolean;
   timer: boolean;
   showExplanations: boolean;
+  /** QCM classique, mixte (QCM + vrai/faux + saisie) ou saisie clavier. */
+  answerMode: AnswerMode;
 }
 
 export interface CustomQuestion {
@@ -128,6 +140,10 @@ export interface CustomQuestion {
   choices: string[];
   answer: number;
   explanation?: string;
+  /** qcm (defaut) : 4 choix · input : reponse a taper · vf : vrai/faux */
+  format?: QuestionFormat;
+  /** En mode vrai/faux : la reponse proposee a valider ou refuser. */
+  proposal?: string;
 }
 
 export interface CustomGame {

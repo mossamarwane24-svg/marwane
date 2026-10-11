@@ -11,6 +11,7 @@ import type { Question } from '../types';
 export const ChallengesPage: React.FC = () => {
   const { save, profile, dailyDefs, claimDaily, recordGame, toast } = useGame();
   const [dailyQuiz, setDailyQuiz] = useState<Question[] | null>(null);
+  const [mode, setMode] = useState<'jour' | 'eclair'>('jour');
   const recorded = useRef(false);
   const today = todayKey();
 
@@ -31,35 +32,47 @@ export const ChallengesPage: React.FC = () => {
     questions: dailyQuiz || [],
     difficulty: profile.difficulty,
     ryosPerCorrect: 20,
-    useTimer: save.settings.timer,
+    useTimer: true,
+    secondsOverride: mode === 'eclair' ? 10 : undefined,
     onFinish: (s) => {
       if (recorded.current) return;
       recorded.current = true;
       recordGame({
         type: 'defi',
-        label: 'Défi du jour (Ryos doublés)',
+        label: mode === 'eclair' ? 'Défi éclair — 10 questions en 10 secondes' : 'Défi du jour (Ryos doublés)',
         subject: 'maths',
         correct: s.correct,
         total: s.total,
         baseRyos: s.ryos,
         perfect: s.perfect
       });
-      toast(`Défi du jour terminé : ${s.correct}/${s.total} !`, 'reward', '🎯');
+      toast(`${mode === 'eclair' ? 'Défi éclair' : 'Défi du jour'} terminé : ${s.correct}/${s.total} !`, 'reward', mode === 'eclair' ? '⚡' : '🎯');
     }
   });
 
   const startDaily = () => {
     recorded.current = false;
-    const list = buildDailyQuiz(profile.grade, 6);
+    setMode('jour');
+    const list = buildDailyQuiz(profile.grade, 6, save.settings.answerMode);
     setDailyQuiz(list);
+    setTimeout(() => session.restart(), 0);
     toast('Défi du jour lancé : 6 questions, Ryos ×2 !', 'info', '🎯');
+  };
+
+  const startEclair = () => {
+    recorded.current = false;
+    setMode('eclair');
+    const list = buildDailyQuiz(profile.grade, 10, save.settings.answerMode);
+    setDailyQuiz(list);
+    setTimeout(() => session.restart(), 0);
+    toast('Défi éclair : 10 questions, 10 secondes chacune, Ryos ×2 !', 'info', '⚡');
   };
 
   if (dailyQuiz) {
     return (
       <div className="grid gap-4">
         <div className="flex items-center justify-between">
-          <h1 className="h1">🎯 Défi du jour</h1>
+          <h1 className="h1">{mode === 'eclair' ? '⚡ Défi éclair' : '🎯 Défi du jour'}</h1>
           <button
             className="btn-ghost"
             onClick={() => {
@@ -72,14 +85,18 @@ export const ChallengesPage: React.FC = () => {
         </div>
         {session.finished ? (
           <div className="card text-center">
-            <div className="text-5xl">🎯</div>
+            <div className="text-5xl">{mode === 'eclair' ? '⚡' : '🎯'}</div>
             <h2 className="h2 mt-2">
               {session.correct}/{dailyQuiz.length} — {session.ryos} Ryos gagnés (×2) !
             </h2>
-            <p className="text-sm text-ninja-muted">Reviens demain pour un nouveau défi. Ta série de jours continue !</p>
+            <p className="text-sm text-ninja-muted">
+              {mode === 'eclair'
+                ? '10 secondes par question : les Ryos sont doublés. Entraîne-toi à répondre vite !'
+                : 'Reviens demain pour un nouveau défi. Ta série de jours continue !'}
+            </p>
             <div className="mt-4 flex justify-center gap-2">
-              <button className="btn-primary" onClick={startDaily}>
-                🔁 Nouveau défi (mêmes règles)
+              <button className="btn-primary" onClick={mode === 'eclair' ? startEclair : startDaily}>
+                🔁 Rejouer {mode === 'eclair' ? 'le défi éclair' : 'le défi'}
               </button>
               <button className="btn-ghost" onClick={() => setDailyQuiz(null)}>
                 📋 Voir mes défis
@@ -100,6 +117,8 @@ export const ChallengesPage: React.FC = () => {
             streak={session.streak}
             answerCount={session.answers.length}
             onAnswer={session.choose}
+            onTextAnswer={session.submitText}
+            typedAnswer={session.typedAnswer}
             onNext={session.next}
             onSkip={session.skip}
             isLast={session.index + 1 >= dailyQuiz.length}
@@ -185,6 +204,22 @@ export const ChallengesPage: React.FC = () => {
               </p>
               <button className="btn-primary mt-3" onClick={startDaily}>
                 🚀 Lancer le défi du jour
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="card">
+          <SectionTitle icon="⚡" title="Défi éclair — 10 secondes" subtitle="10 questions, 10 secondes chacune, Ryos ×2" />
+          <div className="flex items-center gap-4">
+            <div className="text-5xl floaty">⚡</div>
+            <div className="flex-1">
+              <p className="text-sm text-ninja-muted">
+                Le mode le plus rapide de l’Académie : réponds en moins de 10 secondes à chaque question. Parfait pour réviser les
+                automatismes (tables, conjugaison, calcul mental) et décrocher le badge « Série de 10 » !
+              </p>
+              <button className="btn-blue mt-3" onClick={startEclair}>
+                ⚡ Lancer le défi éclair
               </button>
             </div>
           </div>

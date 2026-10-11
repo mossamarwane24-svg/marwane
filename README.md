@@ -14,20 +14,26 @@ sous** et crée ses propres jeux avec le **mode Créateur** (5 000 Ryos).
 - **15 grades** : Aspirant, Élève Ninja, Genin, Genin Confirmé, Chunin, Chunin d’Élite, Jonin, Jonin de Classe S, ANBU, Sannin
   Légendaire, Kage, Kage Suprême, Sage des Six Chemins, Hokage, Hokage Éternel — chacun donne un bonus de gain (jusqu’à +30 %).
 - **Badges** : 38 trophées (séries de réponses, examens parfaits, jackpots, victoires en ligne, séries de connexion…) avec récompense en Ryos.
-- **Défis quotidiens** : 4 défis tirés chaque jour + un **Défi du jour** (6 questions, Ryos ×2).
+- **Défis quotidiens** : 4 défis tirés chaque jour + un **Défi du jour** (6 questions, Ryos ×2) + le **Défi éclair
+  ⚡ (10 questions en 10 secondes, Ryos ×2)** pour travailler les automatismes.
 - **Série de connexion (streak)**, statistiques détaillées et **historique des parties** avec le détail des scores.
 - **Sauvegarde automatique** : d’abord dans le navigateur (localStorage), puis synchronisée avec le serveur en ligne.
 
 ### Personnalisation
 - Prénom/pseudo, **20 avatars** (boutique), **5 thèmes**, choix de la **difficulté** (facile / moyen / difficile) et de la
   **classe** : Maternelle (MS, GS), Élémentaire (CP → CM2), Collège (6ème → 3ème).
+- **Mode de réponse « QCM ou autre »** (réglable dans le profil et dans l’Entraînement) :
+  - 🔘 **QCM** : 4 choix à cliquer ;
+  - 🎲 **Mixte** : QCM + **Vrai/Faux** + **réponses à écrire au clavier** ;
+  - ⌨️ **Réponses écrites** : l’élève tape sa réponse (comparaison tolérante : accents, majuscules, virgule/point, articles…).
 
 ### Modules de révision
 - **Mathématiques** : banque de questions générée à l’infini pour les 11 niveaux (numération, calcul, fractions, proportionnalité,
   Pythagore, équations, Thalès…).
 - **Français** : orthographe, conjugaison (générateur de conjugaison), homophones, grammaire, vocabulaire, figures de style.
 - **Histoire-Géo, Sciences, Anglais** : banques de questions par cycle.
-- **Examen Hokage** : 20 questions mélangées, note sur 20, verdict et correction complète.
+- **Examen Hokage** : 20 questions mélangées, note sur 20, verdict et correction complète — il suit aussi le mode de réponse
+  choisi (QCM, mixte ou écrit).
 
 ### Multijoueur en ligne (serveur Socket.IO inclus)
 - **Duels classés** : 1v1 sur 8 questions, ELO (≈ ±10-16 points), 5 ligues.
@@ -104,7 +110,7 @@ src/pages/                     Onboarding, Accueil, Quiz, Examen, Jeux à 4, Due
 ## 🧪 Vérifications automatiques
 
 ```bash
-npm run check:questions   # vérifie les 2 178 questions générées (4 choix, réponse valide, explications, doublons)
+npm run check:questions   # vérifie 6 500+ questions sur les 3 modes de réponse (QCM, vrai/faux, saisie) + tolérance de saisie
 npm run test:engine       # simule une partie complète des 6 jeux à 4 joueurs (bots) : tous doivent se terminer
 npm run typecheck         # TypeScript strict
 ```

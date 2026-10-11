@@ -1,4 +1,5 @@
-import type { Band, Difficulty, GradeId, Question, SubjectId } from '../../types';
+import type { AnswerMode, Band, Difficulty, GradeId, Question, QuestionFormat, SubjectId } from '../../types';
+import { isTypeableAnswer } from '../../lib/answers';
 import { gradeById, SUBJECTS } from '../grades';
 import { CULTURE } from './culture';
 import { genFrancaisBatch } from './francais';
@@ -45,6 +46,40 @@ const finalize = (raw: RawQ, subject: SubjectId, band: Band): Question => ({
   grades: raw.grades
 });
 
+/** Transforme une question QCM en vrai/faux (la reponse proposee est a valider). */
+const toVraiFaux = (q: Question): Question => {
+  const correct = q.choices[q.answer];
+  const wrongs = q.choices.filter((_, i) => i !== q.answer);
+  const showCorrect = Math.random() < 0.5;
+  const proposal = showCorrect ? correct : wrongs[Math.floor(Math.random() * wrongs.length)] || '???';
+  return {
+    ...q,
+    format: 'vf',
+    proposal,
+    choices: ['Vrai', 'Faux'],
+    answer: showCorrect ? 0 : 1,
+    explanation: showCorrect
+      ? q.explanation || `Oui : la bonne réponse est bien « ${correct} ».`
+      : `Non : la bonne réponse était « ${correct} ». ${q.explanation || ''}`.trim()
+  };
+};
+
+/** Choisit le format de chaque question selon le mode demande. */
+const applyFormat = (q: Question, mode: AnswerMode): Question => {
+  if (mode === 'qcm') return { ...q, format: 'qcm' };
+  const correct = q.choices[q.answer];
+  const typeable = isTypeableAnswer(correct);
+  if (mode === 'saisie') {
+    if (typeable) return { ...q, format: 'input' };
+    return toVraiFaux(q);
+  }
+  // Mode mixte : 60 % QCM, 20 % saisie, 20 % vrai/faux
+  const r = Math.random();
+  if (r < 0.6) return { ...q, format: 'qcm' };
+  if (r < 0.8 && typeable) return { ...q, format: 'input' };
+  return toVraiFaux(q);
+};
+
 const uniqueBatch = (batch: RawQ[], count: number): RawQ[] => {
   const out: RawQ[] = [];
   const seen = new Set<string>();
@@ -81,10 +116,12 @@ export interface BuildOptions {
   difficulty: Difficulty;
   count: number;
   subjects: SubjectId[];
+  /** Mode de reponse : QCM (defaut), mixte ou saisie clavier. */
+  answerMode?: AnswerMode;
 }
 
 /** Construit une serie de questions pour une ou plusieurs matieres. */
-export const buildQuiz = ({ grade, difficulty, count, subjects }: BuildOptions): Question[] => {
+export const buildQuiz = ({ grade, difficulty, count, subjects, answerMode = 'qcm' }: BuildOptions): Question[] => {
   const band = gradeBand(grade);
   const subs = subjects.length ? subjects : (['maths'] as SubjectId[]);
   const perSubject = Math.max(1, Math.ceil(count / subs.length));
@@ -118,13 +155,13 @@ export const buildQuiz = ({ grade, difficulty, count, subjects }: BuildOptions):
   }
   const questions = [...kept, ...extra].map((raw) => {
     const found = raws.find((r) => r.raw === raw);
-    return finalize(raw, found ? found.subject : subs[0], band);
+    return applyFormat(finalize(raw, found ? found.subject : subs[0], band), answerMode);
   });
   return questions;
 };
 
 /** Examen Hokage : 20 questions, melange de toutes les matieres. */
-export const buildExam = (grade: GradeId, difficulty: Difficulty): Question[] => {
+export const buildExam = (grade: GradeId, difficulty: Difficulty, answerMode: AnswerMode = 'qcm'): Question[] => {
   const plan: SubjectId[] = [
     ...Array(8).fill('maths'),
     ...Array(7).fill('francais'),
@@ -133,14 +170,14 @@ export const buildExam = (grade: GradeId, difficulty: Difficulty): Question[] =>
   // On varie un peu la repartition des matieres "culture"
   const cultureSubjects: SubjectId[] = ['sciences', 'histoire', 'anglais'];
   const mixed = plan.map((s, i) => (i >= 15 ? cultureSubjects[i % 3] : s));
-  const list = buildQuiz({ grade, difficulty, count: 20, subjects: ['maths', 'francais'] });
-  const extra = buildQuiz({ grade, difficulty, count: 20, subjects: mixed.slice(15) });
+  const list = buildQuiz({ grade, difficulty, count: 20, subjects: ['maths', 'francais'], answerMode });
+  const extra = buildQuiz({ grade, difficulty, count: 20, subjects: mixed.slice(15), answerMode });
   return shuffle([...list.slice(0, 15), ...extra.slice(0, 5)]).slice(0, 20);
 };
 
 /** Questions pour les defis quotidiens (un peu plus difficiles). */
-export const buildDailyQuiz = (grade: GradeId, count = 8): Question[] =>
-  buildQuiz({ grade, difficulty: 'difficile', count, subjects: ['maths', 'francais'] });
+export const buildDailyQuiz = (grade: GradeId, count = 8, answerMode: AnswerMode = 'qcm'): Question[] =>
+  buildQuiz({ grade, difficulty: 'difficile', count, subjects: ['maths', 'francais'], answerMode });
 
 /** Questions utilisees par les jeux a 4 joueurs (plateau, Kahoot, duels...). */
 export const buildPartyQuestions = (grade: GradeId, difficulty: Difficulty, count: number, subjects?: SubjectId[]): Question[] =>

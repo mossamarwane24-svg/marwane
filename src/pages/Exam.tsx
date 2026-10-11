@@ -28,12 +28,14 @@ export const ExamPage: React.FC = () => {
   const recorded = useRef(false);
 
   const begin = () => {
-    const list = buildExam(profile.grade, profile.difficulty);
+    const list = buildExam(profile.grade, profile.difficulty, save.settings.answerMode);
     recorded.current = false;
     setQuestions(list);
     setSummary(null);
     setPhase('play');
-    toast('Examen Hokage lancé : 20 questions, note sur 20. Bonne chance !', 'info', '📜');
+    setTimeout(() => session.restart(), 0);
+    const mode = save.settings.answerMode === 'qcm' ? 'QCM' : save.settings.answerMode === 'mixte' ? 'QCM + Vrai/Faux + réponses écrites' : 'réponses écrites';
+    toast(`Examen Hokage lancé : 20 questions (${mode}), note sur 20 !`, 'info', '📜');
   };
 
   const session = useQuizSession({
@@ -172,7 +174,9 @@ export const ExamPage: React.FC = () => {
                     {i + 1}. {ok ? '✅' : '❌'} {q.prompt.split('\n')[0]}
                   </div>
                   <div className="mt-1 text-xs text-ninja-muted">
+                    {q.format === 'vf' && `Réponse proposée : ${q.proposal} → `}
                     Bonne réponse : <b className="text-emerald-200">{q.choices[q.answer]}</b>
+                    {session.answers[i]?.typed && ` · ta réponse : « ${session.answers[i]?.typed} »`}
                     {q.explanation && ` — ${q.explanation}`}
                   </div>
                 </div>
@@ -206,6 +210,8 @@ export const ExamPage: React.FC = () => {
           streak={session.streak}
           answerCount={session.answers.length}
           onAnswer={session.choose}
+          onTextAnswer={session.submitText}
+          typedAnswer={session.typedAnswer}
           onNext={session.next}
           showExplanations={save.settings.showExplanations}
           isLast={session.index + 1 >= questions.length}

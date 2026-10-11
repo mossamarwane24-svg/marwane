@@ -166,6 +166,8 @@ export const CreatorPage: React.FC = () => {
             streak={session.streak}
             answerCount={session.answers.length}
             onAnswer={session.choose}
+            onTextAnswer={session.submitText}
+            typedAnswer={session.typedAnswer}
             onNext={session.next}
             onSkip={session.skip}
             isLast={session.index + 1 >= gameQuestions.length}

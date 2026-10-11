@@ -55,7 +55,7 @@ export const defaultSave = (name = 'Ninja', avatar = AVATARS[0]): SaveState => (
   shop: { avatars: [], themes: ['konoha'], theme: 'konoha' },
   customGames: [],
   friends: { ids: [], incoming: [], outgoing: [] },
-  settings: { sound: true, timer: true, showExplanations: true },
+  settings: { sound: true, timer: true, showExplanations: true, answerMode: 'qcm' },
   seenRanks: []
 });
 

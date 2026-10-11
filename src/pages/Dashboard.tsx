@@ -30,6 +30,7 @@ export const Dashboard: React.FC = () => {
     { to: '/party', icon: '🎲', label: 'Jeux à 4 joueurs', desc: 'Plateau, dé, Kahoot…', color: 'from-purple-500 to-fuchsia-400' },
     { to: '/duel', icon: '⚔️', label: 'Duel classé', desc: `ELO ${profile.elo} · ${tier.name}`, color: 'from-blue-500 to-cyan-400' },
     { to: '/kahoot', icon: '📺', label: 'Kahoot', desc: 'PIN de partie', color: 'from-pink-500 to-rose-400' },
+    { to: '/defis', icon: '⚡', label: 'Défi éclair', desc: '10 questions en 10 s', color: 'from-yellow-400 to-amber-300' },
     { to: '/arcade', icon: '🎰', label: 'Arcade', desc: 'Machine à sous', color: 'from-emerald-500 to-lime-400' }
   ];
 
