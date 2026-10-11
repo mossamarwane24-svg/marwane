@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+
+# Remplace le domaine ci-dessous par ton domaine final (ex : https://academie-ninja.fr)
+Sitemap: https://academie-ninja.fr/sitemap.xml

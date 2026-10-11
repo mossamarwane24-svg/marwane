@@ -1,0 +1,38 @@
+{
+  "name": "academie-ninja",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "description": "Académie Ninja - jeu educatif Naruto : quiz, Ryos, grades, duels ELO, jeux a 4, Kahoot et mode createur.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "typecheck": "tsc --noEmit",
+    "preview": "vite preview",
+    "server": "node server/index.js",
+    "start": "node server/index.js",
+    "serve": "npm run build && node server/index.js",
+    "check:questions": "esbuild scripts/check-questions.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/check-questions.mjs --log-level=error && node node_modules/.cache/check-questions.mjs",
+    "test:engine": "node scripts/test-engine.mjs"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2",
+    "socket.io": "^4.7.5",
+    "socket.io-client": "^4.7.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.8"
+  }
+}

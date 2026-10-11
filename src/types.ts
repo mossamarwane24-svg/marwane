@@ -1,0 +1,215 @@
+// ---------------------------------------------------------------------------
+// Types partages de l'application Academie Ninja
+// ---------------------------------------------------------------------------
+
+export type GradeId =
+  | 'MS' | 'GS'
+  | 'CP' | 'CE1' | 'CE2' | 'CM1' | 'CM2'
+  | '6E' | '5E' | '4E' | '3E';
+
+export type Band = 'maternelle' | 'elementaire' | 'college';
+
+export type SubjectId = 'maths' | 'francais' | 'histoire' | 'sciences' | 'anglais';
+
+export type Difficulty = 'facile' | 'moyen' | 'difficile';
+
+export interface Question {
+  id: string;
+  subject: SubjectId;
+  band: Band;
+  /** Si defini, la question n'est tiree que pour ces classes. */
+  grades?: GradeId[];
+  /** 1 = facile, 2 = moyen, 3 = difficile */
+  level: 1 | 2 | 3;
+  prompt: string;
+  choices: string[];
+  answer: number;
+  explanation?: string;
+}
+
+export interface GradeInfo {
+  id: GradeId;
+  label: string;
+  band: Band;
+  order: number;
+  age: string;
+  emoji: string;
+}
+
+export interface RankInfo {
+  id: string;
+  name: string;
+  min: number;
+  emoji: string;
+  colors: [string, string];
+  perk: string;
+}
+
+export type GameType =
+  | 'quiz' | 'examen' | 'duel' | 'party' | 'kahoot' | 'arcade' | 'creator' | 'defi';
+
+export interface HistoryEntry {
+  id: string;
+  type: GameType;
+  label: string;
+  correct: number;
+  total: number;
+  score: number;
+  max: number;
+  ryos: number;
+  eloDelta?: number;
+  opponent?: string;
+  at: number;
+}
+
+export interface Stats {
+  questionsAnswered: number;
+  correctAnswers: number;
+  quizzesPlayed: number;
+  perfectQuizzes: number;
+  examsTaken: number;
+  bestExam: number;
+  duelsPlayed: number;
+  duelsWon: number;
+  partyPlayed: number;
+  partyWon: number;
+  kahootPlayed: number;
+  kahootWon: number;
+  boardWins: number;
+  slotSpins: number;
+  jackpots: number;
+  bestRun: number;
+  subjectsPlayed: SubjectId[];
+  friendsAdded: number;
+  gamesPublished: number;
+  gamesPlayedFromOthers: number;
+  ryosEarnedTotal: number;
+  daysPlayed: number;
+}
+
+export interface Profile {
+  id: string;
+  name: string;
+  avatar: string;
+  grade: GradeId;
+  difficulty: Difficulty;
+  ryos: number;
+  elo: number;
+  createdAt: number;
+  favoriteSubject: SubjectId;
+}
+
+export interface DailyChallenges {
+  date: string;
+  progress: Record<string, number>;
+  claimed: string[];
+}
+
+export interface StreakInfo {
+  days: number;
+  best: number;
+  last: string;
+}
+
+export interface FriendsState {
+  ids: string[];
+  incoming: { from: string; name: string; at: number }[];
+  outgoing: string[];
+}
+
+export interface Settings {
+  sound: boolean;
+  timer: boolean;
+  showExplanations: boolean;
+}
+
+export interface CustomQuestion {
+  prompt: string;
+  choices: string[];
+  answer: number;
+  explanation?: string;
+}
+
+export interface CustomGame {
+  id: string;
+  title: string;
+  subject: string;
+  grades: GradeId[];
+  difficulty: Difficulty;
+  questions: CustomQuestion[];
+  authorId: string;
+  authorName: string;
+  createdAt: number;
+  plays: number;
+  likes: number;
+}
+
+export interface ShopItem {
+  id: string;
+  kind: 'avatar' | 'theme';
+  name: string;
+  price: number;
+  preview: string;
+  desc: string;
+}
+
+export interface SaveState {
+  version: number;
+  profile: Profile;
+  stats: Stats;
+  badges: string[];
+  history: HistoryEntry[];
+  daily: DailyChallenges;
+  streak: StreakInfo;
+  shop: { avatars: string[]; themes: string[]; theme: string };
+  customGames: CustomGame[];
+  friends: FriendsState;
+  settings: Settings;
+  seenRanks: string[];
+}
+
+// --- Multijoueur -----------------------------------------------------------
+
+export interface NetPlayer {
+  id: string;
+  name: string;
+  avatar: string;
+  elo: number;
+  ryos: number;
+  grade: GradeId;
+  status: 'lobby' | 'playing';
+  socketId?: string;
+  bot?: boolean;
+}
+
+export interface RoomState {
+  code: string;
+  hostId: string;
+  game: PartyGameId | 'duel' | 'kahoot';
+  players: NetPlayer[];
+  started: boolean;
+  round: number;
+  phase: string;
+  payload: any;
+}
+
+export type PartyGameId = 'plateau' | 'kunai' | 'boss' | 'morpion' | 'loto' | 'course';
+
+export interface PartyGameInfo {
+  id: PartyGameId;
+  name: string;
+  emoji: string;
+  desc: string;
+  minPlayers: number;
+  maxPlayers: number;
+  rules: string[];
+  tag: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  from: string;
+  name: string;
+  text: string;
+  at: number;
+}
