@@ -87,6 +87,67 @@ if (!dom.window.print) {
 define('print', (dom.window as unknown as Record<string, unknown>).print);
 define('scrollTo', () => {});
 
+/**
+ * Les tests ne doivent RIEN ecrire sur le serveur : on neutralise fetch et les
+ * websockets. L'application bascule donc sur ses donnees hors ligne (ce qui
+ * permet justement de verifier qu'elle fonctionne sans serveur).
+ */
+define('fetch', async (url: unknown, init: unknown) => {
+  if (process.env.DEBUG_NET) console.error('[NET]', (init as { method?: string })?.method ?? 'GET', url);
+  return {
+    ok: false,
+    status: 503,
+    json: async () => ({}),
+    text: async () => ''
+  };
+});
+/** XHR muet : sans cela, socket.io-client interrogerait le vrai serveur. */
+class FakeXMLHttpRequest {
+  static UNSENT = 0;
+  static OPENED = 1;
+  static HEADERS_RECEIVED = 2;
+  static LOADING = 3;
+  static DONE = 4;
+  readyState = 0;
+  status = 0;
+  responseText = '';
+  response = '';
+  onreadystatechange: unknown = null;
+  onload: unknown = null;
+  onerror: unknown = null;
+  addEventListener() {}
+  removeEventListener() {}
+  open() {
+    this.readyState = 1;
+  }
+  setRequestHeader() {}
+  getAllResponseHeaders() {
+    return '';
+  }
+  getResponseHeader() {
+    return null;
+  }
+  abort() {}
+  /** Ne declenche jamais de callback : la connexion reste "en attente". */
+  send() {}
+}
+define('XMLHttpRequest', FakeXMLHttpRequest);
+(dom.window as unknown as Record<string, unknown>).XMLHttpRequest = FakeXMLHttpRequest;
+
+class FakeWebSocket {
+  static CONNECTING = 0;
+  static OPEN = 1;
+  static CLOSING = 2;
+  static CLOSED = 3;
+  readyState = 0;
+  addEventListener() {}
+  removeEventListener() {}
+  send() {}
+  close() {}
+}
+define('WebSocket', FakeWebSocket);
+(dom.window as unknown as Record<string, unknown>).WebSocket = FakeWebSocket;
+
 g.IS_REACT_ACT_ENVIRONMENT = true;
 define('IS_REACT_ACT_ENVIRONMENT', true);
 

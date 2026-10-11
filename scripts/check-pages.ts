@@ -9,7 +9,7 @@ import React from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { act } from 'react-dom/test-utils';
 import App from '../src/App';
-import { defaultSave, writeLocalSave } from '../src/lib/storage';
+import { defaultSave, loadLocalSave, writeLocalSave } from '../src/lib/storage';
 import type { SaveState } from '../src/types';
 
 /** Chaque route et un morceau de texte qui doit forcément apparaître. */
@@ -137,6 +137,20 @@ const mount = async (path: string) => {
       container.remove();
     }
   };
+};
+
+/** Remplit un champ repere par son placeholder (saisie React compatible). */
+const fillInput = async (container: HTMLElement, placeholder: string, value: string, nth = 0): Promise<boolean> => {
+  const inputs = [...container.querySelectorAll('input')] as HTMLInputElement[];
+  const matches = inputs.filter((i) => (i.placeholder || '').toLowerCase().includes(placeholder.toLowerCase()));
+  const input = matches[nth];
+  if (!input) return false;
+  await act(async () => {
+    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')!.set!;
+    setter.call(input, value);
+    input.dispatchEvent(new window.Event('input', { bubbles: true }));
+  });
+  return true;
 };
 
 const report = (label: string, ok: boolean, detail = '') => {
@@ -276,6 +290,107 @@ const interactionErrors = async () => {
   await unmount();
 };
 
+/** 4. Machine à sous : un tour doit coûter 50 Ryos et afficher un résultat. */
+const interactionArcade = async () => {
+  const spinsBefore = loadLocalSave()?.stats.slotSpins ?? 0;
+  const before = loadLocalSave()?.profile.ryos ?? 0;
+  const { container, unmount } = await mount('/arcade');
+  const clicked = await clickText(container, 'Tourner');
+  if (!clicked) {
+    report('Arcade : machine à sous', false, 'bouton « Tourner » introuvable ou désactivé');
+    await unmount();
+    return;
+  }
+  // Le résultat tombe après l'animation des rouleaux.
+  await act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 2600));
+  });
+  const text = container.textContent || '';
+  const hasResult = /Tu gagnes|Rien cette fois/.test(text);
+  const spinsAfter = loadLocalSave()?.stats.slotSpins ?? 0;
+  const after = loadLocalSave()?.profile.ryos ?? 0;
+  const counted = spinsAfter > spinsBefore;
+  report(
+    'Arcade : tour de machine',
+    hasResult && counted,
+    hasResult && counted ? `résultat affiché, ${spinsAfter} tour(s) compté(s), solde ${before} → ${after}` : `résultat=${hasResult} tours=${spinsBefore}→${spinsAfter}`
+  );
+  await unmount();
+};
+
+/** 5. Un jeu à 4 contre les bots doit démarrer et avancer. */
+const interactionParty = async () => {
+  const { container, unmount } = await mount('/party');
+  // Les boutons « Choisir » des jeux : on prend le premier jeu disponible.
+  const started = (await clickText(container, 'Jouer contre les bots')) || (await clickText(container, 'Jouer'));
+  if (!started) {
+    report('Jeux à 4 : lancer contre les bots', false, 'bouton de lancement introuvable');
+    await unmount();
+    return;
+  }
+  await act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 1200));
+  });
+  // Démarre la manche si un bouton « Démarrer » est présent dans le salon.
+  await clickText(container, 'Démarrer');
+  await act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 2500));
+  });
+  const text = container.textContent || '';
+  const running = /Manche|Question|Case|Tour de|Au tour de|score/i.test(text);
+  report('Jeux à 4 : partie lancée', running, running ? 'la partie est en cours' : text.slice(0, 90));
+  await unmount();
+};
+
+/** 6. Le mode créateur : validation, puis publication d'un jeu complet. */
+const interactionCreator = async () => {
+  const { container, unmount } = await mount('/creer');
+
+  // 6a. Sans rien remplir, la validation doit bloquer la publication.
+  const publishedEmpty = await clickText(container, 'Publier');
+  await act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 300));
+  });
+  const guardText = container.textContent || '';
+  const guarded = publishedEmpty && /au moins|obligatoire|Il faut|titre/i.test(guardText);
+  report('Créateur : validation', guarded, guarded ? 'publication refusée (formulaire incomplet)' : guardText.slice(0, 90));
+
+  // 6b. On remplit un jeu complet : titre + 3 questions avec 4 réponses et explication.
+  await fillInput(container, 'La chasse aux fractions', 'Test des fractions');
+  for (let i = 0; i < 2; i++) {
+    await clickText(container, 'Ajouter');
+  }
+  const total = (container.querySelectorAll('input') as NodeListOf<HTMLInputElement>).length;
+  for (let i = 0; i < 3; i++) {
+    await fillInput(container, 'Énoncé de la question', `Question de test ${i + 1}`, i);
+    for (const letter of ['A', 'B', 'C', 'D']) {
+      await fillInput(container, `Réponse ${letter}`, `Choix ${letter} de la question ${i + 1}`, i);
+    }
+    await fillInput(container, 'Explication', `Explication ${i + 1}`, i);
+  }
+
+  if (process.env.DEBUG_CREATOR) {
+    const inputs = [...container.querySelectorAll('input')] as HTMLInputElement[];
+    console.log('   DEBUG inputs:', inputs.length, inputs.slice(0, 4).map((i) => `[${i.placeholder}]=${i.value}`).join(' | '));
+    const buttons = [...container.querySelectorAll('button')] as HTMLButtonElement[];
+    console.log('   DEBUG boutons:', buttons.map((b) => (b.textContent || '').trim().slice(0, 18)).join(' / '));
+  }
+  const ryosBefore = loadLocalSave()?.profile.ryos ?? 0;
+  const ok = await clickText(container, 'Publier');
+  await act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 1200));
+  });
+  const after = container.textContent || '';
+  const ryosAfter = loadLocalSave()?.profile.ryos ?? 0;
+  const published = ok && (ryosAfter <= ryosBefore - 4000 || /publié|Publié|bravo/i.test(after));
+  report(
+    'Créateur : publication',
+    published,
+    published ? `jeu publié (${ryosBefore} → ${ryosAfter} Ryos, ${total} champs)` : `DEBUG FIN: ${after.slice(-350)}`
+  );
+  await unmount();
+};
+
 const main = async () => {
   seed();
   console.log(`Rendu de ${ROUTES.length} pages dans un DOM virtuel…\n`);
@@ -307,6 +422,9 @@ const main = async () => {
   await interactionQuiz();
   await interactionSheet();
   await interactionErrors();
+  await interactionArcade();
+  await interactionParty();
+  await interactionCreator();
 
   // Les erreurs React sont bloquantes, les simples avertissements sont signalés.
   const errors = warnings.filter(

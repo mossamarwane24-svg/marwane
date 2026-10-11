@@ -16,7 +16,7 @@
     "check:badges": "esbuild scripts/check-badges.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/check-badges.mjs --log-level=error && node node_modules/.cache/check-badges.mjs",
     "check:sheets": "esbuild scripts/check-sheets.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/check-sheets.mjs --log-level=error && node node_modules/.cache/check-sheets.mjs",
     "check:errors": "esbuild scripts/check-errors.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/check-errors.mjs --log-level=error && node node_modules/.cache/check-errors.mjs",
-    "check:pages": "esbuild scripts/check-pages.ts --bundle --platform=node --format=cjs --outfile=node_modules/.cache/check-pages.cjs --external:jsdom --log-level=error && node node_modules/.cache/check-pages.cjs",
+    "check:pages": "esbuild scripts/check-pages.ts --bundle --platform=node --format=cjs --outfile=node_modules/.cache/check-pages.cjs --external:jsdom --conditions=browser --main-fields=browser,module,main --log-level=error && node node_modules/.cache/check-pages.cjs",
     "test:engine": "node scripts/test-engine.mjs"
   },
   "dependencies": {

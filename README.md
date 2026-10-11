@@ -126,7 +126,8 @@ npm run check:badges      # vérifie que les 50 badges sont tous atteignables et
 npm run check:sheets      # vérifie les feuilles imprimables (11 niveaux × 3 difficultés × 6 matières × 10/20/30 questions)
 npm run check:errors      # vérifie la logique du cahier d'erreurs (ajout, rechute, maîtrise, limites)
 npm run check:pages       # rend les 17 pages dans un DOM virtuel (jsdom) : aucune ne doit planter ou rester vide
-                          # + 6 parcours : onboarding d'un nouvel enfant, lancer un quiz, correction, feuille, cahier
+                          # + 11 parcours : création de profil, quiz + correction, feuille à imprimer, cahier d'erreurs,
+                          #   machine à sous, partie à 4 contre des bots, validation et publication d'un jeu créé
 npm run typecheck         # TypeScript strict
 ```
 
